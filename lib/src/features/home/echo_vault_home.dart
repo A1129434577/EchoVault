@@ -65,12 +65,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Duration(seconds: 2), (){
-        _requestTrackingAuthorization();
-      });
-      Future.delayed(Duration(seconds: 3), (){
-        _requestTrackingAuthorization();
-      });
+      unawaited(_requestTrackingAuthorization());
     });
     _loadLibrary();
     _playbackSub = widget.service.playbackEvents.listen(
@@ -83,9 +78,22 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
   }
 
   Future<void> _requestTrackingAuthorization() async {
-    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-    if (status == TrackingStatus.notDetermined) {
-      await AppTrackingTransparency.requestTrackingAuthorization();
+    if (!Platform.isIOS) {
+      return;
+    }
+
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status == TrackingStatus.notDetermined) {
+        await AppTrackingTransparency.requestTrackingAuthorization();
+      }
+    } on PlatformException {
+      // Tracking authorization must never block the offline player startup.
     }
   }
 
