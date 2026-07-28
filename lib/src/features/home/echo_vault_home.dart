@@ -269,6 +269,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0D0F10),
       body: SafeArea(
         child: Column(
           children: [
@@ -381,6 +382,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
                     ),

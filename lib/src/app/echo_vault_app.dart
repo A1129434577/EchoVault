@@ -15,19 +15,68 @@ class EchoVaultApp extends StatelessWidget {
       onSurface: Color(0xFFF7F1E8),
     );
 
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'NocturneBox',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: scheme,
-        scaffoldBackgroundColor: const Color(0xFF0D0F10),
+        scaffoldBackgroundColor: Colors.transparent,
         fontFamily: 'SF Pro Display',
+        splashColor: Colors.transparent, // 禁用水波纹效果
+        appBarTheme: AppBarTheme(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          titleTextStyle: TextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         sliderTheme: SliderThemeData(
           trackHeight: 3,
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
           overlayShape: SliderComponentShape.noOverlay,
         ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Colors.white,
+          unselectedItemColor: Color(0xff888888),
+          selectedItemColor: Colors.blueAccent,
+          unselectedLabelStyle: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+          ),
+          selectedLabelStyle: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      navigatorObservers: [FlutterSmartDialog.observer],
+      builder: FlutterSmartDialog.init(
+        builder: (context, child){
+          return Scaffold(
+            body: GestureDetector(
+              onTap: () {
+                // 点击空白处收起键盘
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus &&
+                    currentFocus.focusedChild != null) {
+                  FocusManager.instance.primaryFocus!.unfocus();
+                }
+              },
+              child: child,
+            ),
+          );
+        },
       ),
       home: EchoVaultHome(service: service),
     );

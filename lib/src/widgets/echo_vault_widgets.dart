@@ -33,6 +33,7 @@ class _Header extends StatelessWidget {
                     Text(
                       'NocturneBox',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 30,
                         height: 1,
                         fontWeight: FontWeight.w900,
@@ -147,7 +148,11 @@ class _MetricPill extends StatelessWidget {
           const SizedBox(width: 7),
           Text(
             label,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
           ),
         ],
       ),
@@ -164,8 +169,10 @@ class _SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: 'Search title, artist, album',
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.55)),
         prefixIcon: const Icon(Icons.search_rounded),
         filled: true,
         fillColor: const Color(0xFF171A1D),
@@ -252,7 +259,10 @@ class _NoticeBanner extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           IconButton(
@@ -355,7 +365,11 @@ class _EmptyState extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -436,6 +450,7 @@ class _TrackTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                         ),
@@ -627,6 +642,7 @@ class _CrateTile extends StatelessWidget {
                 Text(
                   crate.title,
                   style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
                   ),
@@ -688,7 +704,11 @@ class _SleepView extends StatelessWidget {
                 const SizedBox(height: 18),
                 const Text(
                   'Sleep timer',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -703,6 +723,7 @@ class _SleepView extends StatelessWidget {
                     Text(
                       '$minutes min',
                       style: const TextStyle(
+                        color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
                       ),
@@ -793,7 +814,10 @@ class _NowPlayingBar extends StatelessWidget {
                             track!.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w900),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -849,8 +873,14 @@ class _ProgressScrubber extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(_formatDuration(position)),
-              Text(_formatDuration(duration)),
+              Text(
+                _formatDuration(position),
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                _formatDuration(duration),
+                style: const TextStyle(color: Colors.white),
+              ),
             ],
           ),
       ],
