@@ -1,0 +1,17 @@
+{
+  "us": [
+    {"name": "TOP SONGS USA", "detail": "USA", "id": "PL4fGSI1pDJn6O1LS0XSdF3RyO0Rq_LDeI"},
+    {"name": "TOP SONGS Weekly", "detail": "GLOBAL", "id": "PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx"},
+    {"name": "HOT SONGS Daily", "detail": "GLOBAL", "id": "PL3oW2tjiIxvQpeIgr2Bhno4vQdfpI9Ax5"}
+  ],
+  "br": [
+    {"name": "TOP SONGS BRAZIL", "detail": "BRAZIL", "id": "PLcHQhiTqGSdJeYNQgQBkQd9SI7czs0NSC"},
+    {"name": "TOP SONGS Weekly", "detail": "GLOBAL", "id": "PL4fGSI1pDJn7rGBE8kEC0CqTa1nMh9AKB"},
+    {"name": "HOT SONGS Daily", "detail": "GLOBAL", "id": "PL4fGSI1pDJn5kI81J1fYWK5eZRl1zJ5kM"}
+  ],
+  "mx": [
+    {"name": "TOP SONGS MEXICO", "detail": "MEXICO", "id": "PLOwSo8kHs4XSRN8vCTpTApd4eoSuDG58N"},
+    {"name": "TOP SONGS Weekly", "detail": "GLOBAL", "id": "PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx"},
+    {"name": "HOT SONGS Daily", "detail": "GLOBAL", "id": "PL4fGSI1pDJn5kI81J1fYWK5eZRl1zJ5kM"}
+  ]
+}

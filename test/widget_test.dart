@@ -8,9 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('loads the offline library and imports tracks', (tester) async {
-    final service = FakeAudioService();
 
-    await tester.pumpWidget(EchoVaultApp(service: service));
+    await tester.pumpWidget(EchoVaultApp());
     await tester.pumpAndSettle();
 
     expect(find.text('NocturneBox'), findsOneWidget);
