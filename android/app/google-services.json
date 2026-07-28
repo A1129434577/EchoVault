@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "103586925818",
+    "project_id": "nocturne-box",
+    "storage_bucket": "nocturne-box.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103586925818:android:14cb8c59122770ee04cd43",
+        "android_client_info": {
+          "package_name": "com.codextest.echo_vault"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQDdtWa7Ts2bTb-xelqv1yuYDA-6JbMgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,10 +24,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -53,11 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAk7FgXCPVuntpDmQnL6_PfZlCnJVcrmlc',
-    appId: '1:211782076164:ios:e6d379c6307012daedb251',
-    messagingSenderId: '211782076164',
-    projectId: 'haxor-musi',
-    storageBucket: 'haxor-musi.firebasestorage.app',
-    iosBundleId: 'com.liubin.haxor',
+    apiKey: 'AIzaSyDUyOrJrZHljL5PGCP40_JX6_EAsFaylFs',
+    appId: '1:103586925818:ios:8bdb72794a7da98804cd43',
+    messagingSenderId: '103586925818',
+    projectId: 'nocturne-box',
+    storageBucket: 'nocturne-box.firebasestorage.app',
+    iosBundleId: 'com.liubin.echoVault',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyAQDdtWa7Ts2bTb-xelqv1yuYDA-6JbMgs',
+    appId: '1:103586925818:android:14cb8c59122770ee04cd43',
+    messagingSenderId: '103586925818',
+    projectId: 'nocturne-box',
+    storageBucket: 'nocturne-box.firebasestorage.app',
   );
 }

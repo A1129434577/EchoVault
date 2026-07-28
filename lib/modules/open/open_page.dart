@@ -71,14 +71,17 @@ class _OpenPageState extends State<OpenPage> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                height: 56,
-                width: 56,
-                child: Image.asset(Assets.assetsLogo),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: SizedBox(
+                  height: 60,
+                  width: 60,
+                  child: Image.asset(Assets.assetsLogo),
+                ),
               ),
               SizedBox(height: 8),
               Text(
-                'Viatimer',
+                'NocturneBox',
                 style: TextStyle(fontSize: 16),
               ),
             ],

@@ -95,14 +95,14 @@ class FRemoteConfig {
       List recommend = jsonDecode(recommendJson);
       List<FileInfo> recommendList = [];
       for (Map fileMap in recommend.cast<Map>()) {
-        final fileId = fileMap['viatimer_song_id'];
+        final fileId = fileMap['song_id'];
         FileInfo fileInfo = FileInfo(
           extension: 'mp4',
           source: FileSource.homeReco,
           fileId: fileId,
           thumbnail: 'https://i.ytimg.com/vi/$fileId/default.jpg',
-          name: fileMap['viatimer_name'],
-          artist: fileMap['viatimer_artist'],
+          name: fileMap['name'],
+          artist: fileMap['artist'],
         );
         recommendList.insert(0, fileInfo);
         FileInfoDataOperate.insertFileInfo(fileInfo);
