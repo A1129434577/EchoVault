@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:echo_vault/main.dart';
+import 'package:echo_vault/src/app/echo_vault_app.dart';
+import 'package:echo_vault/src/models/track_model.dart';
+import 'package:echo_vault/src/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,12 +25,12 @@ void main() {
   });
 }
 
-class FakeAudioService implements AudioService {
+class FakeAudioService implements AppAudioService {
   final StreamController<PlaybackSnapshot> _events =
       StreamController<PlaybackSnapshot>.broadcast();
 
-  List<Track> _tracks = [
-    Track(
+  List<TrackModel> _tracks = [
+    TrackModel(
       id: 'track-1',
       title: 'Midnight Cache',
       artist: 'Local Archive',
@@ -44,13 +46,13 @@ class FakeAudioService implements AudioService {
   Stream<PlaybackSnapshot> get playbackEvents => _events.stream;
 
   @override
-  Future<List<Track>> loadLibrary() async => _tracks;
+  Future<List<TrackModel>> loadLibrary() async => _tracks;
 
   @override
-  Future<List<Track>> importAudio() async {
+  Future<List<TrackModel>> importAudio() async {
     _tracks = [
       ..._tracks,
-      Track(
+      TrackModel(
         id: 'track-2',
         title: 'Signal Bloom',
         artist: 'Local Archive',
@@ -92,7 +94,7 @@ class FakeAudioService implements AudioService {
   }
 
   @override
-  Future<Track?> toggleFavorite(String id) async {
+  Future<TrackModel?> toggleFavorite(String id) async {
     _tracks = _tracks.map((track) {
       return track.id == id
           ? track.copyWith(isFavorite: !track.isFavorite)

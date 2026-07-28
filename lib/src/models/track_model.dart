@@ -1,7 +1,8 @@
-part of '../../main.dart';
 
-class Track {
-  const Track({
+import 'package:echo_vault/src/utils/audio_file_utils.dart';
+
+class TrackModel {
+  const TrackModel({
     required this.id,
     required this.title,
     required this.artist,
@@ -21,13 +22,13 @@ class Track {
   final DateTime importedAt;
   final bool isFavorite;
 
-  factory Track.fromMap(Map<String, dynamic> map) {
-    return Track(
+  factory TrackModel.fromMap(Map<String, dynamic> map) {
+    return TrackModel(
       id: (map['id'] ?? '').toString(),
-      title: _fallbackText(map['title'], 'Untitled Track'),
-      artist: _fallbackText(map['artist'], 'Unknown Artist'),
-      album: _fallbackText(map['album'], 'Offline Imports'),
-      duration: _asDouble(map['duration']),
+      title: fallbackText(map['title'], 'Untitled Track'),
+      artist: fallbackText(map['artist'], 'Unknown Artist'),
+      album: fallbackText(map['album'], 'Offline Imports'),
+      duration: asDouble(map['duration']),
       path: (map['path'] ?? '').toString(),
       importedAt:
           DateTime.tryParse((map['importedAt'] ?? '').toString()) ??
@@ -36,8 +37,8 @@ class Track {
     );
   }
 
-  Track copyWith({String? path, bool? isFavorite}) {
-    return Track(
+  TrackModel copyWith({String? path, bool? isFavorite}) {
+    return TrackModel(
       id: id,
       title: title,
       artist: artist,
@@ -85,8 +86,8 @@ class PlaybackSnapshot {
   factory PlaybackSnapshot.fromMap(Map<String, dynamic> map) {
     return PlaybackSnapshot(
       trackId: map['trackId']?.toString(),
-      position: _asDouble(map['position']),
-      duration: _asDouble(map['duration']),
+      position: asDouble(map['position']),
+      duration: asDouble(map['duration']),
       isPlaying: map['isPlaying'] == true,
     );
   }

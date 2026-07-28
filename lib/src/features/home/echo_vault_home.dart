@@ -1,9 +1,19 @@
-part of '../../../main.dart';
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:echo_vault/src/models/track_model.dart';
+import 'package:echo_vault/src/services/audio_service.dart';
+import 'package:echo_vault/src/utils/audio_file_utils.dart';
+import 'package:echo_vault/src/widgets/echo_vault_widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EchoVaultHome extends StatefulWidget {
   const EchoVaultHome({super.key, required this.service});
 
-  final AudioService service;
+  final AppAudioService service;
 
   @override
   State<EchoVaultHome> createState() => _EchoVaultHomeState();
@@ -15,7 +25,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
 
   StreamSubscription<PlaybackSnapshot>? _playbackSub;
   Timer? _sleepTimer;
-  List<Track> _tracks = const [];
+  List<TrackModel> _tracks = const [];
   PlaybackSnapshot _playback = const PlaybackSnapshot.idle();
   int _tab = 0;
   int _sleepMinutes = 30;
@@ -24,7 +34,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
   bool _importing = false;
   String? _notice;
 
-  Track? get _currentTrack {
+  TrackModel? get _currentTrack {
     final id = _playback.trackId;
     if (id == null) {
       return null;
@@ -37,8 +47,8 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     return null;
   }
 
-  List<Track> get _visibleTracks {
-    Iterable<Track> source = _tracks;
+  List<TrackModel> get _visibleTracks {
+    Iterable<TrackModel> source = _tracks;
     if (_tab == 1) {
       source = source.where((track) => track.isFavorite);
     }
@@ -113,7 +123,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
       return;
     }
     setState(() {
-      _tracks = _sortTracks(tracks);
+      _tracks = sortTracks(tracks);
       _loading = false;
     });
   }
@@ -132,7 +142,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
         return;
       }
       setState(() {
-        _tracks = _sortTracks(tracks);
+        _tracks = sortTracks(tracks);
         _notice =
             'Imported ${tracks.length} offline track${tracks.length == 1 ? '' : 's'}';
       });
@@ -148,7 +158,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     }
   }
 
-  Future<void> _playTrack(Track track) async {
+  Future<void> _playTrack(TrackModel track) async {
     try {
       await widget.service.play(track.id);
       if (mounted) {
@@ -212,7 +222,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     });
   }
 
-  Future<void> _toggleFavorite(Track track) async {
+  Future<void> _toggleFavorite(TrackModel track) async {
     final updated = await widget.service.toggleFavorite(track.id);
     if (!mounted || updated == null) {
       return;
@@ -224,7 +234,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     });
   }
 
-  Future<void> _deleteTrack(Track track) async {
+  Future<void> _deleteTrack(TrackModel track) async {
     final deleted = await widget.service.deleteTrack(track.id);
     if (!mounted || !deleted) {
       return;
@@ -273,7 +283,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
       body: SafeArea(
         child: Column(
           children: [
-            _Header(
+            Header(
               trackCount: _tracks.length,
               totalMinutes: _totalMinutes,
               favoriteCount: _tracks.where((track) => track.isFavorite).length,
@@ -282,13 +292,13 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 8, 18, 10),
-              child: _SearchField(controller: _searchController),
+              child: SearchField(controller: _searchController),
             ),
-            _TabStrip(selected: _tab, onChanged: _changeTab),
+            TabStrip(selected: _tab, onChanged: _changeTab),
             if (_notice != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
-                child: _NoticeBanner(
+                child: NoticeBanner(
                   text: _notice!,
                   onClose: () => setState(() => _notice = null),
                 ),
@@ -298,7 +308,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                 controller: _pageController,
                 onPageChanged: (index) => setState(() => _tab = index),
                 children: [
-                  _LibraryView(
+                  LibraryView(
                     loading: _loading,
                     tracks: _visibleTracks,
                     emptyTitle: 'Your vault is empty',
@@ -309,7 +319,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                     onFavorite: _toggleFavorite,
                     onDelete: _deleteTrack,
                   ),
-                  _LibraryView(
+                  LibraryView(
                     loading: _loading,
                     tracks: _visibleTracks,
                     emptyTitle: 'No favorites yet',
@@ -320,8 +330,8 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                     onFavorite: _toggleFavorite,
                     onDelete: _deleteTrack,
                   ),
-                  _CratesView(tracks: _tracks, onPlay: _playTrack),
-                  _SleepView(
+                  CratesView(tracks: _tracks, onPlay: _playTrack),
+                  SleepView(
                     minutes: _sleepMinutes,
                     isActive: _sleepTimer?.isActive ?? false,
                     onChanged: (value) => setState(() => _sleepMinutes = value),
@@ -334,7 +344,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                 ],
               ),
             ),
-            _NowPlayingBar(
+            NowPlayingBar(
               track: _currentTrack,
               snapshot: _playback,
               onPlayPause: _togglePlayback,
@@ -374,7 +384,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _AlbumGlyph(track: track, size: 220),
+                  AlbumGlyph(track: track, size: 220),
                   const SizedBox(height: 26),
                   Text(
                     track.title,
@@ -396,7 +406,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                     ),
                   ),
                   const SizedBox(height: 26),
-                  _ProgressScrubber(snapshot: _playback, onSeek: _seek),
+                  ProgressScrubber(snapshot: _playback, onSeek: _seek),
                   const SizedBox(height: 18),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

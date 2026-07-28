@@ -1,19 +1,30 @@
-part of '../../main.dart';
 
-abstract class AudioService {
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:ad/ad.dart';
+import 'package:echo_vault/src/models/track_model.dart';
+import 'package:echo_vault/src/utils/audio_file_utils.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
+
+abstract class AppAudioService {
   Stream<PlaybackSnapshot> get playbackEvents;
 
-  Future<List<Track>> loadLibrary();
-  Future<List<Track>> importAudio();
+  Future<List<TrackModel>> loadLibrary();
+  Future<List<TrackModel>> importAudio();
   Future<void> play(String id);
   Future<void> pause();
   Future<void> resume();
   Future<void> seek(double seconds);
-  Future<Track?> toggleFavorite(String id);
+  Future<TrackModel?> toggleFavorite(String id);
   Future<bool> deleteTrack(String id);
 }
 
-class FlutterAudioService implements AudioService {
+class FlutterAudioService implements AppAudioService {
   FlutterAudioService() {
     Timer.periodic(const Duration(milliseconds: 500), (_) => _emitPlayback());
     _player.playerStateStream.listen(_handlePlayerState);
@@ -66,14 +77,14 @@ class FlutterAudioService implements AudioService {
   final AudioPlayer _player = AudioPlayer();
   final StreamController<PlaybackSnapshot> _events =
       StreamController<PlaybackSnapshot>.broadcast();
-  final List<Track> _library = [];
+  final List<TrackModel> _library = [];
   String? _currentTrackId;
 
   @override
   Stream<PlaybackSnapshot> get playbackEvents => _events.stream;
 
   @override
-  Future<List<Track>> loadLibrary() async {
+  Future<List<TrackModel>> loadLibrary() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_libraryKey);
     final directory = await _musicDirectory();
@@ -81,7 +92,7 @@ class FlutterAudioService implements AudioService {
       ..clear()
       ..addAll(_decodeTracks(raw));
 
-    final existing = <Track>[];
+    final existing = <TrackModel>[];
     for (final track in _library) {
       final file = await _resolveTrackFile(track, directory);
       if (await file.exists()) {
@@ -98,7 +109,7 @@ class FlutterAudioService implements AudioService {
   }
 
   @override
-  Future<List<Track>> importAudio() async {
+  Future<List<TrackModel>> importAudio() async {
     final result = await FilePicker.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -127,13 +138,13 @@ class FlutterAudioService implements AudioService {
         continue;
       }
 
-      final extension = _extensionFor(picked.name, fallbackPath: sourcePath);
+      final extension = extensionFor(picked.name, fallbackPath: sourcePath);
       if (!_supportedAudioExtensions.contains(extension)) {
         skippedCount += 1;
         continue;
       }
 
-      final title = _titleFromFileName(picked.name);
+      final title = titleFromFileName(picked.name);
       final destination = File(
         '${directory.path}/${DateTime.now().microsecondsSinceEpoch}.$extension',
       );
@@ -147,7 +158,7 @@ class FlutterAudioService implements AudioService {
           continue;
         }
         _library.add(
-          Track(
+          TrackModel(
             id: DateTime.now().microsecondsSinceEpoch.toString(),
             title: title,
             artist: 'Local File',
@@ -225,7 +236,7 @@ class FlutterAudioService implements AudioService {
   }
 
   @override
-  Future<Track?> toggleFavorite(String id) async {
+  Future<TrackModel?> toggleFavorite(String id) async {
     final index = _library.indexWhere((track) => track.id == id);
     if (index == -1) {
       return null;
@@ -294,7 +305,7 @@ class FlutterAudioService implements AudioService {
   }
 
   Future<File> _resolveTrackFile(
-    Track track, [
+    TrackModel track, [
     Directory? musicDirectory,
   ]) async {
     final storedFile = File(track.path);
@@ -310,7 +321,7 @@ class FlutterAudioService implements AudioService {
     return path.split(Platform.pathSeparator).last;
   }
 
-  List<Track> _decodeTracks(String? raw) {
+  List<TrackModel> _decodeTracks(String? raw) {
     if (raw == null || raw.isEmpty) {
       return const [];
     }
@@ -320,7 +331,7 @@ class FlutterAudioService implements AudioService {
     }
     return decoded
         .whereType<Map>()
-        .map((item) => Track.fromMap(_stringMap(item)))
+        .map((item) => TrackModel.fromMap(stringMap(item)))
         .toList(growable: false);
   }
 

@@ -1,9 +1,15 @@
-part of '../../main.dart';
+
+import 'package:ad/ad.dart';
+import 'package:echo_vault/src/features/home/echo_vault_home.dart';
+import 'package:echo_vault/src/services/audio_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:player_playback/player_playback.dart';
 
 class EchoVaultApp extends StatelessWidget {
   const EchoVaultApp({super.key, required this.service});
 
-  final AudioService service;
+  final AppAudioService service;
 
   @override
   Widget build(BuildContext context) {

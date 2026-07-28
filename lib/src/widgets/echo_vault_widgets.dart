@@ -1,7 +1,13 @@
-part of '../../main.dart';
 
-class _Header extends StatelessWidget {
-  const _Header({
+import 'dart:math';
+
+import 'package:echo_vault/src/models/track_model.dart';
+import 'package:echo_vault/src/utils/audio_file_utils.dart';
+import 'package:flutter/material.dart';
+
+class Header extends StatelessWidget {
+  const Header({
+    super.key,
     required this.trackCount,
     required this.totalMinutes,
     required this.favoriteCount,
@@ -24,7 +30,7 @@ class _Header extends StatelessWidget {
         children: [
           Row(
             children: [
-              const _BrandMark(),
+              const BrandMark(),
               const SizedBox(width: 12),
               const Expanded(
                 child: Column(
@@ -67,17 +73,17 @@ class _Header extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              _MetricPill(
+              MetricPill(
                 icon: Icons.library_music_outlined,
-                label: _countLabel(trackCount, 'track'),
+                label: countLabel(trackCount, 'track'),
                 tint: const Color(0xFF5DE2C5),
               ),
-              _MetricPill(
+              MetricPill(
                 icon: Icons.timer_outlined,
                 label: '$totalMinutes min',
                 tint: const Color(0xFFFFB454),
               ),
-              _MetricPill(
+              MetricPill(
                 icon: Icons.favorite_border,
                 label: '$favoriteCount saved',
                 tint: const Color(0xFFFF6B6B),
@@ -90,8 +96,8 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _BrandMark extends StatelessWidget {
-  const _BrandMark();
+class BrandMark extends StatelessWidget {
+  const BrandMark({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +127,9 @@ class _BrandMark extends StatelessWidget {
   }
 }
 
-class _MetricPill extends StatelessWidget {
-  const _MetricPill({
+class MetricPill extends StatelessWidget {
+  const MetricPill({
+    super.key,
     required this.icon,
     required this.label,
     required this.tint,
@@ -160,8 +167,8 @@ class _MetricPill extends StatelessWidget {
   }
 }
 
-class _SearchField extends StatelessWidget {
-  const _SearchField({required this.controller});
+class SearchField extends StatelessWidget {
+  const SearchField({super.key, required this.controller});
 
   final TextEditingController controller;
 
@@ -190,8 +197,8 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _TabStrip extends StatelessWidget {
-  const _TabStrip({required this.selected, required this.onChanged});
+class TabStrip extends StatelessWidget {
+  const TabStrip({super.key, required this.selected, required this.onChanged});
 
   final int selected;
   final ValueChanged<int> onChanged;
@@ -235,8 +242,8 @@ class _TabStrip extends StatelessWidget {
   }
 }
 
-class _NoticeBanner extends StatelessWidget {
-  const _NoticeBanner({required this.text, required this.onClose});
+class NoticeBanner extends StatelessWidget {
+  const NoticeBanner({super.key, required this.text, required this.onClose});
 
   final String text;
   final VoidCallback onClose;
@@ -276,8 +283,9 @@ class _NoticeBanner extends StatelessWidget {
   }
 }
 
-class _LibraryView extends StatelessWidget {
-  const _LibraryView({
+class LibraryView extends StatelessWidget {
+  const LibraryView({
+    super.key,
     required this.loading,
     required this.tracks,
     required this.emptyTitle,
@@ -290,14 +298,14 @@ class _LibraryView extends StatelessWidget {
   });
 
   final bool loading;
-  final List<Track> tracks;
+  final List<TrackModel> tracks;
   final String emptyTitle;
   final String emptyAction;
   final String? currentTrackId;
   final VoidCallback onImport;
-  final ValueChanged<Track> onPlay;
-  final ValueChanged<Track> onFavorite;
-  final ValueChanged<Track> onDelete;
+  final ValueChanged<TrackModel> onPlay;
+  final ValueChanged<TrackModel> onFavorite;
+  final ValueChanged<TrackModel> onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +313,7 @@ class _LibraryView extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (tracks.isEmpty) {
-      return _EmptyState(
+      return EmptyState(
         title: emptyTitle,
         action: emptyAction,
         onAction: onImport,
@@ -317,7 +325,7 @@ class _LibraryView extends StatelessWidget {
       separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final track = tracks[index];
-        return _TrackTile(
+        return TrackTile(
           track: track,
           isCurrent: track.id == currentTrackId,
           onPlay: () => onPlay(track),
@@ -329,8 +337,9 @@ class _LibraryView extends StatelessWidget {
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({
+class EmptyState extends StatelessWidget {
+  const EmptyState({
+    super.key,
     required this.title,
     required this.action,
     required this.onAction,
@@ -393,8 +402,9 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _TrackTile extends StatelessWidget {
-  const _TrackTile({
+class TrackTile extends StatelessWidget {
+  const TrackTile({
+    super.key,
     required this.track,
     required this.isCurrent,
     required this.onPlay,
@@ -402,7 +412,7 @@ class _TrackTile extends StatelessWidget {
     required this.onDelete,
   });
 
-  final Track track;
+  final TrackModel track;
   final bool isCurrent;
   final VoidCallback onPlay;
   final VoidCallback onFavorite;
@@ -439,7 +449,7 @@ class _TrackTile extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                _AlbumGlyph(track: track, size: 54),
+                AlbumGlyph(track: track, size: 54),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -470,7 +480,7 @@ class _TrackTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _formatDuration(track.duration),
+                  formatDuration(track.duration),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.62),
                     fontWeight: FontWeight.w700,
@@ -496,10 +506,10 @@ class _TrackTile extends StatelessWidget {
   }
 }
 
-class _AlbumGlyph extends StatelessWidget {
-  const _AlbumGlyph({required this.track, required this.size});
+class AlbumGlyph extends StatelessWidget {
+  const AlbumGlyph({super.key, required this.track, required this.size});
 
-  final Track track;
+  final TrackModel track;
   final double size;
 
   @override
@@ -510,7 +520,7 @@ class _AlbumGlyph extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(math.max(8, size * 0.18)),
+        borderRadius: BorderRadius.circular(max(8, size * 0.18)),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Stack(
@@ -543,30 +553,30 @@ class _AlbumGlyph extends StatelessWidget {
   }
 }
 
-class _CratesView extends StatelessWidget {
-  const _CratesView({required this.tracks, required this.onPlay});
+class CratesView extends StatelessWidget {
+  const CratesView({super.key, required this.tracks, required this.onPlay});
 
-  final List<Track> tracks;
-  final ValueChanged<Track> onPlay;
+  final List<TrackModel> tracks;
+  final ValueChanged<TrackModel> onPlay;
 
   @override
   Widget build(BuildContext context) {
     final crates = [
-      _SmartCrate(
+      SmartCrate(
         icon: Icons.bolt_outlined,
         title: 'Quick Hits',
         subtitle: 'Short tracks under four minutes',
         tint: const Color(0xFFFFB454),
         tracks: tracks.where((track) => track.duration < 240).toList(),
       ),
-      _SmartCrate(
+      SmartCrate(
         icon: Icons.nightlight_outlined,
         title: 'Long Ride',
         subtitle: 'Deep cuts for uninterrupted listening',
         tint: const Color(0xFF9ECAFF),
         tracks: tracks.where((track) => track.duration >= 240).toList(),
       ),
-      _SmartCrate(
+      SmartCrate(
         icon: Icons.favorite_border,
         title: 'Saved Signal',
         subtitle: 'Everything you marked as worth keeping close',
@@ -579,7 +589,7 @@ class _CratesView extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
       itemBuilder: (context, index) {
         final crate = crates[index];
-        return _CrateTile(
+        return CrateTile(
           crate: crate,
           onPlayFirst: crate.tracks.isEmpty
               ? null
@@ -592,8 +602,8 @@ class _CratesView extends StatelessWidget {
   }
 }
 
-class _SmartCrate {
-  const _SmartCrate({
+class SmartCrate {
+  const SmartCrate({
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -605,13 +615,13 @@ class _SmartCrate {
   final String title;
   final String subtitle;
   final Color tint;
-  final List<Track> tracks;
+  final List<TrackModel> tracks;
 }
 
-class _CrateTile extends StatelessWidget {
-  const _CrateTile({required this.crate, required this.onPlayFirst});
+class CrateTile extends StatelessWidget {
+  const CrateTile({super.key, required this.crate, required this.onPlayFirst});
 
-  final _SmartCrate crate;
+  final SmartCrate crate;
   final VoidCallback? onPlayFirst;
 
   @override
@@ -667,8 +677,9 @@ class _CrateTile extends StatelessWidget {
   }
 }
 
-class _SleepView extends StatelessWidget {
-  const _SleepView({
+class SleepView extends StatelessWidget {
+  const SleepView({
+    super.key,
     required this.minutes,
     required this.isActive,
     required this.onChanged,
@@ -765,8 +776,9 @@ class _SleepView extends StatelessWidget {
   }
 }
 
-class _NowPlayingBar extends StatelessWidget {
-  const _NowPlayingBar({
+class NowPlayingBar extends StatelessWidget {
+  const NowPlayingBar({
+    super.key,
     required this.track,
     required this.snapshot,
     required this.onPlayPause,
@@ -774,7 +786,7 @@ class _NowPlayingBar extends StatelessWidget {
     required this.onOpen,
   });
 
-  final Track? track;
+  final TrackModel? track;
   final PlaybackSnapshot snapshot;
   final VoidCallback onPlayPause;
   final ValueChanged<double> onSeek;
@@ -796,7 +808,7 @@ class _NowPlayingBar extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _ProgressScrubber(
+                ProgressScrubber(
                   snapshot: snapshot,
                   onSeek: onSeek,
                   compact: true,
@@ -804,7 +816,7 @@ class _NowPlayingBar extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    _AlbumGlyph(track: track!, size: 44),
+                    AlbumGlyph(track: track!, size: 44),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -851,8 +863,9 @@ class _NowPlayingBar extends StatelessWidget {
   }
 }
 
-class _ProgressScrubber extends StatelessWidget {
-  const _ProgressScrubber({
+class ProgressScrubber extends StatelessWidget {
+  const ProgressScrubber({
+    super.key,
     required this.snapshot,
     required this.onSeek,
     this.compact = false,
@@ -864,7 +877,7 @@ class _ProgressScrubber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = math.max(snapshot.duration, 1.0);
+    final duration = max(snapshot.duration, 1.0);
     final position = snapshot.position.clamp(0.0, duration);
     return Column(
       children: [
@@ -874,11 +887,11 @@ class _ProgressScrubber extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _formatDuration(position),
+                formatDuration(position),
                 style: const TextStyle(color: Colors.white),
               ),
               Text(
-                _formatDuration(duration),
+                formatDuration(duration),
                 style: const TextStyle(color: Colors.white),
               ),
             ],
