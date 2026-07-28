@@ -36,14 +36,14 @@ class Track {
     );
   }
 
-  Track copyWith({bool? isFavorite}) {
+  Track copyWith({String? path, bool? isFavorite}) {
     return Track(
       id: id,
       title: title,
       artist: artist,
       album: album,
       duration: duration,
-      path: path,
+      path: path ?? this.path,
       importedAt: importedAt,
       isFavorite: isFavorite ?? this.isFavorite,
     );

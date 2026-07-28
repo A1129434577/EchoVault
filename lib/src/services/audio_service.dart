@@ -76,23 +76,23 @@ class FlutterAudioService implements AudioService {
   Future<List<Track>> loadLibrary() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_libraryKey);
+    final directory = await _musicDirectory();
     _library
       ..clear()
       ..addAll(_decodeTracks(raw));
 
     final existing = <Track>[];
     for (final track in _library) {
-      if (await File(track.path).exists()) {
-        existing.add(track);
+      final file = await _resolveTrackFile(track, directory);
+      if (await file.exists()) {
+        existing.add(track.copyWith(path: file.path));
       }
     }
 
-    if (existing.length != _library.length) {
-      _library
-        ..clear()
-        ..addAll(existing);
-      await _saveLibrary();
-    }
+    _library
+      ..clear()
+      ..addAll(existing);
+    await _saveLibrary();
 
     return List.unmodifiable(_library);
   }
@@ -183,7 +183,7 @@ class FlutterAudioService implements AudioService {
       throw PlatformException(code: 'not_found', message: 'Track not found.');
     }
 
-    final file = File(track.path);
+    final file = await _resolveTrackFile(track);
     if (!await file.exists()) {
       throw PlatformException(
         code: 'missing_file',
@@ -252,7 +252,7 @@ class FlutterAudioService implements AudioService {
       _emitPlayback();
     }
 
-    final file = File(track.path);
+    final file = await _resolveTrackFile(track);
     if (await file.exists()) {
       await file.delete();
     }
@@ -283,8 +283,31 @@ class FlutterAudioService implements AudioService {
 
   Future<void> _saveLibrary() async {
     final prefs = await SharedPreferences.getInstance();
-    final encoded = jsonEncode(_library.map((track) => track.toMap()).toList());
+    final encoded = jsonEncode(
+      _library.map((track) {
+        final map = track.toMap();
+        map['path'] = _fileName(track.path);
+        return map;
+      }).toList(),
+    );
     await prefs.setString(_libraryKey, encoded);
+  }
+
+  Future<File> _resolveTrackFile(
+    Track track, [
+    Directory? musicDirectory,
+  ]) async {
+    final storedFile = File(track.path);
+    if (storedFile.isAbsolute && await storedFile.exists()) {
+      return storedFile;
+    }
+
+    final directory = musicDirectory ?? await _musicDirectory();
+    return File('${directory.path}/${_fileName(track.path)}');
+  }
+
+  String _fileName(String path) {
+    return path.split(Platform.pathSeparator).last;
   }
 
   List<Track> _decodeTracks(String? raw) {
