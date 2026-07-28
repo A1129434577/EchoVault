@@ -41,24 +41,24 @@ dependencies:
   app_tracking_transparency: ^2.0.7
   get: ^4.7.3
   flutter_smart_dialog: 5.1.1
-#  player_base:
-#    git:
-#      url: git@github.com:A1129434577/zy_common.git
-#      path: player_base
-#      ref: main
-#    version: ^2.0.2
-#  player_playback:
-#    git:
-#      url: git@github.com:A1129434577/zy_common.git
-#      path: player_playback
-#      ref: main
-#    version: ^1.6.2
-#  ad:
-#    git:
-#      url: git@github.com:A1129434577/zy_common.git
-#      path: ad
-#      ref: ad_admob_max
-#    version: ^5.6.1
+  player_base:
+    git:
+      url: git@github.com:A1129434577/zy_common.git
+      path: player_base
+      ref: main
+    version: ^2.0.2
+  player_playback:
+    git:
+      url: git@github.com:A1129434577/zy_common.git
+      path: player_playback
+      ref: main
+    version: ^1.6.2
+  ad:
+    git:
+      url: git@github.com:A1129434577/zy_common.git
+      path: ad
+      ref: ad_admob_max
+    version: ^5.6.1
 
 dev_dependencies:
   flutter_test:

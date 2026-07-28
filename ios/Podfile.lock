@@ -1,7 +1,85 @@
 PODS:
+  - ad (0.0.1):
+    - AppLovinMediationBidMachineAdapter
+    - AppLovinMediationBigoAdsAdapter
+    - AppLovinMediationByteDanceAdapter
+    - AppLovinMediationFacebookAdapter
+    - AppLovinMediationFyberAdapter
+    - AppLovinMediationGoogleAdapter
+    - AppLovinMediationGoogleAdManagerAdapter
+    - AppLovinMediationInMobiAdapter
+    - AppLovinMediationIronSourceAdapter
+    - AppLovinMediationMintegralAdapter
+    - AppLovinMediationMolocoAdapter
+    - AppLovinMediationUnityAdsAdapter
+    - AppLovinMediationVungleAdapter
+    - Flutter
+  - Ads-Global (7.9.0.8):
+    - Ads-Global/BUAdSDK (= 7.9.0.8)
+  - Ads-Global/BUAdSDK (7.9.0.8):
+    - Ads-Global/PangleSDK
+    - Ads-Global/TikTokBusinessSDK
+  - Ads-Global/PangleSDK (7.9.0.8)
+  - Ads-Global/TikTokBusinessSDK (7.9.0.8)
+  - advertising_id (0.0.1):
+    - Flutter
   - app_tracking_transparency (0.0.1):
     - Flutter
+  - applovin_max (4.6.3):
+    - AppLovinSDK (= 13.6.1)
+    - Flutter
+  - AppLovinMediationBidMachineAdapter (3.7.1.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - BidMachine (= 3.7.1)
+  - AppLovinMediationBigoAdsAdapter (5.3.0.0):
+    - AppLovinSDK (>= 12.4.1)
+    - BigoADS (= 5.3.0)
+  - AppLovinMediationByteDanceAdapter (7.9.0.8.0):
+    - Ads-Global (= 7.9.0.8)
+    - AppLovinSDK (>= 13.0.0)
+  - AppLovinMediationFacebookAdapter (6.21.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - FBAudienceNetwork (= 6.21.1)
+  - AppLovinMediationFyberAdapter (8.4.6.0):
+    - AppLovinSDK (>= 13.0.0)
+    - Fyber_Marketplace_SDK (= 8.4.6)
+  - AppLovinMediationGoogleAdapter (13.6.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - Google-Mobile-Ads-SDK (= 13.6.0)
+  - AppLovinMediationGoogleAdManagerAdapter (13.6.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - Google-Mobile-Ads-SDK (= 13.6.0)
+  - AppLovinMediationInMobiAdapter (11.3.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - InMobiSDK (= 11.3.0)
+  - AppLovinMediationIronSourceAdapter (9.4.1.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - IronSourceSDK/Ads (= 9.4.1.0)
+  - AppLovinMediationMintegralAdapter (8.1.1.0.0):
+    - AppLovinSDK (>= 13.0.0)
+    - MintegralAdSDK (= 8.1.1)
+    - MintegralAdSDK/BidSplashAd (= 8.1.1)
+  - AppLovinMediationMolocoAdapter (4.5.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - MolocoSDKiOS (= 4.5.1)
+  - AppLovinMediationUnityAdsAdapter (4.18.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - UnityAds (= 4.18.1)
+  - AppLovinMediationVungleAdapter (7.7.1.0):
+    - AppLovinSDK (>= 13.0.0)
+    - VungleAds (= 7.7.1)
+  - AppLovinSDK (13.6.1)
+  - audio_service (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - audio_session (0.0.1):
+    - Flutter
+  - BidMachine (3.7.1):
+    - BidMachine/Static (= 3.7.1)
+  - BidMachine/Static (3.7.1):
+    - OMSDK_Appodeal/Static (= 1.6.3)
+  - BigoADS (5.3.0)
+  - device_info_plus (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.9):
     - DKImagePickerController/ImageDataManager
@@ -34,61 +112,388 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
+  - FBAudienceNetwork (6.21.1)
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
   - Flutter (1.0.0)
+  - flutter_secure_storage_darwin (10.0.0):
+    - Flutter
+    - FlutterMacOS
+  - Fyber_Marketplace_SDK (8.4.6)
+  - gma_mediation_applovin (2.6.0):
+    - Flutter
+    - GoogleMobileAdsMediationAppLovin (~> 13.6.1.0)
+  - gma_mediation_dtexchange (1.3.4):
+    - Flutter
+    - GoogleMobileAdsMediationFyber (~> 8.4.6.0)
+  - gma_mediation_inmobi (2.2.0):
+    - Flutter
+    - GoogleMobileAdsMediationInMobi (~> 11.3.0.0)
+  - gma_mediation_ironsource (2.4.2):
+    - Flutter
+    - GoogleMobileAdsMediationIronSource (~> 9.4.1.0.1)
+  - gma_mediation_liftoffmonetize (1.5.0):
+    - Flutter
+    - GoogleMobileAdsMediationVungle (~> 7.7.1.0)
+  - gma_mediation_meta (1.5.2):
+    - Flutter
+    - GoogleMobileAdsMediationFacebook (~> 6.21.1.0)
+  - gma_mediation_mintegral (2.1.0):
+    - Flutter
+    - GoogleMobileAdsMediationMintegral (~> 8.1.1.0)
+  - gma_mediation_moloco (3.4.0):
+    - Flutter
+    - GoogleMobileAdsMediationMoloco (~> 4.5.1.0)
+  - gma_mediation_pangle (3.6.0):
+    - Flutter
+    - GoogleMobileAdsMediationPangle (~> 7.9.0.8.0)
+  - gma_mediation_unity (1.8.1):
+    - Flutter
+    - GoogleMobileAdsMediationUnity (~> 4.18.1.0)
+  - Google-Mobile-Ads-SDK (13.6.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - google_mobile_ads (8.0.0):
+    - Flutter
+    - Google-Mobile-Ads-SDK (~> 13.6.0)
+    - webview_flutter_wkwebview
+  - GoogleMobileAdsMediationAppLovin (13.6.1.0):
+    - AppLovinSDK (= 13.6.1)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationFacebook (6.21.1.1.1):
+    - FBAudienceNetwork (= 6.21.1)
+    - Google-Mobile-Ads-SDK (~> 13.4)
+  - GoogleMobileAdsMediationFyber (8.4.6.0):
+    - Fyber_Marketplace_SDK (= 8.4.6)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationInMobi (11.3.0.0.1):
+    - Google-Mobile-Ads-SDK (~> 13.3)
+    - InMobiSDK (= 11.3.0)
+  - GoogleMobileAdsMediationIronSource (9.4.1.0.1.1):
+    - Google-Mobile-Ads-SDK (~> 13.3)
+    - IronSourceSDK (= 9.4.1.0)
+  - GoogleMobileAdsMediationMintegral (8.1.1.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - MintegralAdSDK/All (= 8.1.1)
+  - GoogleMobileAdsMediationMoloco (4.5.1.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - MolocoSDKiOS (= 4.5.1)
+  - GoogleMobileAdsMediationPangle (7.9.0.8.0):
+    - Ads-Global (= 7.9.0.8)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationUnity (4.18.1.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - UnityAds (= 4.18.1)
+  - GoogleMobileAdsMediationVungle (7.7.1.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - VungleAds (= 7.7.1)
+  - GoogleUserMessagingPlatform (3.1.0)
+  - InMobiSDK (11.3.0)
+  - IronSourceAdQualitySDK (9.5.1)
+  - IronSourceSDK (9.4.1.0):
+    - IronSourceSDK/AdQuality (= 9.4.1.0)
+    - IronSourceSDK/Ads (= 9.4.1.0)
+  - IronSourceSDK/AdQuality (9.4.1.0):
+    - IronSourceAdQualitySDK (~> 9.5.0)
+  - IronSourceSDK/Ads (9.4.1.0)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
+  - MintegralAdSDK (8.1.1):
+    - MintegralAdSDK/BannerAd (= 8.1.1)
+    - MintegralAdSDK/BidBannerAd (= 8.1.1)
+    - MintegralAdSDK/BidInterstitialVideoAd (= 8.1.1)
+    - MintegralAdSDK/BidNativeAd (= 8.1.1)
+    - MintegralAdSDK/BidNewInterstitialAd (= 8.1.1)
+    - MintegralAdSDK/BidRewardVideoAd (= 8.1.1)
+    - MintegralAdSDK/InterstitialVideoAd (= 8.1.1)
+    - MintegralAdSDK/NativeAd (= 8.1.1)
+    - MintegralAdSDK/NewInterstitialAd (= 8.1.1)
+    - MintegralAdSDK/RewardVideoAd (= 8.1.1)
+  - MintegralAdSDK/All (8.1.1):
+    - MintegralAdSDK/BannerAd
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/InterstitialVideoAd
+    - MintegralAdSDK/NativeAd
+    - MintegralAdSDK/NativeAdvancedAd
+    - MintegralAdSDK/NewInterstitialAd
+    - MintegralAdSDK/RewardVideoAd
+    - MintegralAdSDK/SplashAd
+  - MintegralAdSDK/BannerAd (8.1.1):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidBannerAd (8.1.1):
+    - MintegralAdSDK/BannerAd
+    - MintegralAdSDK/BidNativeAd
+  - MintegralAdSDK/BidInterstitialVideoAd (8.1.1):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/InterstitialVideoAd
+  - MintegralAdSDK/BidNativeAd (8.1.1):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidNewInterstitialAd (8.1.1):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/NewInterstitialAd
+  - MintegralAdSDK/BidRewardVideoAd (8.1.1):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/RewardVideoAd
+  - MintegralAdSDK/BidSplashAd (8.1.1):
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/SplashAd
+  - MintegralAdSDK/InterstitialVideoAd (8.1.1):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/NativeAd (8.1.1)
+  - MintegralAdSDK/NativeAdvancedAd (8.1.1):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/NewInterstitialAd (8.1.1):
+    - MintegralAdSDK/InterstitialVideoAd
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/RewardVideoAd (8.1.1):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/SplashAd (8.1.1):
+    - MintegralAdSDK/NativeAd
+  - MolocoSDKiOS (4.5.1)
+  - OMSDK_Appodeal/Static (1.6.3)
+  - package_info_plus (0.4.5):
+    - Flutter
+  - player_base (0.0.1):
+    - Flutter
+  - player_playback (0.0.1):
+    - Flutter
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - sqflite_darwin (0.0.4):
+    - Flutter
+    - FlutterMacOS
   - SwiftyGif (5.4.5)
+  - UnityAds (4.18.1):
+    - IronSourceAdQualitySDK (< 10.0.0)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - VungleAds (7.7.1)
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
+  - ad (from `.symlinks/plugins/ad/ios`)
+  - advertising_id (from `.symlinks/plugins/advertising_id/ios`)
   - app_tracking_transparency (from `.symlinks/plugins/app_tracking_transparency/ios`)
+  - applovin_max (from `.symlinks/plugins/applovin_max/ios`)
+  - audio_service (from `.symlinks/plugins/audio_service/darwin`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
+  - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+  - gma_mediation_applovin (from `.symlinks/plugins/gma_mediation_applovin/ios`)
+  - gma_mediation_dtexchange (from `.symlinks/plugins/gma_mediation_dtexchange/ios`)
+  - gma_mediation_inmobi (from `.symlinks/plugins/gma_mediation_inmobi/ios`)
+  - gma_mediation_ironsource (from `.symlinks/plugins/gma_mediation_ironsource/ios`)
+  - gma_mediation_liftoffmonetize (from `.symlinks/plugins/gma_mediation_liftoffmonetize/ios`)
+  - gma_mediation_meta (from `.symlinks/plugins/gma_mediation_meta/ios`)
+  - gma_mediation_mintegral (from `.symlinks/plugins/gma_mediation_mintegral/ios`)
+  - gma_mediation_moloco (from `.symlinks/plugins/gma_mediation_moloco/ios`)
+  - gma_mediation_pangle (from `.symlinks/plugins/gma_mediation_pangle/ios`)
+  - gma_mediation_unity (from `.symlinks/plugins/gma_mediation_unity/ios`)
+  - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - player_base (from `.symlinks/plugins/player_base/ios`)
+  - player_playback (from `.symlinks/plugins/player_playback/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
+    - Ads-Global
+    - AppLovinMediationBidMachineAdapter
+    - AppLovinMediationBigoAdsAdapter
+    - AppLovinMediationByteDanceAdapter
+    - AppLovinMediationFacebookAdapter
+    - AppLovinMediationFyberAdapter
+    - AppLovinMediationGoogleAdapter
+    - AppLovinMediationGoogleAdManagerAdapter
+    - AppLovinMediationInMobiAdapter
+    - AppLovinMediationIronSourceAdapter
+    - AppLovinMediationMintegralAdapter
+    - AppLovinMediationMolocoAdapter
+    - AppLovinMediationUnityAdsAdapter
+    - AppLovinMediationVungleAdapter
+    - AppLovinSDK
+    - BidMachine
+    - BigoADS
     - DKImagePickerController
     - DKPhotoGallery
+    - FBAudienceNetwork
+    - Fyber_Marketplace_SDK
+    - Google-Mobile-Ads-SDK
+    - GoogleMobileAdsMediationAppLovin
+    - GoogleMobileAdsMediationFacebook
+    - GoogleMobileAdsMediationFyber
+    - GoogleMobileAdsMediationInMobi
+    - GoogleMobileAdsMediationIronSource
+    - GoogleMobileAdsMediationMintegral
+    - GoogleMobileAdsMediationMoloco
+    - GoogleMobileAdsMediationPangle
+    - GoogleMobileAdsMediationUnity
+    - GoogleMobileAdsMediationVungle
+    - GoogleUserMessagingPlatform
+    - InMobiSDK
+    - IronSourceAdQualitySDK
+    - IronSourceSDK
+    - MintegralAdSDK
+    - MolocoSDKiOS
+    - OMSDK_Appodeal
     - SDWebImage
     - SwiftyGif
+    - UnityAds
+    - VungleAds
 
 EXTERNAL SOURCES:
+  ad:
+    :path: ".symlinks/plugins/ad/ios"
+  advertising_id:
+    :path: ".symlinks/plugins/advertising_id/ios"
   app_tracking_transparency:
     :path: ".symlinks/plugins/app_tracking_transparency/ios"
+  applovin_max:
+    :path: ".symlinks/plugins/applovin_max/ios"
+  audio_service:
+    :path: ".symlinks/plugins/audio_service/darwin"
   audio_session:
     :path: ".symlinks/plugins/audio_session/ios"
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
+  flutter_secure_storage_darwin:
+    :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
+  gma_mediation_applovin:
+    :path: ".symlinks/plugins/gma_mediation_applovin/ios"
+  gma_mediation_dtexchange:
+    :path: ".symlinks/plugins/gma_mediation_dtexchange/ios"
+  gma_mediation_inmobi:
+    :path: ".symlinks/plugins/gma_mediation_inmobi/ios"
+  gma_mediation_ironsource:
+    :path: ".symlinks/plugins/gma_mediation_ironsource/ios"
+  gma_mediation_liftoffmonetize:
+    :path: ".symlinks/plugins/gma_mediation_liftoffmonetize/ios"
+  gma_mediation_meta:
+    :path: ".symlinks/plugins/gma_mediation_meta/ios"
+  gma_mediation_mintegral:
+    :path: ".symlinks/plugins/gma_mediation_mintegral/ios"
+  gma_mediation_moloco:
+    :path: ".symlinks/plugins/gma_mediation_moloco/ios"
+  gma_mediation_pangle:
+    :path: ".symlinks/plugins/gma_mediation_pangle/ios"
+  gma_mediation_unity:
+    :path: ".symlinks/plugins/gma_mediation_unity/ios"
+  google_mobile_ads:
+    :path: ".symlinks/plugins/google_mobile_ads/ios"
   just_audio:
     :path: ".symlinks/plugins/just_audio/darwin"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
+  player_base:
+    :path: ".symlinks/plugins/player_base/ios"
+  player_playback:
+    :path: ".symlinks/plugins/player_playback/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/darwin"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  ad: 74247bd9122228a8ef55b337774117278f6940e7
+  Ads-Global: b21f686881cc572879a107860aaab40c811e60a0
+  advertising_id: d5de9e659986092d7ca50977dc50f4f4fcd4c30a
   app_tracking_transparency: 3d84f147f67ca82d3c15355c36b1fa6b66ca7c92
+  applovin_max: 0655e2efd9526775d35e4c4505d1be24b35787e4
+  AppLovinMediationBidMachineAdapter: 255d7797b4024f1efa9bba5a3ff75d65f07936f6
+  AppLovinMediationBigoAdsAdapter: 917415e3c4b5ce2f1adabf454067f4bb50ba9d90
+  AppLovinMediationByteDanceAdapter: 279ba6f103ca1e0e8a6cde13923331fdef47e494
+  AppLovinMediationFacebookAdapter: b962c9d82620bfb9ee53909aa9856d642e1f84db
+  AppLovinMediationFyberAdapter: 654a51e36f046038125e21b284b57388a60ab979
+  AppLovinMediationGoogleAdapter: 84b746dc2e4aa5947eb81d18ab0607d90643bb0c
+  AppLovinMediationGoogleAdManagerAdapter: 7adf87187a77a64d8c5aa5160ba0445b58d2ad63
+  AppLovinMediationInMobiAdapter: ee0780e929bdec8233da301496532c7051477451
+  AppLovinMediationIronSourceAdapter: 9b56b1bf37360e44f3e7054b26292518a8dad108
+  AppLovinMediationMintegralAdapter: 2e481d894423ffdc6e47cae2f3f76ae780d723fc
+  AppLovinMediationMolocoAdapter: 96e16ac164225bc71f38c68293cca767dbbe9ace
+  AppLovinMediationUnityAdsAdapter: 9d96992c1d9e5385e6add02283bcff73c3161b58
+  AppLovinMediationVungleAdapter: fc35519fbe9b3860d3d46ec69b0f0a090ff593a8
+  AppLovinSDK: fb0795377cc861aa8813019ddc5d05fbd998c527
+  audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
+  BidMachine: b3eca96870e834eb74a2e9dec44f99d9b5d3b7c1
+  BigoADS: 1ae2d67ffd4d2eb72c6921bdfcdd9c1f943dbecf
+  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  FBAudienceNetwork: 85d18a65c9e35bc426bd4664cf3ae2a1172d7b60
   file_picker: a0560bc09d61de87f12d246fc47d2119e6ef37be
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
+  Fyber_Marketplace_SDK: cedfa90cc2da9e549de1b8134965abb63bb8cf67
+  gma_mediation_applovin: 18efde23ebcafb6c7e9275fc15eba69f4a194bb4
+  gma_mediation_dtexchange: 1b472b948292c9a9b12b5736ce8e2492fa0dcb31
+  gma_mediation_inmobi: f9ff4e6d5e060da2f304ac8a8840c5bf80fe164d
+  gma_mediation_ironsource: d970e88ee9def2055b545bd9756040cec30c5270
+  gma_mediation_liftoffmonetize: ad8ed366bd36ae6836bd70a66239ad085fa3c293
+  gma_mediation_meta: cfa5493a4d585032e7789848190d320090c71709
+  gma_mediation_mintegral: 555a0b6a0c6de9b412597e68ea34258552680eed
+  gma_mediation_moloco: a4a37833f3902fe5f9278ad8f1188809d74c0155
+  gma_mediation_pangle: 2cbfe519eeb63abacb747942de6550b247138dd7
+  gma_mediation_unity: 1a1fce2877f26f0793ef973d778263958d3a5370
+  Google-Mobile-Ads-SDK: 6e501ace4af8d63e967bd45497c8b2b05821163d
+  google_mobile_ads: 8647bf442755d3601031ed0632e933510673c92a
+  GoogleMobileAdsMediationAppLovin: 9b2ae732b3d28b665285046590e4bc9c40f4c9fa
+  GoogleMobileAdsMediationFacebook: 4420c648e278f6821001048d1f152dd74245f759
+  GoogleMobileAdsMediationFyber: bdaa82e3d1ff6b926b58cb8c533d0db959a3d1ef
+  GoogleMobileAdsMediationInMobi: a7e6228a2683ac0534b35b7ab8d5a863cdd2b4ec
+  GoogleMobileAdsMediationIronSource: 1fe22a4bf5be1277ae5c6eec83efbb9ccac84b55
+  GoogleMobileAdsMediationMintegral: f78198e146a3298b407f7b7a90db15cca67a64e3
+  GoogleMobileAdsMediationMoloco: 7449a6ca7df3cff266518bb0e54de39c13e7cf51
+  GoogleMobileAdsMediationPangle: 8b526049bd6044732c40f3f3989f8daadfd80a32
+  GoogleMobileAdsMediationUnity: 44550b7df109dbb935b80597885adf2e81200144
+  GoogleMobileAdsMediationVungle: df7b3962f0e9afab104f985a35153dfa4f0e9df8
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
+  InMobiSDK: a25c208dcc6fc6d9b228f34a4643712f37923208
+  IronSourceAdQualitySDK: d3f89c7eb4afc6b6c45fc3d83d64789a9977148f
+  IronSourceSDK: d12f8939bf36dd4e28bb4f6134bcde9a53af15db
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
+  MintegralAdSDK: 4325769f93ef336237799b5fb455335985fbc8b7
+  MolocoSDKiOS: e13d9d8b147a51d3f6dadb4121aedb3f2f53ca68
+  OMSDK_Appodeal: e76e5c30dfd3081621a8cd393c45219edc84f1f2
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  player_base: 4b605f69917d31841443573529f3bf29eac586e8
+  player_playback: 251a0b261a3a1baa30c4f945ef2e21583f4ea2b2
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  UnityAds: 07379b63b1044dcad98b3092319166fd6f2cfda4
+  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
+  video_player_avfoundation: 3453f792138786248960ca029747fcd9f318ef52
+  VungleAds: c1f0dd0d8531b200b9f6a3f78e292ded75540eae
+  webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
 PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
 
