@@ -129,6 +129,8 @@ class _AdRemoteUnitParse {
     //0-100
     double? nativeHitProbability = double.tryParse((json['native_hit']).toString());
     double? nativeCoseSize = double.tryParse((json['native_close_size']).toString());
+    int? nativeShowSeconds = double.tryParse((json['native_time']).toString())?.toInt();
+
     AdFormatType type = AdFormatType.fromValue(json[AdRemoteParse.typeKey]);
     AdUnitRemoteConfig unitRemoteConfig = AdUnitRemoteConfig(
       id: json[AdRemoteParse.idKey] as String?,
@@ -146,7 +148,8 @@ class _AdRemoteUnitParse {
           color: Color(0xffA68DFE),
         );
       };
-      unitRemoteConfig.nativeHitProbability = nativeHitProbability!=null?nativeHitProbability/10:null;
+      unitRemoteConfig.nativeShowSeconds = nativeShowSeconds;
+      unitRemoteConfig.nativeHitProbability = nativeHitProbability;
       unitRemoteConfig.size = AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt());
     }
     return unitRemoteConfig;

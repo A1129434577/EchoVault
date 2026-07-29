@@ -63,7 +63,7 @@ class EchoVaultApp extends StatelessWidget {
           ),
         ),
       ),
-      navigatorObservers: [FlutterSmartDialog.observer],
+      navigatorObservers: [FlutterSmartDialog.observer, AppRouteObserver.observer],
       builder: FlutterSmartDialog.init(
         builder: (context, child){
           return Scaffold(
