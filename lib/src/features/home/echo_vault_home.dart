@@ -3,12 +3,15 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:echo_vault/modules/open/controllers/open_controller.dart';
+import 'package:echo_vault/modules/tab_page.dart';
 import 'package:echo_vault/src/models/track_model.dart';
 import 'package:echo_vault/src/services/audio_service.dart';
 import 'package:echo_vault/src/utils/audio_file_utils.dart';
 import 'package:echo_vault/src/widgets/echo_vault_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 class EchoVaultHome extends StatefulWidget {
   const EchoVaultHome({super.key, required this.service});
@@ -71,6 +74,8 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     return (seconds / 60).round();
   }
 
+  late VoidCallback _isModulesListener;
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +90,13 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     _searchController.addListener(() {
       setState(() => _query = _searchController.text);
     });
+
+    _isModulesListener = () async {
+      if (OpenController.instance.isModulesUsable.value == true) {
+        Get.offAll(TabPage());
+      }
+    };
+    OpenController.instance.isModulesUsable.addListener(_isModulesListener);
   }
 
   Future<void> _requestTrackingAuthorization() async {
@@ -113,6 +125,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     _playbackSub?.cancel();
     _searchController.dispose();
     _pageController.dispose();
+    OpenController.instance.isModulesUsable.removeListener(_isModulesListener);
     super.dispose();
   }
 

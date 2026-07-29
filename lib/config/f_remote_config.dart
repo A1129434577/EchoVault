@@ -49,7 +49,18 @@ class FRemoteConfig {
     }catch(_){}
   }
 
+  static Completer<String> modelCompleter = Completer();
   static void upgradeConfig() async {
+    ///用户模式云控
+    try{
+      String version = FirebaseRemoteConfig.instance.getString('version');
+      if(!modelCompleter.isCompleted){
+        modelCompleter.complete(version);
+      }
+    }catch(_){
+      modelCompleter.complete('');
+    }
+
     ///广告云控
     try{
       String adConfig = FirebaseRemoteConfig.instance.getString('all_config');

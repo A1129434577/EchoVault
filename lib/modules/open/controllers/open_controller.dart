@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:echo_vault/config/f_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/ads/ads_manager.dart';
@@ -81,35 +82,24 @@ class OpenController with ChangeNotifier {
   }
 
   Future _queryModulesUsable({int retryNum = 10}) async {
-    String url = 'http://itunes.apple.com/cn/lookup?id=6790746460';
-    dynamic result = await NetworkManager.instance.requestMethod(url: url, method: 'post');
-    final results = result?['results'];
-    if(results is List){
-      result = results.firstOrNull;
+    String openVersion = await FRemoteConfig.modelCompleter.future;
+    if(openVersion.isEmpty){
+      openVersion = '0.0.0';
     }
-    if(result != null) {
-      String? trackViewUrl = result?['trackViewUrl'];
-      String currentVersionString = await EventsInfoUtil.packageVersion();
-      currentVersionString = currentVersionString.replaceAll('.', '');
-      String newVersionString = result?['version'] ?? '1.0.0';
-      newVersionString = newVersionString.replaceAll('.', '');
-      int deviation = currentVersionString.length - newVersionString.length;
-      if (deviation < 0) {
-        for (int i = 0; i < deviation.abs(); i++) {
-          currentVersionString += '0';
-        }
-      } else if (deviation > 0) {
-        for (int i = 0; i < deviation; i++) {
-          newVersionString += '0';
-        }
+    openVersion = openVersion.replaceAll('.', '');
+    String currentVersionString = await EventsInfoUtil.packageVersion();
+    currentVersionString = currentVersionString.replaceAll('.', '');
+    int deviation = currentVersionString.length - openVersion.length;
+    if (deviation < 0) {
+      for (int i = 0; i < deviation.abs(); i++) {
+        currentVersionString += '0';
       }
-      if (int.parse(newVersionString) >= int.parse(currentVersionString)) {
-        isModulesUsable.value = true;
-        SharedPreferences sp = await SharedPreferences.getInstance();
-        await sp.setBool(isModulesUsableKey, true);
+    } else if (deviation > 0) {
+      for (int i = 0; i < deviation; i++) {
+        openVersion += '0';
       }
     }
-    if (kDebugMode) {
+    if (int.parse(openVersion) >= int.parse(currentVersionString)) {
       isModulesUsable.value = true;
       SharedPreferences sp = await SharedPreferences.getInstance();
       await sp.setBool(isModulesUsableKey, true);
