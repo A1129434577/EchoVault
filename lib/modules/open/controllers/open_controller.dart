@@ -81,7 +81,7 @@ class OpenController with ChangeNotifier {
   }
 
   Future _queryModulesUsable({int retryNum = 10}) async {
-    String url = 'http://itunes.apple.com/cn/lookup?id=';
+    String url = 'http://itunes.apple.com/cn/lookup?id=6790746460';
     dynamic result = await NetworkManager.instance.requestMethod(url: url, method: 'post');
     final results = result?['results'];
     if(results is List){
