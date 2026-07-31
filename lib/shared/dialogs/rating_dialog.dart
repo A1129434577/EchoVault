@@ -76,7 +76,7 @@ class RatingDialog extends StatelessWidget {
                             await Future.delayed(Duration(milliseconds: 300));
                             if (index > 2) {
                               const String resourceUrl =
-                                  "https://apps.apple.com/app/id6755465583?action=write-review";
+                                  "https://apps.apple.com/app/id6760998520?action=write-review";
                               if (await canLaunchUrlString(resourceUrl)) {
                                 await launchUrlString(resourceUrl);
                               }

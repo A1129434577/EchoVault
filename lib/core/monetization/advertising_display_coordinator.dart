@@ -16,14 +16,11 @@ import 'package:echo_vault/core/networking/music_catalog_gateway.dart';
 class AdvertisingDisplayCoordinator {
   static final String _rateAlertShowCountKey = '_rateAlertShowCountKey';
   static final String _rateAlertLastShowTimeKey = '_rateAlertLastShowTimeKey';
-  static int? rateAlertLastShowTime;
+  static int rateAlertLastShowTime = DateTime.now().millisecondsSinceEpoch;
   static bool isMuted = false;
 
   static final DebounceUtil _debounce = DebounceUtil();
 
-  static final String _appIsFirstInTimeForRateKey =
-      '_appIsFirstInTimeForRateKey';
-  static int? appIsFirstInTimeForRate;
 
   static Future<bool?> showScene({
     required AdScene scene,
@@ -46,39 +43,25 @@ class AdvertisingDisplayCoordinator {
             detailScene == AdvertisingDetailScene.play) {
           DateTime nowLocal = DateTime.now();
           if (nowLocal
-                  .difference(
-                    DateTime.fromMillisecondsSinceEpoch(
-                      appIsFirstInTimeForRate ?? 0,
-                    ),
-                  )
-                  .inHours >
+              .difference(
+            DateTime.fromMillisecondsSinceEpoch(rateAlertLastShowTime),
+          )
+              .inHours >
               24) {
-            rateAlertLastShowTime = AdHelper.sharedPreferences.getInt(
-              _rateAlertLastShowTimeKey,
-            );
-            if (nowLocal
-                    .difference(
-                      DateTime.fromMillisecondsSinceEpoch(
-                        rateAlertLastShowTime ?? 0,
-                      ),
-                    )
-                    .inHours >
-                24) {
-              int rateAlertShowCountLocal =
-                  AdHelper.sharedPreferences.getInt(_rateAlertShowCountKey) ??
-                  0;
-              if (rateAlertShowCountLocal < 5) {
-                RatingDialog.show();
-                AdHelper.sharedPreferences.setInt(
-                  _rateAlertLastShowTimeKey,
-                  DateTime.now().millisecondsSinceEpoch,
-                );
-                rateAlertShowCountLocal++;
-                AdHelper.sharedPreferences.setInt(
-                  _rateAlertShowCountKey,
-                  rateAlertShowCountLocal,
-                );
-              }
+            int rateAlertShowCountLocal =
+                AdHelper.sharedPreferences.getInt(_rateAlertShowCountKey) ??
+                    0;
+            if (rateAlertShowCountLocal < 5) {
+              RatingDialog.show();
+              AdHelper.sharedPreferences.setInt(
+                _rateAlertLastShowTimeKey,
+                DateTime.now().millisecondsSinceEpoch,
+              );
+              rateAlertShowCountLocal++;
+              AdHelper.sharedPreferences.setInt(
+                _rateAlertShowCountKey,
+                rateAlertShowCountLocal,
+              );
             }
           }
         }
@@ -88,14 +71,11 @@ class AdvertisingDisplayCoordinator {
   }
 
   static void start() async {
-    appIsFirstInTimeForRate = AdHelper.sharedPreferences.getInt(
-      _appIsFirstInTimeForRateKey,
-    );
-    if (appIsFirstInTimeForRate == null) {
-      AdHelper.sharedPreferences.setInt(
-        _appIsFirstInTimeForRateKey,
-        DateTime.now().millisecondsSinceEpoch,
-      );
+    int? rateAlertLastShowTimeNew = AdHelper.sharedPreferences.getInt(_rateAlertLastShowTimeKey);
+    if(rateAlertLastShowTimeNew == null){
+      AdHelper.sharedPreferences.setInt(_rateAlertLastShowTimeKey, rateAlertLastShowTime);
+    }else{
+      rateAlertLastShowTime = rateAlertLastShowTimeNew;
     }
 
     //前后台监听
