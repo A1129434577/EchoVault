@@ -2,7 +2,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ad/ad.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:echo_vault/ads/ads_manager.dart';
+import 'package:echo_vault/ads/ads_show_manager.dart';
 import 'package:echo_vault/modules/open/controllers/open_controller.dart';
 import 'package:echo_vault/modules/tab_page.dart';
 import 'package:echo_vault/src/models/track_model.dart';
@@ -173,6 +176,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
 
   Future<void> _playTrack(TrackModel track) async {
     try {
+      AdsShowManager.showScene(scene: AdsManagerScene.inApp, detailScene: AdsManagerDetailScene.play);
       await widget.service.play(track.id);
       if (mounted) {
         setState(() {
