@@ -33,6 +33,7 @@ class PushNotificationUtil {
             onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
             },
           );
+          _scheduleLocalNotification();
         }
       } catch (e) {
         debugPrint(e.toString());
@@ -73,7 +74,7 @@ class PushNotificationUtil {
         }
 
         int hour = _pushHourList[i];
-        TZDateTime dateTime = TZDateTime.from(DateTime.now().copyWith(hour: hour), local);
+        TZDateTime dateTime = TZDateTime.from(DateTime.now().copyWith(hour: hour, minute: 0, second: 3), local);
 
         await FlutterLocalNotificationsPlugin().zonedSchedule(
           id: fileInfo.hashCode,
