@@ -28,7 +28,7 @@ class FileCell extends StatelessWidget {
             radius: 6,
             defaultView: isVideo?
             Container(color: Color(0xffE8EDF4)):
-            Assets.other.audioTrack.image(),
+            Assets.images.media.audioTrack.image(),
           ),
         ),
         SizedBox(width: isGrid?10:12),
@@ -89,7 +89,7 @@ class FileCell extends StatelessWidget {
           },
           sizeStyle: CupertinoButtonSize.small,
           padding: EdgeInsets.zero,
-          child: Assets.other.listOptions.image( height: 24),
+          child: Assets.images.collection.listOptions.image( height: 24),
         ),
       ],
     );

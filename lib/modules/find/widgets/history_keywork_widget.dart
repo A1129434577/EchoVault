@@ -140,7 +140,7 @@ class _HistoryKeyworkWidgetState extends State<HistoryKeyworkWidget> {
               },
               sizeStyle: CupertinoButtonSize.small,
               padding: EdgeInsets.zero,
-              child: Assets.other.historyDelete.image( width: 24,),
+              child: Assets.images.search.historyDelete.image( width: 24,),
             ),
           ],
         ),

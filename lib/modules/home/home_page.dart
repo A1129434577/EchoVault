@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                 suffixIcon: Container(
                   alignment: Alignment.center,
                   width: 48,
-                  child: Assets.other.historySearch.image( width: 24,),
+                  child: Assets.images.search.historySearch.image( width: 24,),
                 ),
               ),
             ),
@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> {
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: Assets.other.settings.image( width: 24,),
+            child: Assets.images.common.settings.image( width: 24,),
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Assets.other.albumPlaceholder.image(),
+                              Assets.images.media.albumPlaceholder.image(),
                               NetworkImageWidget(
                                 url: fileGroup.thumbnail,
                                 fit: BoxFit.fill,
@@ -295,9 +295,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _topChartsView(){
     List<String> icons = [
-      Assets.other.chartsGeneral.path,
-      Assets.other.chartsWeekly.path,
-      Assets.other.chartsDaily.path,
+      Assets.images.charts.chartsGeneral.path,
+      Assets.images.charts.chartsWeekly.path,
+      Assets.images.charts.chartsDaily.path,
     ];
     return Column(
       spacing: 12,
@@ -382,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Container(
                                       alignment: Alignment.bottomCenter,
-                                      child: Assets.other.overlayPlay.image( width: 20),
+                                      child: Assets.images.media.overlayPlay.image( width: 20),
                                     ),
                                   ],
                                 ),

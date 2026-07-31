@@ -97,7 +97,7 @@ class FindTopResultView extends StatelessWidget {
               isWhite: true,
               icon: SaveFileWidget(
                 fileInfo: item,
-                icon: Assets.other.saveAccent.path,
+                icon: Assets.images.collection.saveAccent.path,
                 controller: downloadFileController,
               ),
               title: 'Offline'.translate,
@@ -113,7 +113,7 @@ class FindTopResultView extends StatelessWidget {
               isWhite: true,
               icon: FavoriteArtistWidget(
                 artist: item,
-                icon: Assets.other.favoriteAccent.path,
+                icon: Assets.images.collection.favoriteAccent.path,
                 controller: artistController,
               ),
               title: 'Like'.translate,
@@ -129,7 +129,7 @@ class FindTopResultView extends StatelessWidget {
               isWhite: true,
               icon: FavoriteGroupWidget(
                 fileGroup: item,
-                icon: Assets.other.favoriteAccent.path,
+                icon: Assets.images.collection.favoriteAccent.path,
                 controller: groupController,
               ),
               title: 'Like'.translate,
@@ -163,7 +163,7 @@ class FindTopResultView extends StatelessWidget {
                             PlayHelper.toPlay(fileList: fileList);
                           },
                           fontSize: 16,
-                          icon: Assets.other.playlistPlay.image(),
+                          icon: Assets.images.collection.playlistPlay.image(),
                           title: 'Play'.translate,
                         ),
                       ),
@@ -207,14 +207,14 @@ class FindTopResultView extends StatelessWidget {
     else if(item is ArtistInfo){
       return ArtistListCell(
         artistInfo: item,
-        action: Assets.other.optionsMuted.image(),
+        action: Assets.images.common.optionsMuted.image(),
       );
     }
     else if(item is FileGroup) {
       return PlaylistListCell(
         fileGroup: item,
         showMoreAction: true,
-        action: Assets.other.optionsMuted.image( width: 24),
+        action: Assets.images.common.optionsMuted.image( width: 24),
       );
     }
     return SizedBox();

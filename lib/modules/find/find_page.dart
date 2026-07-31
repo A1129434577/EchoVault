@@ -73,7 +73,7 @@ class _FindPageState extends State<FindPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return BgContainer(
-      bg: Assets.other.searchBackdrop.path,
+      bg: Assets.images.search.searchBackdrop.path,
       child: PlayBar(
         builder: (BuildContext context, double barHeight) {
           return Scaffold(
@@ -179,8 +179,8 @@ class _FindPageState extends State<FindPage> with TickerProviderStateMixin {
                           alignment: Alignment.center,
                           width: 48,
                           child: isSearchBarEmpty?
-                          Assets.other.historySearch.image( width: 24,):
-                          Assets.other.searchClear.image( width: 16,),
+                          Assets.images.search.historySearch.image( width: 24,):
+                          Assets.images.search.searchClear.image( width: 16,),
                         ),
                       ),
                       onFieldSubmitted: (text){
@@ -254,7 +254,7 @@ class _FindPageState extends State<FindPage> with TickerProviderStateMixin {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          Assets.other.searchRow.image( width: 20),
+                          Assets.images.search.searchRow.image( width: 20),
                           SizedBox(width: 10),
                           if (frontString.isNotEmpty)
                             Text(

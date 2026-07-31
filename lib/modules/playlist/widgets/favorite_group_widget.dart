@@ -26,8 +26,8 @@ class FavoriteGroupWidget extends StatelessWidget {
       valueListenable: favoriteController.notifier,
       builder: (BuildContext context, FileGroup musicGroup, Widget? child) {
         Widget child = Image.asset(musicGroup.isFavorite == 1
-            ? (selectedIcon ?? Assets.other.favoriteActive.path)
-            : (icon ?? Assets.other.favorite.path));
+            ? (selectedIcon ?? Assets.images.collection.favoriteActive.path)
+            : (icon ?? Assets.images.collection.favorite.path));
         if(controller==null){
           return CupertinoButton(
             onPressed: (){

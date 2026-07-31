@@ -74,7 +74,7 @@ class _PlayBarState extends State<PlayBar> {
                                     child: NetworkImageWidget(
                                       url: currentMediaInfo.thumbnail,
                                       radius: 2,
-                                      defaultView: Assets.audioNote.image(),
+                                      defaultView: Assets.images.media.audioNote.image(),
                                     ),
                                   ),
                                   SizedBox(width: 12),
@@ -103,8 +103,8 @@ class _PlayBarState extends State<PlayBar> {
                                             sizeStyle: CupertinoButtonSize.small,
                                             padding: EdgeInsets.zero,
                                             child: (isPlaying
-                                              ? Assets.other.miniPause
-                                              : Assets.other.miniPlay).image(
+                                              ? Assets.images.player.miniPause
+                                              : Assets.images.player.miniPlay).image(
                                               width: 32,
                                             ),
                                           );
@@ -123,8 +123,8 @@ class _PlayBarState extends State<PlayBar> {
                                       sizeStyle: CupertinoButtonSize.small,
                                       padding: EdgeInsets.zero,
                                       child: (PlayerPlayback.instance.player.hasNext()
-                                        ? Assets.other.miniNext
-                                        : Assets.other.miniNextDisabled).image(
+                                        ? Assets.images.player.miniNext
+                                        : Assets.images.player.miniNextDisabled).image(
                                       ),
                                     ),
                                   ),

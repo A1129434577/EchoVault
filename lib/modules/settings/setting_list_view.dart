@@ -113,7 +113,7 @@ class SettingListView extends StatelessWidget {
                       );
                     },
                   ):
-                  Assets.optionsIcon.image( width: 20,),
+                  Assets.images.shell.optionsIcon.image( width: 20,),
                 ],
               ),
             ),

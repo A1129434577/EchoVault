@@ -76,7 +76,7 @@ class _OpenPageState extends State<OpenPage> {
                 child: SizedBox(
                   height: 60,
                   width: 60,
-                  child: Assets.appLogo.image(),
+                  child: Assets.images.brand.appLogo.image(),
                 ),
               ),
               SizedBox(height: 8),

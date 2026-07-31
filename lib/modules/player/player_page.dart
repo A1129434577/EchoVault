@@ -82,7 +82,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        image: DecorationImage(image: Assets.other.playerBackdrop.provider(), fit: BoxFit.fill),
+        image: DecorationImage(image: Assets.images.player.playerBackdrop.provider(), fit: BoxFit.fill),
       ),
       child: Container(
         padding: EdgeInsets.only(
@@ -98,7 +98,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
               child: Container(
                 padding: EdgeInsets.all(16),
                 alignment: Alignment.centerLeft,
-                child: Assets.other.playerBack.image( height: 24),
+                child: Assets.images.player.playerBack.image( height: 24),
               ),
             ),
             actions: [
@@ -116,7 +116,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
                       },
                       sizeStyle: CupertinoButtonSize.small,
                       padding: EdgeInsets.zero,
-                      child: Assets.other.listOptions.image( width: 24,),
+                      child: Assets.images.collection.listOptions.image( width: 24,),
                     ),
                   );
                 },
@@ -193,7 +193,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
                   NetworkImageWidget(
                     radius: 15,
                     url: currentMediaInfo?.thumbnail??'',
-                    defaultView: Assets.audioNote.image(),
+                    defaultView: Assets.images.media.audioNote.image(),
                   ),
                   VideoPlayer(playerController)
                 ],
@@ -208,7 +208,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
             child: NetworkImageWidget(
               radius: 15,
               url: currentMediaInfo?.thumbnail??'',
-              defaultView: Assets.audioNote.image(),
+              defaultView: Assets.images.media.audioNote.image(),
             ),
           ),
         );
@@ -286,7 +286,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: Assets.other.addPlaylistAction.image(),
+            child: Assets.images.collection.addPlaylistAction.image(),
           ),
           FavoriteFileWidget(fileInfo: currentMediaInfo),
           SaveFileWidget(
@@ -299,7 +299,7 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: Assets.other.playlistIcon.image(),
+            child: Assets.images.collection.playlistIcon.image(),
           ),
         ],
       ),
@@ -412,8 +412,8 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
                 sizeStyle: CupertinoButtonSize.small,
                 padding: EdgeInsets.zero,
                 child: (playModeInfo.mode == PlayerPlayMode.loopOne
-                    ? Assets.other.repeatOne
-                    : Assets.other.repeat).image(width: 32),
+                    ? Assets.images.player.repeatOne
+                    : Assets.images.player.repeat).image(width: 32),
               );
             },
           ),
@@ -426,8 +426,8 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
             child: (_pageController.player.hasPrevious()
-                ? Assets.other.skipBack
-                : Assets.other.skipBackDisabled).image(width: 32),
+                ? Assets.images.player.skipBack
+                : Assets.images.player.skipBackDisabled).image(width: 32),
           ),
           SizedBox(
             width: 64,
@@ -446,8 +446,8 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
                       sizeStyle: CupertinoButtonSize.small,
                       padding: EdgeInsets.zero,
                       child: (isPlaying
-                          ? Assets.other.pauseControl
-                          : Assets.other.playControl).image(width: 64),
+                          ? Assets.images.player.pauseControl
+                          : Assets.images.player.playControl).image(width: 64),
                     );
                   },
                 );
@@ -463,8 +463,8 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
             child: (_pageController.player.hasNext()
-                ? Assets.other.skipForward
-                : Assets.other.skipForwardDisabled).image(width: 32),
+                ? Assets.images.player.skipForward
+                : Assets.images.player.skipForwardDisabled).image(width: 32),
           ),
           ValueListenableBuilder(
             valueListenable: PlayerPlayback.instance.playModeInfo,
@@ -476,8 +476,8 @@ class _PlayerPageState extends State<_PlayerPage> with SingleTickerProviderState
                 sizeStyle: CupertinoButtonSize.small,
                 padding: EdgeInsets.zero,
                 child: (playModeInfo.mode == PlayerPlayMode.shuffle
-                    ? Assets.other.shuffleActive
-                    : Assets.other.shuffleControl).image(width: 32),
+                    ? Assets.images.player.shuffleActive
+                    : Assets.images.player.shuffleControl).image(width: 32),
               );
             },
           ),

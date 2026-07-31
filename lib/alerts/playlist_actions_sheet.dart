@@ -44,8 +44,8 @@ class _FileActionsSheetState extends State<PlaylistActionsSheet> {
     'Delete'.translate,
   ];
   List<AssetGenImage> iconList = [
-    Assets.other.listRename,
-    Assets.other.listDelete,
+    Assets.images.collection.listRename,
+    Assets.images.collection.listDelete,
   ];
 
   @override
@@ -93,7 +93,7 @@ class _FileActionsSheetState extends State<PlaylistActionsSheet> {
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child: Assets.other.dismiss.image( width: 20),
+                    child: Assets.images.common.dismiss.image( width: 20),
                   ),
                 )
               ],

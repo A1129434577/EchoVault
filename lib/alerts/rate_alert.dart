@@ -53,7 +53,7 @@ class RateAlert extends StatelessWidget {
                     maxHeight: 140,
                     maxWidth: 140,
                     alignment: Alignment.bottomCenter,
-                    child: Assets.other.ratingPanel.image( width: 140),
+                    child: Assets.images.feedback.ratingPanel.image( width: 140),
                   ),
                 ),
                 SizedBox(height: 12),
@@ -97,8 +97,8 @@ class RateAlert extends StatelessWidget {
                             }
                           },
                           isSelected: index<=value,
-                          icon: Assets.other.ratingStar.image( width: 28,),
-                          selectedIcon: Assets.other.starActive.image( width: 28,),
+                          icon: Assets.images.feedback.ratingStar.image( width: 28,),
+                          selectedIcon: Assets.images.feedback.starActive.image( width: 28,),
                         );
                       }),
                     );
@@ -137,7 +137,7 @@ class RateAlert extends StatelessWidget {
                               Positioned(
                                 left: 10,
                                 top: 10,
-                                child: Assets.other.ratingHand.image(width: 56,),
+                                child: Assets.images.feedback.ratingHand.image(width: 56,),
                               )
                             ],
                           ),
@@ -156,7 +156,7 @@ class RateAlert extends StatelessWidget {
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: Assets.other.updateDismiss.image(
+            child: Assets.images.update.updateDismiss.image(
               width: 24,
             ),
           ),

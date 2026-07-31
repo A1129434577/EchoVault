@@ -51,18 +51,18 @@ class _TabPageState extends State<TabPage> {
             items: [
               BottomNavigationBarItem(
                 label: 'Home'.translate,
-                icon: Assets.tabHome.image( height: 24),
-                activeIcon: Assets.tabHomeActive.image( height: 24),
+                icon: Assets.images.shell.tabHome.image( height: 24),
+                activeIcon: Assets.images.shell.tabHomeActive.image( height: 24),
               ),
               BottomNavigationBarItem(
                 label: 'Library'.translate,
-                icon: Assets.tabCollection.image( height: 24),
-                activeIcon: Assets.tabCollectionActive.image( height: 24),
+                icon: Assets.images.shell.tabCollection.image( height: 24),
+                activeIcon: Assets.images.shell.tabCollectionActive.image( height: 24),
               ),
               BottomNavigationBarItem(
                 label: 'Search'.translate,
-                icon: Assets.tabSearch.image( height: 24),
-                activeIcon: Assets.tabSearchActive.image( height: 24),
+                icon: Assets.images.shell.tabSearch.image( height: 24),
+                activeIcon: Assets.images.shell.tabSearchActive.image( height: 24),
               ),
             ],
           ),

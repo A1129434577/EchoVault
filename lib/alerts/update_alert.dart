@@ -51,7 +51,7 @@ class UpdateAlert extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 18, vertical: 22),
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: Assets.other.updateBackdrop.provider(),
+                  image: Assets.images.update.updateBackdrop.provider(),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -61,7 +61,7 @@ class UpdateAlert extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Assets.other.updateHeading.image( height: 76),
+                      Assets.images.update.updateHeading.image( height: 76),
                       SizedBox(
                         width: 80,
                         height: 100,
@@ -69,7 +69,7 @@ class UpdateAlert extends StatelessWidget {
                           maxHeight: 140,
                           maxWidth: 140,
                           alignment: Alignment.bottomCenter,
-                          child: Assets.other.updateBadge.image( height: 140),
+                          child: Assets.images.update.updateBadge.image( height: 140),
                         ),
                       ),
                     ],
@@ -108,7 +108,7 @@ class UpdateAlert extends StatelessWidget {
               },
               sizeStyle: CupertinoButtonSize.small,
               padding: EdgeInsets.zero,
-              child: Assets.other.updateDismiss.image(
+              child: Assets.images.update.updateDismiss.image(
                 width: 24,
               ),
             ),

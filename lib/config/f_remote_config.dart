@@ -14,6 +14,7 @@ import 'package:echo_vault/firebase_options.dart';
 import 'package:echo_vault/generated/assets.dart';
 import 'package:echo_vault/modules/home/controllers/home_controller.dart';
 import 'package:echo_vault/utils/push_notification_util.dart';
+import 'package:echo_vault/utils/string_cipher.dart';
 
 class FRemoteConfig {
   static Completer firebaseInitCompleter = Completer();
@@ -102,7 +103,8 @@ class FRemoteConfig {
 
   static Future _initRecommendList() async {
     try{
-      String recommendJson = await rootBundle.loadString(Assets.json.fileSeed);
+      final encryptedJson = await rootBundle.loadString(Assets.data.fileSeed);
+      String recommendJson = StringCipher.decrypt(encryptedJson);
       List recommend = jsonDecode(recommendJson);
       List<FileInfo> recommendList = [];
       for (Map fileMap in recommend.cast<Map>()) {
@@ -205,4 +207,3 @@ class AdRemoteParse {
     );
   }
 }
-

@@ -116,13 +116,13 @@ class DynamicListView extends StatelessWidget {
                 }else if(item is ArtistInfo){
                   child = ArtistListCell(
                     artistInfo: item,
-                    action: Assets.other.optionsMuted.image(),
+                    action: Assets.images.common.optionsMuted.image(),
                   );
                 }else if(item is FileGroup){
                   child = PlaylistListCell(
                     fileGroup: item,
                     showMoreAction: true,
-                    action: Assets.other.optionsMuted.image( width: 24),
+                    action: Assets.images.common.optionsMuted.image( width: 24),
                   );
                 }
 

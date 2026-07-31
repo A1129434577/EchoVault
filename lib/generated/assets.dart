@@ -5,278 +5,373 @@ import 'package:flutter/widgets.dart';
 class Assets {
   Assets._();
 
-  static const AssetGenImage appBackdrop = AssetGenImage(
-    'assets/app_backdrop.png',
-  );
-  static const AssetGenImage appLogo = AssetGenImage('assets/app_logo.png');
-  static const AssetGenImage audioNote = AssetGenImage('assets/audio_note.png');
-  static const AssetGenImage completionMark = AssetGenImage(
-    'assets/completion_mark.png',
-  );
-  static const AssetGenImage dialogDismiss = AssetGenImage(
-    'assets/dialog_dismiss.png',
-  );
-  static const AssetGenImage emptyStateBox = AssetGenImage(
-    'assets/empty_state_box.png',
-  );
-  static const AssetGenImage navBackDark = AssetGenImage(
-    'assets/nav_back_dark.png',
-  );
-  static const AssetGenImage navBackLight = AssetGenImage(
-    'assets/nav_back_light.png',
-  );
-  static const AssetGenImage optionsIcon = AssetGenImage(
-    'assets/options_icon.png',
-  );
-  static const AssetGenImage statusError = AssetGenImage(
-    'assets/status_error.png',
-  );
-  static const AssetGenImage statusSuccess = AssetGenImage(
-    'assets/status_success.png',
-  );
-  static const AssetGenImage statusWarning = AssetGenImage(
-    'assets/status_warning.png',
-  );
-  static const AssetGenImage tabCollection = AssetGenImage(
-    'assets/tab_collection.png',
-  );
-  static const AssetGenImage tabCollectionActive = AssetGenImage(
-    'assets/tab_collection_active.png',
-  );
-  static const AssetGenImage tabHome = AssetGenImage('assets/tab_home.png');
-  static const AssetGenImage tabHomeActive = AssetGenImage(
-    'assets/tab_home_active.png',
-  );
-  static const AssetGenImage tabSearch = AssetGenImage('assets/tab_search.png');
-  static const AssetGenImage tabSearchActive = AssetGenImage(
-    'assets/tab_search_active.png',
-  );
-  static const $AssetsJsonGen json = $AssetsJsonGen();
-  static const $AssetsOtherGen other = $AssetsOtherGen();
+  static const $AssetsDataGen data = $AssetsDataGen();
+  static const $AssetsImagesGen images = $AssetsImagesGen();
 }
 
-class $AssetsOtherGen {
-  const $AssetsOtherGen();
+class $AssetsDataGen {
+  const $AssetsDataGen();
 
-  final AssetGenImage addPlaylistAction = const AssetGenImage(
-    'assets/other/add_playlist_action.png',
-  );
-  final AssetGenImage albumPlaceholder = const AssetGenImage(
-    'assets/other/album_placeholder.png',
-  );
+  final String artSeed = 'assets/data/art_seed.json';
+  final String fileSeed = 'assets/data/file_seed.json';
+  final String topSeed = 'assets/data/top_seed.json';
+}
+
+class $AssetsImagesGen {
+  const $AssetsImagesGen();
+
+  final $AssetsImagesArtistGen artist = const $AssetsImagesArtistGen();
+  final $AssetsImagesBrandGen brand = const $AssetsImagesBrandGen();
+  final $AssetsImagesChartsGen charts = const $AssetsImagesChartsGen();
+  final $AssetsImagesCollectionGen collection =
+      const $AssetsImagesCollectionGen();
+  final $AssetsImagesCommonGen common = const $AssetsImagesCommonGen();
+  final $AssetsImagesFeedbackGen feedback = const $AssetsImagesFeedbackGen();
+  final $AssetsImagesMediaGen media = const $AssetsImagesMediaGen();
+  final $AssetsImagesPlayerGen player = const $AssetsImagesPlayerGen();
+  final $AssetsImagesPromptsGen prompts = const $AssetsImagesPromptsGen();
+  final $AssetsImagesSearchGen search = const $AssetsImagesSearchGen();
+  final $AssetsImagesShellGen shell = const $AssetsImagesShellGen();
+  final $AssetsImagesStatusGen status = const $AssetsImagesStatusGen();
+  final $AssetsImagesUpdateGen update = const $AssetsImagesUpdateGen();
+}
+
+class $AssetsImagesArtistGen {
+  const $AssetsImagesArtistGen();
+
   final AssetGenImage artistBackdrop = const AssetGenImage(
-    'assets/other/artist_backdrop.png',
-  );
-  final AssetGenImage audioTrack = const AssetGenImage(
-    'assets/other/audio_track.png',
-  );
-  final AssetGenImage chartsDaily = const AssetGenImage(
-    'assets/other/charts_daily.png',
-  );
-  final AssetGenImage chartsGeneral = const AssetGenImage(
-    'assets/other/charts_general.png',
-  );
-  final AssetGenImage chartsWeekly = const AssetGenImage(
-    'assets/other/charts_weekly.png',
-  );
-  final AssetGenImage dismiss = const AssetGenImage('assets/other/dismiss.png');
-  final AssetGenImage favorite = const AssetGenImage(
-    'assets/other/favorite.png',
-  );
-  final AssetGenImage favoriteAccent = const AssetGenImage(
-    'assets/other/favorite_accent.png',
-  );
-  final AssetGenImage favoriteActive = const AssetGenImage(
-    'assets/other/favorite_active.png',
-  );
-  final AssetGenImage favoriteLight = const AssetGenImage(
-    'assets/other/favorite_light.png',
-  );
-  final AssetGenImage favoritePrompt = const AssetGenImage(
-    'assets/other/favorite_prompt.png',
-  );
-  final AssetGenImage favoritePromptActive = const AssetGenImage(
-    'assets/other/favorite_prompt_active.png',
-  );
-  final AssetGenImage historyDelete = const AssetGenImage(
-    'assets/other/history_delete.png',
-  );
-  final AssetGenImage historySearch = const AssetGenImage(
-    'assets/other/history_search.png',
-  );
-  final AssetGenImage listAdd = const AssetGenImage(
-    'assets/other/list_add.png',
-  );
-  final AssetGenImage listArtist = const AssetGenImage(
-    'assets/other/list_artist.png',
-  );
-  final AssetGenImage listDelete = const AssetGenImage(
-    'assets/other/list_delete.png',
-  );
-  final AssetGenImage listFavorite = const AssetGenImage(
-    'assets/other/list_favorite.png',
-  );
-  final AssetGenImage listOptions = const AssetGenImage(
-    'assets/other/list_options.png',
-  );
-  final AssetGenImage listRename = const AssetGenImage(
-    'assets/other/list_rename.png',
-  );
-  final AssetGenImage listSaved = const AssetGenImage(
-    'assets/other/list_saved.png',
-  );
-  final AssetGenImage loader = const AssetGenImage('assets/other/loader.png');
-  final AssetGenImage miniNext = const AssetGenImage(
-    'assets/other/mini_next.png',
-  );
-  final AssetGenImage miniNextDisabled = const AssetGenImage(
-    'assets/other/mini_next_disabled.png',
-  );
-  final AssetGenImage miniPause = const AssetGenImage(
-    'assets/other/mini_pause.png',
-  );
-  final AssetGenImage miniPlay = const AssetGenImage(
-    'assets/other/mini_play.png',
+    'assets/images/artist/artist_backdrop.png',
   );
   final AssetGenImage navBackLight = const AssetGenImage(
-    'assets/other/nav_back_light.png',
-  );
-  final AssetGenImage options = const AssetGenImage('assets/other/options.png');
-  final AssetGenImage optionsMuted = const AssetGenImage(
-    'assets/other/options_muted.png',
-  );
-  final AssetGenImage overlayPlay = const AssetGenImage(
-    'assets/other/overlay_play.png',
-  );
-  final AssetGenImage pauseControl = const AssetGenImage(
-    'assets/other/pause_control.png',
-  );
-  final AssetGenImage playControl = const AssetGenImage(
-    'assets/other/play_control.png',
-  );
-  final AssetGenImage playNextPrompt = const AssetGenImage(
-    'assets/other/play_next_prompt.png',
-  );
-  final AssetGenImage playerBack = const AssetGenImage(
-    'assets/other/player_back.png',
-  );
-  final AssetGenImage playerBackdrop = const AssetGenImage(
-    'assets/other/player_backdrop.png',
-  );
-  final AssetGenImage playlistAddPrompt = const AssetGenImage(
-    'assets/other/playlist_add_prompt.png',
-  );
-  final AssetGenImage playlistCreate = const AssetGenImage(
-    'assets/other/playlist_create.png',
-  );
-  final AssetGenImage playlistIcon = const AssetGenImage(
-    'assets/other/playlist_icon.png',
-  );
-  final AssetGenImage playlistPlay = const AssetGenImage(
-    'assets/other/playlist_play.png',
-  );
-  final AssetGenImage playlistShuffle = const AssetGenImage(
-    'assets/other/playlist_shuffle.png',
+    'assets/images/artist/nav_back_light.png',
   );
   final AssetGenImage profileAvatar = const AssetGenImage(
-    'assets/other/profile_avatar.png',
-  );
-  final AssetGenImage queueAddPrompt = const AssetGenImage(
-    'assets/other/queue_add_prompt.png',
-  );
-  final AssetGenImage ratingHand = const AssetGenImage(
-    'assets/other/rating_hand.png',
-  );
-  final AssetGenImage ratingPanel = const AssetGenImage(
-    'assets/other/rating_panel.png',
-  );
-  final AssetGenImage ratingStar = const AssetGenImage(
-    'assets/other/rating_star.png',
-  );
-  final AssetGenImage repeat = const AssetGenImage('assets/other/repeat.png');
-  final AssetGenImage repeatOne = const AssetGenImage(
-    'assets/other/repeat_one.png',
-  );
-  final AssetGenImage saveAccent = const AssetGenImage(
-    'assets/other/save_accent.png',
-  );
-  final AssetGenImage saveControl = const AssetGenImage(
-    'assets/other/save_control.png',
-  );
-  final AssetGenImage saveGuideBackdrop = const AssetGenImage(
-    'assets/other/save_guide_backdrop.png',
-  );
-  final AssetGenImage saveGuideLine = const AssetGenImage(
-    'assets/other/save_guide_line.png',
-  );
-  final AssetGenImage saveHelp = const AssetGenImage(
-    'assets/other/save_help.png',
-  );
-  final AssetGenImage savePrompt = const AssetGenImage(
-    'assets/other/save_prompt.png',
-  );
-  final AssetGenImage savePromptActive = const AssetGenImage(
-    'assets/other/save_prompt_active.png',
-  );
-  final AssetGenImage savedState = const AssetGenImage(
-    'assets/other/saved_state.png',
-  );
-  final AssetGenImage searchBackdrop = const AssetGenImage(
-    'assets/other/search_backdrop.png',
-  );
-  final AssetGenImage searchClear = const AssetGenImage(
-    'assets/other/search_clear.png',
-  );
-  final AssetGenImage searchRow = const AssetGenImage(
-    'assets/other/search_row.png',
-  );
-  final AssetGenImage settings = const AssetGenImage(
-    'assets/other/settings.png',
-  );
-  final AssetGenImage shuffleActive = const AssetGenImage(
-    'assets/other/shuffle_active.png',
-  );
-  final AssetGenImage shuffleControl = const AssetGenImage(
-    'assets/other/shuffle_control.png',
-  );
-  final AssetGenImage skipBack = const AssetGenImage(
-    'assets/other/skip_back.png',
-  );
-  final AssetGenImage skipBackDisabled = const AssetGenImage(
-    'assets/other/skip_back_disabled.png',
-  );
-  final AssetGenImage skipForward = const AssetGenImage(
-    'assets/other/skip_forward.png',
-  );
-  final AssetGenImage skipForwardDisabled = const AssetGenImage(
-    'assets/other/skip_forward_disabled.png',
-  );
-  final AssetGenImage starActive = const AssetGenImage(
-    'assets/other/star_active.png',
-  );
-  final AssetGenImage updateBackdrop = const AssetGenImage(
-    'assets/other/update_backdrop.png',
-  );
-  final AssetGenImage updateBadge = const AssetGenImage(
-    'assets/other/update_badge.png',
-  );
-  final AssetGenImage updateDismiss = const AssetGenImage(
-    'assets/other/update_dismiss.png',
-  );
-  final AssetGenImage updateHeading = const AssetGenImage(
-    'assets/other/update_heading.png',
-  );
-  final AssetGenImage userIcon = const AssetGenImage(
-    'assets/other/user_icon.png',
+    'assets/images/artist/profile_avatar.png',
   );
 }
 
-class $AssetsJsonGen {
-  const $AssetsJsonGen();
+class $AssetsImagesBrandGen {
+  const $AssetsImagesBrandGen();
 
-  final String artSeed = 'assets/json/art_seed.json';
-  final String fileSeed = 'assets/json/file_seed.json';
-  final String topSeed = 'assets/json/top_seed.json';
+  final AssetGenImage appLogo = const AssetGenImage(
+    'assets/images/brand/app_logo.png',
+  );
+}
+
+class $AssetsImagesChartsGen {
+  const $AssetsImagesChartsGen();
+
+  final AssetGenImage chartsDaily = const AssetGenImage(
+    'assets/images/charts/charts_daily.png',
+  );
+  final AssetGenImage chartsGeneral = const AssetGenImage(
+    'assets/images/charts/charts_general.png',
+  );
+  final AssetGenImage chartsWeekly = const AssetGenImage(
+    'assets/images/charts/charts_weekly.png',
+  );
+}
+
+class $AssetsImagesCollectionGen {
+  const $AssetsImagesCollectionGen();
+
+  final AssetGenImage addPlaylistAction = const AssetGenImage(
+    'assets/images/collection/add_playlist_action.png',
+  );
+  final AssetGenImage favorite = const AssetGenImage(
+    'assets/images/collection/favorite.png',
+  );
+  final AssetGenImage favoriteAccent = const AssetGenImage(
+    'assets/images/collection/favorite_accent.png',
+  );
+  final AssetGenImage favoriteActive = const AssetGenImage(
+    'assets/images/collection/favorite_active.png',
+  );
+  final AssetGenImage favoriteLight = const AssetGenImage(
+    'assets/images/collection/favorite_light.png',
+  );
+  final AssetGenImage favoritePromptActive = const AssetGenImage(
+    'assets/images/collection/favorite_prompt_active.png',
+  );
+  final AssetGenImage listAdd = const AssetGenImage(
+    'assets/images/collection/list_add.png',
+  );
+  final AssetGenImage listArtist = const AssetGenImage(
+    'assets/images/collection/list_artist.png',
+  );
+  final AssetGenImage listDelete = const AssetGenImage(
+    'assets/images/collection/list_delete.png',
+  );
+  final AssetGenImage listFavorite = const AssetGenImage(
+    'assets/images/collection/list_favorite.png',
+  );
+  final AssetGenImage listOptions = const AssetGenImage(
+    'assets/images/collection/list_options.png',
+  );
+  final AssetGenImage listRename = const AssetGenImage(
+    'assets/images/collection/list_rename.png',
+  );
+  final AssetGenImage listSaved = const AssetGenImage(
+    'assets/images/collection/list_saved.png',
+  );
+  final AssetGenImage playlistCreate = const AssetGenImage(
+    'assets/images/collection/playlist_create.png',
+  );
+  final AssetGenImage playlistIcon = const AssetGenImage(
+    'assets/images/collection/playlist_icon.png',
+  );
+  final AssetGenImage playlistPlay = const AssetGenImage(
+    'assets/images/collection/playlist_play.png',
+  );
+  final AssetGenImage playlistShuffle = const AssetGenImage(
+    'assets/images/collection/playlist_shuffle.png',
+  );
+  final AssetGenImage saveAccent = const AssetGenImage(
+    'assets/images/collection/save_accent.png',
+  );
+  final AssetGenImage saveControl = const AssetGenImage(
+    'assets/images/collection/save_control.png',
+  );
+  final AssetGenImage saveGuideBackdrop = const AssetGenImage(
+    'assets/images/collection/save_guide_backdrop.png',
+  );
+  final AssetGenImage saveGuideLine = const AssetGenImage(
+    'assets/images/collection/save_guide_line.png',
+  );
+  final AssetGenImage saveHelp = const AssetGenImage(
+    'assets/images/collection/save_help.png',
+  );
+  final AssetGenImage savePromptActive = const AssetGenImage(
+    'assets/images/collection/save_prompt_active.png',
+  );
+  final AssetGenImage savedState = const AssetGenImage(
+    'assets/images/collection/saved_state.png',
+  );
+}
+
+class $AssetsImagesCommonGen {
+  const $AssetsImagesCommonGen();
+
+  final AssetGenImage dismiss = const AssetGenImage(
+    'assets/images/common/dismiss.png',
+  );
+  final AssetGenImage loader = const AssetGenImage(
+    'assets/images/common/loader.png',
+  );
+  final AssetGenImage options = const AssetGenImage(
+    'assets/images/common/options.png',
+  );
+  final AssetGenImage optionsMuted = const AssetGenImage(
+    'assets/images/common/options_muted.png',
+  );
+  final AssetGenImage settings = const AssetGenImage(
+    'assets/images/common/settings.png',
+  );
+  final AssetGenImage userIcon = const AssetGenImage(
+    'assets/images/common/user_icon.png',
+  );
+}
+
+class $AssetsImagesFeedbackGen {
+  const $AssetsImagesFeedbackGen();
+
+  final AssetGenImage ratingHand = const AssetGenImage(
+    'assets/images/feedback/rating_hand.png',
+  );
+  final AssetGenImage ratingPanel = const AssetGenImage(
+    'assets/images/feedback/rating_panel.png',
+  );
+  final AssetGenImage ratingStar = const AssetGenImage(
+    'assets/images/feedback/rating_star.png',
+  );
+  final AssetGenImage starActive = const AssetGenImage(
+    'assets/images/feedback/star_active.png',
+  );
+}
+
+class $AssetsImagesMediaGen {
+  const $AssetsImagesMediaGen();
+
+  final AssetGenImage albumPlaceholder = const AssetGenImage(
+    'assets/images/media/album_placeholder.png',
+  );
+  final AssetGenImage audioNote = const AssetGenImage(
+    'assets/images/media/audio_note.png',
+  );
+  final AssetGenImage audioTrack = const AssetGenImage(
+    'assets/images/media/audio_track.png',
+  );
+  final AssetGenImage overlayPlay = const AssetGenImage(
+    'assets/images/media/overlay_play.png',
+  );
+}
+
+class $AssetsImagesPlayerGen {
+  const $AssetsImagesPlayerGen();
+
+  final AssetGenImage miniNext = const AssetGenImage(
+    'assets/images/player/mini_next.png',
+  );
+  final AssetGenImage miniNextDisabled = const AssetGenImage(
+    'assets/images/player/mini_next_disabled.png',
+  );
+  final AssetGenImage miniPause = const AssetGenImage(
+    'assets/images/player/mini_pause.png',
+  );
+  final AssetGenImage miniPlay = const AssetGenImage(
+    'assets/images/player/mini_play.png',
+  );
+  final AssetGenImage pauseControl = const AssetGenImage(
+    'assets/images/player/pause_control.png',
+  );
+  final AssetGenImage playControl = const AssetGenImage(
+    'assets/images/player/play_control.png',
+  );
+  final AssetGenImage playerBack = const AssetGenImage(
+    'assets/images/player/player_back.png',
+  );
+  final AssetGenImage playerBackdrop = const AssetGenImage(
+    'assets/images/player/player_backdrop.png',
+  );
+  final AssetGenImage repeat = const AssetGenImage(
+    'assets/images/player/repeat.png',
+  );
+  final AssetGenImage repeatOne = const AssetGenImage(
+    'assets/images/player/repeat_one.png',
+  );
+  final AssetGenImage shuffleActive = const AssetGenImage(
+    'assets/images/player/shuffle_active.png',
+  );
+  final AssetGenImage shuffleControl = const AssetGenImage(
+    'assets/images/player/shuffle_control.png',
+  );
+  final AssetGenImage skipBack = const AssetGenImage(
+    'assets/images/player/skip_back.png',
+  );
+  final AssetGenImage skipBackDisabled = const AssetGenImage(
+    'assets/images/player/skip_back_disabled.png',
+  );
+  final AssetGenImage skipForward = const AssetGenImage(
+    'assets/images/player/skip_forward.png',
+  );
+  final AssetGenImage skipForwardDisabled = const AssetGenImage(
+    'assets/images/player/skip_forward_disabled.png',
+  );
+}
+
+class $AssetsImagesPromptsGen {
+  const $AssetsImagesPromptsGen();
+
+  final AssetGenImage favoritePrompt = const AssetGenImage(
+    'assets/images/prompts/favorite_prompt.png',
+  );
+  final AssetGenImage playNextPrompt = const AssetGenImage(
+    'assets/images/prompts/play_next_prompt.png',
+  );
+  final AssetGenImage playlistAddPrompt = const AssetGenImage(
+    'assets/images/prompts/playlist_add_prompt.png',
+  );
+  final AssetGenImage queueAddPrompt = const AssetGenImage(
+    'assets/images/prompts/queue_add_prompt.png',
+  );
+  final AssetGenImage savePrompt = const AssetGenImage(
+    'assets/images/prompts/save_prompt.png',
+  );
+}
+
+class $AssetsImagesSearchGen {
+  const $AssetsImagesSearchGen();
+
+  final AssetGenImage historyDelete = const AssetGenImage(
+    'assets/images/search/history_delete.png',
+  );
+  final AssetGenImage historySearch = const AssetGenImage(
+    'assets/images/search/history_search.png',
+  );
+  final AssetGenImage searchBackdrop = const AssetGenImage(
+    'assets/images/search/search_backdrop.png',
+  );
+  final AssetGenImage searchClear = const AssetGenImage(
+    'assets/images/search/search_clear.png',
+  );
+  final AssetGenImage searchRow = const AssetGenImage(
+    'assets/images/search/search_row.png',
+  );
+}
+
+class $AssetsImagesShellGen {
+  const $AssetsImagesShellGen();
+
+  final AssetGenImage appBackdrop = const AssetGenImage(
+    'assets/images/shell/app_backdrop.png',
+  );
+  final AssetGenImage navBackDark = const AssetGenImage(
+    'assets/images/shell/nav_back_dark.png',
+  );
+  final AssetGenImage navBackLight = const AssetGenImage(
+    'assets/images/shell/nav_back_light.png',
+  );
+  final AssetGenImage optionsIcon = const AssetGenImage(
+    'assets/images/shell/options_icon.png',
+  );
+  final AssetGenImage tabCollection = const AssetGenImage(
+    'assets/images/shell/tab_collection.png',
+  );
+  final AssetGenImage tabCollectionActive = const AssetGenImage(
+    'assets/images/shell/tab_collection_active.png',
+  );
+  final AssetGenImage tabHome = const AssetGenImage(
+    'assets/images/shell/tab_home.png',
+  );
+  final AssetGenImage tabHomeActive = const AssetGenImage(
+    'assets/images/shell/tab_home_active.png',
+  );
+  final AssetGenImage tabSearch = const AssetGenImage(
+    'assets/images/shell/tab_search.png',
+  );
+  final AssetGenImage tabSearchActive = const AssetGenImage(
+    'assets/images/shell/tab_search_active.png',
+  );
+}
+
+class $AssetsImagesStatusGen {
+  const $AssetsImagesStatusGen();
+
+  final AssetGenImage completionMark = const AssetGenImage(
+    'assets/images/status/completion_mark.png',
+  );
+  final AssetGenImage dialogDismiss = const AssetGenImage(
+    'assets/images/status/dialog_dismiss.png',
+  );
+  final AssetGenImage emptyStateBox = const AssetGenImage(
+    'assets/images/status/empty_state_box.png',
+  );
+  final AssetGenImage statusError = const AssetGenImage(
+    'assets/images/status/status_error.png',
+  );
+  final AssetGenImage statusSuccess = const AssetGenImage(
+    'assets/images/status/status_success.png',
+  );
+  final AssetGenImage statusWarning = const AssetGenImage(
+    'assets/images/status/status_warning.png',
+  );
+}
+
+class $AssetsImagesUpdateGen {
+  const $AssetsImagesUpdateGen();
+
+  final AssetGenImage updateBackdrop = const AssetGenImage(
+    'assets/images/update/update_backdrop.png',
+  );
+  final AssetGenImage updateBadge = const AssetGenImage(
+    'assets/images/update/update_badge.png',
+  );
+  final AssetGenImage updateDismiss = const AssetGenImage(
+    'assets/images/update/update_dismiss.png',
+  );
+  final AssetGenImage updateHeading = const AssetGenImage(
+    'assets/images/update/update_heading.png',
+  );
 }
 
 class AssetGenImage {

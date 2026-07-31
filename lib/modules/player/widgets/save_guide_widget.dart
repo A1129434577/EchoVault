@@ -72,7 +72,7 @@ class SaveGuideWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: Color(0xffB7CFFF),
                     ),
-                    child: Assets.other.saveHelp.image( width: 24,),
+                    child: Assets.images.collection.saveHelp.image( width: 24,),
                   ),
                 ),
               ),
@@ -82,7 +82,7 @@ class SaveGuideWidget extends StatelessWidget {
               left: center.dx-4,
               width: 8,
               height: 52,
-              child: Assets.other.saveGuideLine.image(),
+              child: Assets.images.collection.saveGuideLine.image(),
             ),
             Positioned(
               top: center.dy-80-84,
@@ -93,7 +93,7 @@ class SaveGuideWidget extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                    image: DecorationImage(image: Assets.other.saveGuideBackdrop.provider())
+                    image: DecorationImage(image: Assets.images.collection.saveGuideBackdrop.provider())
                 ),
                 child: Text(
                   'Access your favorite tracks instantly with a click here.'.translate,

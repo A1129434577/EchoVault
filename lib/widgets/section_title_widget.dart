@@ -62,7 +62,7 @@ class SectionTitleWidget extends StatelessWidget {
                   color: Color(0xff83848A),
                 ),
               ),
-              Assets.other.options.image(
+              Assets.images.common.options.image(
                 width: 16,
               )
             ],

@@ -15,6 +15,7 @@ import 'package:echo_vault/datebase/file_group_data_operate.dart';
 import 'package:echo_vault/datebase/file_info_data_operate.dart';
 import 'package:echo_vault/enums/file_source.dart';
 import 'package:echo_vault/generated/assets.dart';
+import 'package:echo_vault/utils/string_cipher.dart';
 import 'package:echo_vault/models/artist_info.dart';
 import 'package:echo_vault/modules/library/controllers/library_controller.dart';
 import 'package:echo_vault/modules/player/controllers/play_controller.dart';
@@ -105,7 +106,7 @@ class HomeController with ChangeNotifier{
     if(likedList.isNotEmpty){
       fileGroupList.add(FileGroup(
         name: 'Like songs'.translate,
-        thumbnail: Assets.other.listFavorite.path,
+        thumbnail: Assets.images.collection.listFavorite.path,
         children: likedList,
       ));
     }
@@ -113,7 +114,7 @@ class HomeController with ChangeNotifier{
     if(savedList.isNotEmpty){
       fileGroupList.add(FileGroup(
         name: 'Local songs'.translate,
-        thumbnail: Assets.other.listSaved.path,
+        thumbnail: Assets.images.collection.listSaved.path,
         children: savedList,
       ));
     }
@@ -136,7 +137,8 @@ class HomeController with ChangeNotifier{
   Future<List<ArtistInfo>> queryMyArtist() async {
     List<ArtistInfo> list = await ArtistDataOperate.queryArtistInfo();
     if(list.isEmpty){
-      String artisJsonString = await rootBundle.loadString(Assets.json.artSeed);
+      final encryptedJson = await rootBundle.loadString(Assets.data.artSeed);
+      String artisJsonString = StringCipher.decrypt(encryptedJson);
       List artisMapList = jsonDecode(artisJsonString);
       for (final artistMap in artisMapList) {
         ArtistInfo artistInfo = ArtistInfo.fromJson(artistMap);
@@ -150,7 +152,8 @@ class HomeController with ChangeNotifier{
 
   Future<List<FileGroup>> queryTopCharts() async {
     List<FileGroup> fileGroupList = [];
-    String jsonString = await rootBundle.loadString(Assets.json.topSeed);
+    final encryptedJson = await rootBundle.loadString(Assets.data.topSeed);
+    String jsonString = StringCipher.decrypt(encryptedJson);
     Map data = jsonDecode(jsonString);
     Locale sysLocale = WidgetsBinding.instance.platformDispatcher.locale;
     String countryCode = sysLocale.countryCode?.toLowerCase() ?? "us";
@@ -162,7 +165,7 @@ class HomeController with ChangeNotifier{
     }
     for(final map in jsonList) {
       FileGroup fileGroup = FileGroup.fromJson(map);
-      fileGroup.thumbnail = Assets.other.albumPlaceholder.path;
+      fileGroup.thumbnail = Assets.images.media.albumPlaceholder.path;
       fileGroup.playlistType = PlaylistType.LOCKUP_CONTENT_TYPE_PLAYLIST.name;
       fileGroupList.add(fileGroup);
     }

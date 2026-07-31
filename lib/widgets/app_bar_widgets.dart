@@ -13,7 +13,7 @@ class AppWhiteBackButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16),
         alignment: Alignment.centerLeft,
-        child: Assets.navBackLight.image( width: 24),
+        child: Assets.images.shell.navBackLight.image( width: 24),
       ),
     );
   }
@@ -37,7 +37,7 @@ class AppBlackBackButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16),
         alignment: Alignment.centerLeft,
-        child: Image.asset(icon ?? Assets.navBackDark.path, width: 24),
+        child: Image.asset(icon ?? Assets.images.shell.navBackDark.path, width: 24),
       ),
     );
   }
