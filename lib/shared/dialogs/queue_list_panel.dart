@@ -5,7 +5,7 @@ import 'package:echo_vault/generated/assets.dart';
 import 'package:echo_vault/shared/widgets/media/adaptive_list_view.dart';
 
 class QueueListPanel extends StatefulWidget {
-  static String routeName = '$QueueListPanel';
+  static String panelRoute = '$QueueListPanel';
 
   const QueueListPanel({super.key});
 
@@ -18,7 +18,7 @@ class QueueListPanel extends StatefulWidget {
       backgroundColor: Colors.white,
       isScrollControlled: true,
       useSafeArea: true,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: panelRoute),
       builder: (buildContext) {
         return QueueListPanel();
       },

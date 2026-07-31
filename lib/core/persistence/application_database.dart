@@ -5,33 +5,33 @@ import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
 export 'package:sqflite/sqflite.dart';
 
 class ApplicationDatabase {
-  static final AsyncMemoizer<Database> _memoizer = AsyncMemoizer();
-  static Database? _database;
+  static final AsyncMemoizer<Database> _databaseLoader = AsyncMemoizer();
+  static Database? _activeDatabase;
 
   static Future<Database> get database async {
-    return _memoizer.runOnce(() async {
+    return _databaseLoader.runOnce(() async {
       var documentsDirectoryPathLocal = await getDatabasesPath();
       String databasePathLocal =
           '$documentsDirectoryPathLocal${Platform.pathSeparator}Database${Platform.pathSeparator}echo_vault.db';
-      _database = await openDatabase(
+      _activeDatabase = await openDatabase(
         databasePathLocal,
         version: 3,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
-      return _database!;
+      return _activeDatabase!;
     });
   }
 
   static Future _onCreate(Database dbArg, int versionArg) async {
     await dbArg.execute('''
-        CREATE TABLE ${DatabaseTables.mediaCollection} (
+        CREATE TABLE ${DatabaseTables.collectionTable} (
         id TEXT PRIMARY KEY,
         json_content TEXT,
         create_time INTEGER)
         ''');
     await dbArg.execute('''
-        CREATE TABLE ${DatabaseTables.files} (
+        CREATE TABLE ${DatabaseTables.mediaTable} (
         id TEXT PRIMARY KEY,
         download_status INTEGER,
         is_favorite INTEGER,
@@ -39,7 +39,7 @@ class ApplicationDatabase {
         create_time INTEGER)
         ''');
     await dbArg.execute('''
-        CREATE TABLE ${DatabaseTables.performer} (
+        CREATE TABLE ${DatabaseTables.performerTable} (
         id TEXT PRIMARY KEY,
         is_favorite INTEGER,
         json_content TEXT,
@@ -63,7 +63,7 @@ class ApplicationDatabase {
       await _version3Upgrade(dbArg);
     }
     //升级数据库会导致数据库关闭，将database置空，让其重新打开
-    _database = null;
+    _activeDatabase = null;
   }
 
   ///version为2的时候新增的字段
@@ -73,14 +73,14 @@ class ApplicationDatabase {
   static Future _version3Upgrade(Database dbArg) async {
     await dbArg.transaction((txnInputArg) async {
       await txnInputArg.execute(
-        'ALTER TABLE ${DatabaseTables.files} ADD COLUMN download_task_id TEXT',
+        'ALTER TABLE ${DatabaseTables.mediaTable} ADD COLUMN download_task_id TEXT',
       );
     });
   }
 }
 
 class DatabaseTables {
-  static const String mediaCollection = 'media_collection';
-  static const String files = 'files';
-  static const String performer = 'performer';
+  static const String collectionTable = 'media_collection';
+  static const String mediaTable = 'files';
+  static const String performerTable = 'performer';
 }

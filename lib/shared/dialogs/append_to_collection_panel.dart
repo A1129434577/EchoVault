@@ -12,7 +12,7 @@ import 'package:echo_vault/features/collections/widgets/collection_list_cell.dar
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class AppendToCollectionPanel extends StatefulWidget {
-  static String routeName = '$AppendToCollectionPanel';
+  static String panelRoute = '$AppendToCollectionPanel';
 
   final FileInfo mediaDetails;
   const AppendToCollectionPanel({super.key, required this.mediaDetails});
@@ -27,7 +27,7 @@ class AppendToCollectionPanel extends StatefulWidget {
       backgroundColor: Colors.white,
       isScrollControlled: true,
       useSafeArea: true,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: panelRoute),
       builder: (buildContext) {
         return AppendToCollectionPanel(mediaDetails: mediaEntry);
       },
@@ -110,7 +110,7 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                                     (e) =>
                                         e.id?.startsWith(
                                           NewCollectionDialog
-                                              .createPlaylistNamePrefix,
+                                              .generatedCollectionPrefix,
                                         ) ==
                                         true,
                                   )

@@ -9,6 +9,7 @@ import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
 import 'package:echo_vault/shared/dialogs/upgrade_dialog.dart';
 import 'package:echo_vault/core/persistence/media_repository.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 import 'package:echo_vault/core/media/media_origin.dart';
 import 'package:echo_vault/firebase_options.dart';
 import 'package:echo_vault/generated/assets.dart';
@@ -17,10 +18,10 @@ import 'package:echo_vault/core/utilities/notification_helper.dart';
 import 'package:echo_vault/utils/string_cipher.dart';
 
 class AdRemoteParser {
-  static const String idKey = 'adid';
-  static const String typeKey = 'adtype';
-  static const String sourceKey = 'adsource';
-  static const String levelKey = 'adlevel';
+  static const String unitIdField = 'adid';
+  static const String formatField = 'adtype';
+  static const String providerField = 'adsource';
+  static const String priorityField = 'adlevel';
 
   static AdRemoteConfig fromJson(Map jsonArg) {
     Map<AdScene, List<AdUnitRemoteConfig>> adSceneConfigLocal = {};
@@ -38,10 +39,12 @@ class AdRemoteParser {
             })
             .toList();
         adSceneConfigLocal[adSceneLocal] = adUnitListLocal;
-        if (adSceneLocal == AdvertisingScene.searchNative) {
-          adSceneConfigLocal[AdvertisingScene.searchNative1] = adUnitListLocal;
-          adSceneConfigLocal[AdvertisingScene.libraryNative] = adUnitListLocal;
-          adSceneConfigLocal[AdvertisingScene.playNative] = adUnitListLocal;
+        if (adSceneLocal == AdvertisingScene.searchResultsNative) {
+          adSceneConfigLocal[AdvertisingScene.searchHomeNative] =
+              adUnitListLocal;
+          adSceneConfigLocal[AdvertisingScene.libraryFeedNative] =
+              adUnitListLocal;
+          adSceneConfigLocal[AdvertisingScene.playbackNative] = adUnitListLocal;
         }
       }
     });
@@ -54,11 +57,10 @@ class AdRemoteParser {
 }
 
 class RemoteFeatureSettings {
-  static Completer firebaseInitCompleter = Completer();
+  static Completer remoteServiceReady = Completer();
 
-  static Completer<String> modelCompleter = Completer();
+  static Completer<String> releaseModelReady = Completer();
 
-  static const String _adConfigStringKey = '_adConfigStringKey';
   static Future<void> getUpdateRemoteAdConfig({
     String? adConfigArg,
     bool isNeedSetArg = true,
@@ -66,10 +68,10 @@ class RemoteFeatureSettings {
     try {
       if (adConfigArg == null) {
         SharedPreferences spLocal = await SharedPreferences.getInstance();
-        adConfigArg = spLocal.getString(_adConfigStringKey);
+        adConfigArg = spLocal.getString(UserPreferenceKeys.remoteAdConfig);
       } else {
         SharedPreferences.getInstance().then((spInputArg) {
-          spInputArg.setString(_adConfigStringKey, adConfigArg!);
+          spInputArg.setString(UserPreferenceKeys.remoteAdConfig, adConfigArg!);
         });
       }
       if (adConfigArg?.isNotEmpty != true) return;
@@ -87,8 +89,8 @@ class RemoteFeatureSettings {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      if (firebaseInitCompleter.isCompleted == false) {
-        firebaseInitCompleter.complete();
+      if (remoteServiceReady.isCompleted == false) {
+        remoteServiceReady.complete();
       }
 
       FirebaseRemoteConfig firebaseConfigLocal = FirebaseRemoteConfig.instance;
@@ -118,11 +120,11 @@ class RemoteFeatureSettings {
     ///用户模式云控
     try {
       String versionLocal = FirebaseRemoteConfig.instance.getString('version');
-      if (!modelCompleter.isCompleted) {
-        modelCompleter.complete(versionLocal);
+      if (!releaseModelReady.isCompleted) {
+        releaseModelReady.complete(versionLocal);
       }
     } catch (_) {
-      modelCompleter.complete('');
+      releaseModelReady.complete('');
     }
 
     ///广告云控
@@ -150,7 +152,7 @@ class RemoteFeatureSettings {
       String updateLinkLocal = FirebaseRemoteConfig.instance.getString(
         'update_link',
       );
-      UpgradeDialog.updateLink = updateLinkLocal;
+      UpgradeDialog.releaseUrl = updateLinkLocal;
     } catch (_) {}
   }
 
@@ -166,7 +168,7 @@ class RemoteFeatureSettings {
         final fileIdLocal = fileMap['song_id'];
         FileInfo mediaEntry = FileInfo(
           extension: 'mp4',
-          source: MediaOrigin.homeReco,
+          source: MediaOrigin.homeRecommendations,
           fileId: fileIdLocal,
           thumbnail: 'https://i.ytimg.com/vi/$fileIdLocal/default.jpg',
           name: fileMap['name'],
@@ -208,13 +210,13 @@ class _RemoteAdUnitParser {
     )?.toInt();
 
     AdFormatType typeLocal = AdFormatType.fromValue(
-      jsonArg[AdRemoteParser.typeKey],
+      jsonArg[AdRemoteParser.formatField],
     );
     AdUnitRemoteConfig unitRemoteConfigLocal = AdUnitRemoteConfig(
-      id: jsonArg[AdRemoteParser.idKey] as String?,
+      id: jsonArg[AdRemoteParser.unitIdField] as String?,
       type: typeLocal,
-      source: AdSource.fromValue(jsonArg[AdRemoteParser.sourceKey]),
-      level: jsonArg[AdRemoteParser.levelKey] ?? 0,
+      source: AdSource.fromValue(jsonArg[AdRemoteParser.providerField]),
+      level: jsonArg[AdRemoteParser.priorityField] ?? 0,
     );
     if (typeLocal == AdFormatType.native || typeLocal == AdFormatType.banner) {
       unitRemoteConfigLocal.aspectRatio = 300 / 180;

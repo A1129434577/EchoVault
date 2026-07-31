@@ -13,14 +13,14 @@ import 'package:echo_vault/shared/widgets/media/bookmark_media_view.dart';
 import 'package:echo_vault/shared/widgets/media/save_media_view.dart';
 
 class MediaOptionsPanel extends StatelessWidget {
-  static String routeName = '$MediaOptionsPanel';
+  static String dialogRoute = '$MediaOptionsPanel';
 
-  static final StreamController<String> _actionsController =
+  static final StreamController<String> _optionEvents =
       StreamController.broadcast();
 
   final FileInfo mediaDetails;
   const MediaOptionsPanel({super.key, required this.mediaDetails});
-  static Stream<String> get actionsStream => _actionsController.stream;
+  static Stream<String> get actionsStream => _optionEvents.stream;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +108,7 @@ class MediaOptionsPanel extends StatelessWidget {
               if (displayTitle == 'Offline'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(displayTitle);
+                    _optionEvents.add(displayTitle);
                     downloadControllerLocal.handleSaveState();
                   },
                   behavior: HitTestBehavior.translucent,
@@ -132,7 +132,7 @@ class MediaOptionsPanel extends StatelessWidget {
               } else if (displayTitle == 'Add to Library'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(displayTitle);
+                    _optionEvents.add(displayTitle);
                     favoriteControllerLocal.toggleBookmark();
                   },
                   behavior: HitTestBehavior.translucent,
@@ -159,7 +159,7 @@ class MediaOptionsPanel extends StatelessWidget {
               } else if (displayTitle == 'Play next'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(displayTitle);
+                    _optionEvents.add(displayTitle);
                     PlayerPlayback.instance.insertNextPlayList([mediaDetails]);
                     MessageOverlay.presentSuccess('Will play next.'.translate);
                     Navigator.pop(context);
@@ -179,7 +179,7 @@ class MediaOptionsPanel extends StatelessWidget {
               } else if (displayTitle == 'Add to queue'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(displayTitle);
+                    _optionEvents.add(displayTitle);
                     PlayerPlayback.instance.insertPlayList([mediaDetails]);
                     MessageOverlay.presentSuccess('Added to queue.'.translate);
                     Navigator.pop(context);
@@ -199,7 +199,7 @@ class MediaOptionsPanel extends StatelessWidget {
               } else if (displayTitle == 'Add to playlist'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(displayTitle);
+                    _optionEvents.add(displayTitle);
                     AppendToCollectionPanel.show(mediaEntry: mediaDetails);
                   },
                   behavior: HitTestBehavior.translucent,
@@ -217,7 +217,7 @@ class MediaOptionsPanel extends StatelessWidget {
               } else if (displayTitle == 'Go to artist'.translate) {
                 return GestureDetector(
                   onTap: () async {
-                    _actionsController.add(displayTitle);
+                    _optionEvents.add(displayTitle);
                     PerformerDetails artistLocal = PerformerDetails(
                       id: mediaDetails.uid,
                       name: mediaDetails.userName ?? '',
@@ -254,7 +254,7 @@ class MediaOptionsPanel extends StatelessWidget {
       context: Get.context!,
       backgroundColor: Colors.white,
       isScrollControlled: true,
-      routeSettings: RouteSettings(name: routeName, arguments: mediaEntry),
+      routeSettings: RouteSettings(name: dialogRoute, arguments: mediaEntry),
       builder: (buildContext) {
         return MediaOptionsPanel(mediaDetails: mediaEntry);
       },

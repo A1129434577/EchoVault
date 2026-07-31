@@ -9,10 +9,9 @@ import 'package:echo_vault/shared/dialogs/confirmation_dialog.dart';
 import 'package:echo_vault/generated/assets.dart';
 import 'package:echo_vault/features/search/search_screen.dart';
 import 'package:echo_vault/features/primary_navigation_screen.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 
 class SearchHistoryState with ChangeNotifier {
-  static const String historyKeywordKey = 'historyKeywordKey';
-
   ValueNotifier<List<String>> keywordList = ValueNotifier([]);
 
   late final ValueNotifier<AdInfo?> searchNatoAd = ValueNotifier(
@@ -22,15 +21,15 @@ class SearchHistoryState with ChangeNotifier {
   StreamSubscription? _adLoadSubscription;
   late VoidCallback _mainTabIndexListener;
 
-  AdScene scene = AdvertisingScene.searchNative;
+  AdScene scene = AdvertisingScene.searchResultsNative;
   final String tag;
   SearchHistoryState({required this.tag}) {
-    if (tag == SearchScreen.homeTag) {
-      scene = AdvertisingScene.searchNative1;
+    if (tag == SearchScreen.discoveryEntryTag) {
+      scene = AdvertisingScene.searchHomeNative;
     }
     AdHelper.loadSceneAdIfNull(
       scene: scene,
-      detailScene: AdvertisingDetailScene.search,
+      detailScene: AdvertisingDetailScene.searchResults,
     );
     _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
       if (adInfoInputArg.scene == scene) {
@@ -41,21 +40,21 @@ class SearchHistoryState with ChangeNotifier {
       }
     });
     _mainTabIndexListener = () {
-      if (PrimaryNavigationScreen.currentTabIndex.value == 2) {
+      if (PrimaryNavigationScreen.selectedSection.value == 2) {
         fetchHistoryKeywords();
         AdHelper.loadSceneAdIfNull(
           scene: scene,
-          detailScene: AdvertisingDetailScene.search,
+          detailScene: AdvertisingDetailScene.searchResults,
         );
       }
     };
-    PrimaryNavigationScreen.currentTabIndex.addListener(_mainTabIndexListener);
+    PrimaryNavigationScreen.selectedSection.addListener(_mainTabIndexListener);
   }
 
   @override
   void dispose() {
     _adLoadSubscription?.cancel();
-    PrimaryNavigationScreen.currentTabIndex.removeListener(
+    PrimaryNavigationScreen.selectedSection.removeListener(
       _mainTabIndexListener,
     );
     super.dispose();
@@ -63,13 +62,15 @@ class SearchHistoryState with ChangeNotifier {
 
   Future clearHistoryKeywords() async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
-    await spLocal.remove(historyKeywordKey);
+    await spLocal.remove(UserPreferenceKeys.searchHistory);
     fetchHistoryKeywords();
   }
 
   Future<List<String>> fetchHistoryKeywords() async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
-    String? listJsonStringLocal = spLocal.getString(historyKeywordKey);
+    String? listJsonStringLocal = spLocal.getString(
+      UserPreferenceKeys.searchHistory,
+    );
     List<dynamic> storedKeywordsLocal = [];
     if (listJsonStringLocal != null) {
       storedKeywordsLocal = jsonDecode(listJsonStringLocal);
@@ -89,7 +90,10 @@ class SearchHistoryState with ChangeNotifier {
     }
     keywordList.value = historyEntriesLocal;
     SharedPreferences spLocal = await SharedPreferences.getInstance();
-    await spLocal.setString(historyKeywordKey, jsonEncode(historyEntriesLocal));
+    await spLocal.setString(
+      UserPreferenceKeys.searchHistory,
+      jsonEncode(historyEntriesLocal),
+    );
   }
 }
 
@@ -200,7 +204,7 @@ class _SearchHistoryViewState extends State<SearchHistoryView> {
                       controller.searchNatoAd.value = null;
                       AdHelper.loadSceneAdIfNull(
                         scene: controller.scene,
-                        detailScene: AdvertisingDetailScene.search,
+                        detailScene: AdvertisingDetailScene.searchResults,
                       );
                     },
                   ),

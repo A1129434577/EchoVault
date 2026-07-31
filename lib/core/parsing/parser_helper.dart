@@ -23,12 +23,12 @@ import 'package:get/get.dart';
 //     'content',
 //   ];
 class ParserHelper {
-  static const String indexKey = 'index';
-  static const String filterKey = 'key';
-  static const String filterValueKey = 'value';
-  static const String filtersKey = 'filters';
-  static const String filterChildKey = 'child_key';
-  static const String filterChildValueKey = 'child_value';
+  static const String positionField = 'index';
+  static const String matchField = 'key';
+  static const String expectedValueField = 'value';
+  static const String nestedFilterField = 'filters';
+  static const String childMatchField = 'child_key';
+  static const String childValueField = 'child_value';
 
   ///从原始数据当中通过树形解析key列表解析到下层数据
   static T? parse<T>(dynamic parentDataArg, List parseKeysArg) {
@@ -49,10 +49,10 @@ class ParserHelper {
           payload = payload[key];
         } else if ((key is Map) && (payload is List)) {
           //如果是filter map则从数组中筛选出符合的item
-          int? itemIndex = key[ParserHelper.indexKey];
-          String? filterKeyLocal = key[ParserHelper.filterKey];
-          String? filterValueLocal = key[ParserHelper.filterValueKey];
-          Map? filtersLocal = key[ParserHelper.filtersKey];
+          int? itemIndex = key[ParserHelper.positionField];
+          String? filterKeyLocal = key[ParserHelper.matchField];
+          String? filterValueLocal = key[ParserHelper.expectedValueField];
+          Map? filtersLocal = key[ParserHelper.nestedFilterField];
           if (itemIndex != null) {
             while (itemIndex! > payload.length - 1) {
               itemIndex--;
@@ -79,8 +79,9 @@ class ParserHelper {
             }
             payload = filteredListLocal;
           } else if (filtersLocal is Map) {
-            String? filterKeyLocal = filtersLocal[ParserHelper.filtersKey];
-            String? childKeyLocal = filtersLocal[ParserHelper.filterChildKey];
+            String? filterKeyLocal =
+                filtersLocal[ParserHelper.nestedFilterField];
+            String? childKeyLocal = filtersLocal[ParserHelper.childMatchField];
             List filteredListLocal = [];
             for (var e in payload) {
               if (e is Map) {

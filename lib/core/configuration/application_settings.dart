@@ -5,13 +5,14 @@ import 'package:echo_vault/core/configuration/remote_feature_settings.dart';
 import 'package:echo_vault/core/state/transfer_media_state.dart';
 import 'package:echo_vault/core/media/media_origin.dart';
 import 'package:echo_vault/core/networking/playback_http_transport.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 import 'package:echo_vault/features/launch/controllers/launch_state.dart';
 
 class ApplicationSettings {
   static Future start() async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
     LaunchState.instance.isModulesUsable.value = spLocal.getBool(
-      LaunchState.isModulesUsableKey,
+      UserPreferenceKeys.modulesEnabled,
     );
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -26,7 +27,7 @@ class ApplicationSettings {
 
     //播放相关
     PlayerBase.init(
-      mediaSources: MediaOrigin.sources,
+      mediaSources: MediaOrigin.availableSources,
       encryptKey: 'kBNsiwy79vx5N56e37+qBqhZTSSKVfT5LIxfP90AYyw=',
     );
     await PlayerPlayback.instance.init(PlaybackHttpTransport());

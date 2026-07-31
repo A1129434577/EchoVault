@@ -1,34 +1,35 @@
 import 'dart:ui';
 
 import 'package:player_base/player_base.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 
 class MusicCatalogEndpoints {
   //api上加了一些自定义参数用来区分是具体是哪里的请求
-  static String home = 'browse?source=home';
-  static String artistDetail = 'browse?source=artist';
-  static String playlistDetail = 'browse?source=playlist';
-  static String detail = 'browse';
-  static String search = 'search';
-  static String searchTabResult = 'search?source=tab';
-  static String suggestions = 'music/get_search_suggestions';
-  static String player = 'player';
-  static String playRecommend = 'next';
+  static String discoveryFeed = 'browse?source=home';
+  static String performerProfile = 'browse?source=artist';
+  static String collectionProfile = 'browse?source=playlist';
+  static String browseResource = 'browse';
+  static String catalogSearch = 'search';
+  static String filteredSearch = 'search?source=tab';
+  static String querySuggestions = 'music/get_search_suggestions';
+  static String playbackInfo = 'player';
+  static String playbackRecommendations = 'next';
 
-  static String ytHome = 'browse?source=yt_home';
-  static String ytPlaylistDetail = 'next?source=yt_playlist';
-  static String ytArtistDetail = 'browse?source=yt_artist';
-  static String ytSearch = 'search?source=yt';
-  static String ytPlayRecommend = 'next?source=yt_recommend';
+  static String videoDiscoveryFeed = 'browse?source=yt_home';
+  static String videoCollectionProfile = 'next?source=yt_playlist';
+  static String videoPerformerProfile = 'browse?source=yt_artist';
+  static String videoSearch = 'search?source=yt';
+  static String videoPlaybackRecommendations = 'next?source=yt_recommend';
 }
 
 ///网络解析
 ///youtube music和youtube的videoId双平台通用，但是playlistId不共用
 class MusicCatalogGateway {
-  static const String baseUrl = "https://music.youtube.com/youtubei/v1/";
-  static const String ytBaseUrl = "https://www.youtube.com/youtubei/v1/";
+  static const String musicApiRoot = "https://music.youtube.com/youtubei/v1/";
+  static const String videoApiRoot = "https://www.youtube.com/youtubei/v1/";
 
   //Youtube Music
-  static Map webPrams = {
+  static Map musicWebContext = {
     'context': {
       'client': {
         'clientName': 'WEB_REMIX',
@@ -37,65 +38,69 @@ class MusicCatalogGateway {
     },
   };
   //Youtube
-  static Map ytWebPrams = {
+  static Map videoWebContext = {
     'context': {
       'client': {'clientName': 'WEB', 'clientVersion': '2.20260126.01.00'},
     },
   };
-  static Map appPrams = {
+  static Map mobileAppContext = {
     'context': {
       'client': {'clientName': 'ANDROID', 'clientVersion': '21.06.252'},
     },
   };
   //针对某个特定url的请求参数<url:prams>
-  static Map<String, Map> specialPrams = {};
+  static Map<String, Map> endpointOverrides = {};
 
-  static const String visitorDataKey = 'visitorDataKey';
-  static String? _visitorData;
+  static String? _cachedVisitorToken;
 
-  static String? _languageCode;
+  static String? _cachedLanguage;
 
-  static String? _countryCode;
+  static String? _cachedRegion;
   static String get countryCode {
-    if (_countryCode != null) return _countryCode!;
+    if (_cachedRegion != null) return _cachedRegion!;
     // String countryCode = PlatformDispatcher.instance.locale.countryCode?.toUpperCase() ?? "US";
     // if (countryCode.contains("CN")) {
     //   countryCode = "US";
     // }
     //其他国家或者地区可能也不能用，直接写死US
     String countryCodeLocal = "US";
-    _countryCode = countryCodeLocal;
+    _cachedRegion = countryCodeLocal;
     return countryCodeLocal;
   }
 
   static String get languageCode {
-    if (_languageCode != null) return _languageCode!;
+    if (_cachedLanguage != null) return _cachedLanguage!;
     String languageCodeLocal = PlatformDispatcher.instance.locale.languageCode;
     if (languageCodeLocal.contains("zh")) {
       languageCodeLocal = "zh-CN";
     }
-    _languageCode = languageCodeLocal;
+    _cachedLanguage = languageCodeLocal;
     return languageCodeLocal;
   }
 
   static set visitorData(String? currentValue) {
-    _visitorData = currentValue;
+    _cachedVisitorToken = currentValue;
     SharedPreferences.getInstance().then((spInputArg) async {
       if (currentValue != null) {
-        await spInputArg.setString(visitorDataKey, currentValue);
+        await spInputArg.setString(
+          UserPreferenceKeys.catalogVisitorToken,
+          currentValue,
+        );
       } else {
-        await spInputArg.remove(visitorDataKey);
+        await spInputArg.remove(UserPreferenceKeys.catalogVisitorToken);
       }
     });
   }
 
   static Future<String?> get visitorData async {
-    if (_visitorData != null) {
-      return _visitorData;
+    if (_cachedVisitorToken != null) {
+      return _cachedVisitorToken;
     }
     SharedPreferences spLocal = await SharedPreferences.getInstance();
-    _visitorData = spLocal.getString(visitorDataKey);
-    return _visitorData;
+    _cachedVisitorToken = spLocal.getString(
+      UserPreferenceKeys.catalogVisitorToken,
+    );
+    return _cachedVisitorToken;
   }
 
   static Future<T?> post<T>({
@@ -107,24 +112,24 @@ class MusicCatalogGateway {
   }) async {
     if (resourceUrl.startsWith('http') == false) {
       if (isMusicArg) {
-        resourceUrl = baseUrl + resourceUrl;
+        resourceUrl = musicApiRoot + resourceUrl;
       } else {
-        resourceUrl = ytBaseUrl + resourceUrl;
+        resourceUrl = videoApiRoot + resourceUrl;
       }
     }
 
     Map postPramsLocal = {};
     if (isAppArg == true) {
-      postPramsLocal.addAll(appPrams);
+      postPramsLocal.addAll(mobileAppContext);
     } else {
       if (isMusicArg) {
-        postPramsLocal.addAll(webPrams);
+        postPramsLocal.addAll(musicWebContext);
       } else {
-        postPramsLocal.addAll(ytWebPrams);
+        postPramsLocal.addAll(videoWebContext);
       }
     }
 
-    Map? specialLocal = specialPrams[resourceUrl];
+    Map? specialLocal = endpointOverrides[resourceUrl];
     if (specialLocal != null) {
       postPramsLocal = specialLocal;
     }

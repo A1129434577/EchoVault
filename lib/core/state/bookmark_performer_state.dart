@@ -6,7 +6,7 @@ import 'package:echo_vault/core/models/performer_details.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class BookmarkPerformerState with ChangeNotifier {
-  static final StreamController<PerformerDetails> _favoriteController =
+  static final StreamController<PerformerDetails> _bookmarkEvents =
       StreamController.broadcast();
 
   late ValueNotifier<PerformerDetails> notifier;
@@ -21,8 +21,7 @@ class BookmarkPerformerState with ChangeNotifier {
       }
     });
   }
-  static Stream<PerformerDetails> get favoriteStream =>
-      _favoriteController.stream;
+  static Stream<PerformerDetails> get favoriteStream => _bookmarkEvents.stream;
 
   @override
   void dispose() {
@@ -40,6 +39,6 @@ class BookmarkPerformerState with ChangeNotifier {
     }
     notifier.notifyListeners();
     await PerformerRepository.addArtistInfo(artistLocal);
-    _favoriteController.add(artistLocal);
+    _bookmarkEvents.add(artistLocal);
   }
 }

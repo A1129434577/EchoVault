@@ -55,7 +55,7 @@ class CollectionDetailState with ChangeNotifier {
       'params': mediaCollection.params,
     };
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.playlistDetail,
+      resourceUrl: MusicCatalogEndpoints.collectionProfile,
       pramsArg: requestParameters,
     );
     if (response == null) {
@@ -63,20 +63,20 @@ class CollectionDetailState with ChangeNotifier {
     }
     dynamic entries = ParserHelper.parse<List>(
       response,
-      SectionListParserKeys.tapMoreResourceList,
+      SectionListParserKeys.tapMoreResourceListPath,
     );
     //也有可能是其他格式，所以再容错一下
     entries ??=
         ParserHelper.parse<List>(
           response,
-          SectionListParserKeys.initResourceList,
+          SectionListParserKeys.initResourceListPath,
         ) ??
         [];
     //playlist和album的详情页面都是同一个，
     //但是专辑有点不同的是可能还有推荐作品，所以统一再次规定格式为一个FilGroup分组
     entries = await SharedParser.decodeContents(
       entries,
-      mediaOrigin: MediaOrigin.playlistHome,
+      mediaOrigin: MediaOrigin.collectionHome,
     );
     if (entries is List<MediaCollection>) {
       mediaCollection.children =
@@ -102,7 +102,7 @@ class CollectionDetailState with ChangeNotifier {
       requestParameters.addAll(moreParamsInputArg);
     }
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.ytPlaylistDetail,
+      resourceUrl: MusicCatalogEndpoints.videoCollectionProfile,
       pramsArg: requestParameters,
       isMusicArg: false,
     );
@@ -112,7 +112,7 @@ class CollectionDetailState with ChangeNotifier {
     response =
         ParserHelper.parse<List>(
           response,
-          CollectionCatalogParserKeys.resourceList,
+          CollectionCatalogParserKeys.resourceListPath,
         ) ??
         [];
     List newChildrenLocal = await MusicCatalogParser.decodePlaylistChildren(

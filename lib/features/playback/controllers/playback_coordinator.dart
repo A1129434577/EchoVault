@@ -6,6 +6,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/core/state/media_transfer_service.dart';
 import 'package:echo_vault/core/persistence/media_repository.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 import 'package:echo_vault/core/networking/playback_http_transport.dart';
 import 'package:echo_vault/core/networking/music_catalog_gateway.dart';
 import 'package:echo_vault/core/parsing/shared_parser.dart';
@@ -13,10 +14,6 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class PlaybackCoordinator with ChangeNotifier {
-  static const String lastPlayIndexCacheKey = 'lastPlayIndexKey';
-  static const String lastPlayModeCacheKey = 'lastPlayModeKey';
-  static const String lastPlayingListCacheKey = 'lastPlayingListKey';
-
   //失败之后连续自动播放下一首的个数(超过3个将不在自动播放下一首)
   int _continuousPlayback = 0;
   bool _playStartNeedPlayNow = true;
@@ -29,9 +26,9 @@ class PlaybackCoordinator with ChangeNotifier {
   StreamSubscription? _playStatusSub;
   StreamSubscription? _playerRecoverSub;
 
-  static final PlaybackCoordinator _instance = PlaybackCoordinator._();
+  static final PlaybackCoordinator _sharedCoordinator = PlaybackCoordinator._();
   factory PlaybackCoordinator() {
-    return _instance;
+    return _sharedCoordinator;
   }
   PlaybackCoordinator._() {
     _mediaListener = () async {
@@ -79,7 +76,7 @@ class PlaybackCoordinator with ChangeNotifier {
         }
         //记住上次的播放的index
         SharedPreferences spLocal = await SharedPreferences.getInstance();
-        spLocal.setInt(lastPlayIndexCacheKey, currentIndexLocal);
+        spLocal.setInt(UserPreferenceKeys.playbackIndex, currentIndexLocal);
       }
     };
     player.currentMediaInfo.addListener(_mediaListener);
@@ -88,7 +85,7 @@ class PlaybackCoordinator with ChangeNotifier {
       //记住上次的播放模式
       SharedPreferences spLocal = await SharedPreferences.getInstance();
       spLocal.setInt(
-        lastPlayModeCacheKey,
+        UserPreferenceKeys.playbackMode,
         PlayerPlayback.instance.playModeInfo.value.mode.index,
       );
     };
@@ -124,13 +121,13 @@ class PlaybackCoordinator with ChangeNotifier {
       }
       final serializedJson = jsonEncode(fileMapListLocal);
       SharedPreferences spLocal = await SharedPreferences.getInstance();
-      spLocal.setString(lastPlayingListCacheKey, serializedJson);
+      spLocal.setString(UserPreferenceKeys.playbackQueue, serializedJson);
     };
     PlayerPlayback.instance.showPlayFileList.addListener(_fileListListener);
 
     _playerRecoverSub = PlayerRecoverHelper.listen();
   }
-  static PlaybackCoordinator get instance => _instance;
+  static PlaybackCoordinator get instance => _sharedCoordinator;
 
   @override
   void dispose() {
@@ -145,25 +142,25 @@ class PlaybackCoordinator with ChangeNotifier {
   Future<String?> fetchMediaDetail(FileInfo mediaEntry) async {
     Map<String, dynamic>? requestParameters = {'videoId': mediaEntry.fileId};
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.player,
+      resourceUrl: MusicCatalogEndpoints.playbackInfo,
       pramsArg: requestParameters,
       isAppArg: true,
     );
     String? resourceUrl = ParserHelper.parse<String>(
       response,
-      PlaybackQueueParserKeys.fileUrl,
+      PlaybackQueueParserKeys.audioStreamPath,
     );
     resourceUrl ??= ParserHelper.parse<String>(
       response,
-      PlaybackQueueParserKeys.liveFileUrl,
+      PlaybackQueueParserKeys.liveStreamPath,
     );
     String? channelIdLocal = ParserHelper.parse<String>(
       response,
-      PlaybackQueueParserKeys.channelId,
+      PlaybackQueueParserKeys.channelIdPath,
     );
     String? authorLocal = ParserHelper.parse<String>(
       response,
-      PlaybackQueueParserKeys.author,
+      PlaybackQueueParserKeys.authorPath,
     );
     if (resourceUrl != null || channelIdLocal != null) {
       mediaEntry.url = resourceUrl;
@@ -176,15 +173,15 @@ class PlaybackCoordinator with ChangeNotifier {
 }
 
 class PlaybackQueueParserKeys {
-  static List fileUrl = [
+  static List audioStreamPath = [
     'streamingData',
     'formats',
     {'index': 0},
     'url',
   ];
-  static List liveFileUrl = ['streamingData', 'hlsManifestUrl'];
+  static List liveStreamPath = ['streamingData', 'hlsManifestUrl'];
 
   //大概率是该歌曲的歌手id
-  static List channelId = ['videoDetails', 'channelId'];
-  static List author = ['videoDetails', 'author'];
+  static List channelIdPath = ['videoDetails', 'channelId'];
+  static List authorPath = ['videoDetails', 'author'];
 }

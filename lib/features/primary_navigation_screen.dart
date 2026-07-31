@@ -8,7 +8,7 @@ import 'package:echo_vault/features/discovery/discovery_screen.dart';
 import 'package:echo_vault/features/catalog/catalog_screen.dart';
 
 class PrimaryNavigationScreen extends StatefulWidget {
-  static ValueNotifier<int> currentTabIndex = ValueNotifier(0);
+  static ValueNotifier<int> selectedSection = ValueNotifier(0);
 
   const PrimaryNavigationScreen({super.key});
 
@@ -25,7 +25,7 @@ class _PrimaryNavigationScreenState extends State<PrimaryNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: PrimaryNavigationScreen.currentTabIndex,
+      valueListenable: PrimaryNavigationScreen.selectedSection,
       builder: (BuildContext context, int currentTabIndex, Widget? child) {
         return Scaffold(
           backgroundColor: Colors.white,
@@ -42,7 +42,7 @@ class _PrimaryNavigationScreenState extends State<PrimaryNavigationScreen> {
                   DiscoveryState.instance.refreshController.callRefresh();
                 });
               }
-              PrimaryNavigationScreen.currentTabIndex.value = index;
+              PrimaryNavigationScreen.selectedSection.value = index;
             },
             items: [
               BottomNavigationBarItem(

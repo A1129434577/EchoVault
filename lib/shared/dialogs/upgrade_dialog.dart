@@ -7,14 +7,14 @@ import 'package:echo_vault/shared/widgets/shared_button.dart';
 enum UpdateType { close, open, force }
 
 class UpgradeDialog extends StatelessWidget {
-  static String routeName = '$UpgradeDialog';
-  static UpdateType _updateType = UpdateType.close;
+  static String dialogRoute = '$UpgradeDialog';
+  static UpdateType _upgradeMode = UpdateType.close;
 
-  static String updateLink = '';
+  static String releaseUrl = '';
 
   const UpgradeDialog({super.key});
   static set updateType(UpdateType typeArg) {
-    _updateType = typeArg;
+    _upgradeMode = typeArg;
     if (AppRouteObserver.observer.currentRouteName != '/') {
       show();
     }
@@ -60,7 +60,7 @@ class UpgradeDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  _updateType == UpdateType.open
+                  _upgradeMode == UpdateType.open
                       ? 'The current app is no longer receiving updates. For an enhanced experience, we recommend downloading our new app.'
                             .translate
                       : 'Please note that the current app is no longer supported. Kindly download our new app to continue enjoying all music.'
@@ -78,7 +78,7 @@ class UpgradeDialog extends StatelessWidget {
                     height: 48,
                     child: SharedButton(
                       onPressed: () {
-                        launchUrlString(UpgradeDialog.updateLink);
+                        launchUrlString(UpgradeDialog.releaseUrl);
                       },
                       title: 'Get New Music App',
                     ),
@@ -88,7 +88,7 @@ class UpgradeDialog extends StatelessWidget {
             ),
           ),
           SizedBox(height: 24),
-          if (_updateType == UpdateType.open)
+          if (_upgradeMode == UpdateType.open)
             CupertinoButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -103,14 +103,14 @@ class UpgradeDialog extends StatelessWidget {
   }
 
   static void show() {
-    if (_updateType == UpdateType.close ||
-        AppRouteObserver.observer.currentRouteName == routeName) {
+    if (_upgradeMode == UpdateType.close ||
+        AppRouteObserver.observer.currentRouteName == dialogRoute) {
       return;
     }
     showDialog(
       context: Get.context!,
       barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: dialogRoute),
       builder: (buildContext) {
         return UpgradeDialog();
       },

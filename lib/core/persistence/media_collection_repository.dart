@@ -12,7 +12,7 @@ class MediaCollectionRepository {
   static Future<int> removeFileGroup(MediaCollection musicCollectionArg) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
-      DatabaseTables.mediaCollection,
+      DatabaseTables.collectionTable,
       where: 'id = "${musicCollectionArg.id}"',
     );
 
@@ -23,7 +23,7 @@ class MediaCollectionRepository {
     mediaCollectionArg.createTime ??= DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(mediaCollectionArg.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
-    int idLocal = await databaseLocal.insert(DatabaseTables.mediaCollection, {
+    int idLocal = await databaseLocal.insert(DatabaseTables.collectionTable, {
       'id': mediaCollectionArg.id,
       'json_content': encodedContent,
       'create_time': mediaCollectionArg.createTime,
@@ -37,7 +37,7 @@ class MediaCollectionRepository {
   }) async {
     Database databaseLocal = await ApplicationDatabase.database;
     List<Map<String, Object?>> storedRecords = await databaseLocal.query(
-      DatabaseTables.mediaCollection,
+      DatabaseTables.collectionTable,
       limit: limitInputArg,
       where: whereArg,
       orderBy: 'create_time desc',
@@ -57,7 +57,7 @@ class MediaCollectionRepository {
         whereArg: 'id IN ($idsStringLocal)',
       );
       if (musicCollectionLocal.id?.startsWith(
-            NewCollectionDialog.createPlaylistNamePrefix,
+            NewCollectionDialog.generatedCollectionPrefix,
           ) ==
           true) {
         if (musicCollectionLocal.children.isNotEmpty) {

@@ -6,9 +6,9 @@ import 'package:echo_vault/core/parsing/record_sync_helper.dart';
 import 'package:echo_vault/core/parsing/parser_helper.dart';
 
 class CollectionCatalogParserKeys {
-  static String panel = 'playlistPanelVideoRenderer';
+  static String panelNode = 'playlistPanelVideoRenderer';
 
-  static List resourceList = [
+  static List resourceListPath = [
     'contents',
     'twoColumnWatchNextResults',
     'playlist',
@@ -16,94 +16,94 @@ class CollectionCatalogParserKeys {
     'contents',
   ];
 
-  static List videoId = ['videoId'];
+  static List videoIdPath = ['videoId'];
 
-  static List title = ['title', 'simpleText'];
+  static List titlePath = ['title', 'simpleText'];
 
-  static List subtitle = [
+  static List subtitlePath = [
     'shortBylineText',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
 
-  static List cover = [
+  static List coverPath = [
     'thumbnail',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
 }
 
 class DiscoveryCatalogParserKeys {
-  static List resourceList = [
+  static List resourceListPath = [
     'contents',
     'twoColumnBrowseResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'richGridRenderer',
     'contents',
   ];
 
-  static String sectionParent = 'richSectionRenderer';
+  static String sectionParentNode = 'richSectionRenderer';
 
-  static List sectionItem = [
+  static List sectionItemPath = [
     'richSectionRenderer',
     'content',
     'richShelfRenderer',
   ];
 
-  static List groupId = [
+  static List groupIdPath = [
     'title',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'navigationEndpoint',
     'browseEndpoint',
     'browseId',
   ];
 
-  static List groupName = [
+  static List groupNamePath = [
     'title',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
 
-  static String richItem = 'richItemRenderer';
-  static List videoId = [
+  static String richItemNode = 'richItemRenderer';
+  static List videoIdPath = [
     'content',
     'gridVideoRenderer',
     'navigationEndpoint',
     'watchEndpoint',
     'videoId',
   ];
-  static List videoTitle = [
+  static List videoTitlePath = [
     'content',
     'gridVideoRenderer',
     'title',
     'simpleText',
   ];
-  static List videoSubtitle = [
+  static List videoSubtitlePath = [
     'content',
     'gridVideoRenderer',
     'shortBylineText',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
-  static List videoCover = [
+  static List videoCoverPath = [
     'content',
     'gridVideoRenderer',
     'thumbnail',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
 
-  static List playlistVideoId = ['content', 'lockupViewModel', 'contentId'];
-  static List playlistVideoTitle = [
+  static List playlistVideoIdPath = ['content', 'lockupViewModel', 'contentId'];
+  static List playlistVideoTitlePath = [
     'content',
     'lockupViewModel',
     'metadata',
@@ -111,7 +111,7 @@ class DiscoveryCatalogParserKeys {
     'title',
     'content',
   ];
-  static List playlistVideoSubtitle = [
+  static List playlistVideoSubtitlePath = [
     'content',
     'lockupViewModel',
     'metadata',
@@ -119,25 +119,25 @@ class DiscoveryCatalogParserKeys {
     'metadata',
     'contentMetadataViewModel',
     'metadataRows',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'metadataParts',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
     'content',
   ];
-  static List playlistVideoCover = [
+  static List playlistVideoCoverPath = [
     'content',
     'lockupViewModel',
     'contentImage',
     'thumbnailViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 3},
+    {ParserHelper.positionField: 3},
     'url',
   ];
 
-  static List playlistId = ['content', 'lockupViewModel', 'contentId'];
-  static List playlistTitle = [
+  static List playlistIdPath = ['content', 'lockupViewModel', 'contentId'];
+  static List playlistTitlePath = [
     'content',
     'lockupViewModel',
     'metadata',
@@ -145,7 +145,7 @@ class DiscoveryCatalogParserKeys {
     'title',
     'content',
   ];
-  static List playlistSubtitle = [
+  static List playlistSubtitlePath = [
     'content',
     'lockupViewModel',
     'metadata',
@@ -153,14 +153,14 @@ class DiscoveryCatalogParserKeys {
     'metadata',
     'contentMetadataViewModel',
     'metadataRows',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'metadataParts',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
     'content',
   ];
-  static List playlistType = ['content', 'lockupViewModel', 'contentType'];
-  static List playlistCover = [
+  static List playlistTypePath = ['content', 'lockupViewModel', 'contentType'];
+  static List playlistCoverPath = [
     'content',
     'lockupViewModel',
     'contentImage',
@@ -169,7 +169,7 @@ class DiscoveryCatalogParserKeys {
     'thumbnailViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
 }
@@ -184,13 +184,13 @@ class MusicCatalogParser {
     mediaCollectionLocal.thumbnail =
         ParserHelper.parse<String>(
           collectionRecord,
-          PerformerCatalogParserKeys.albumCover,
+          PerformerCatalogParserKeys.albumCoverPath,
         ) ??
         '';
     mediaCollectionLocal.name =
         ParserHelper.parse<String>(
           collectionRecord,
-          PerformerCatalogParserKeys.albumTitle,
+          PerformerCatalogParserKeys.albumTitlePath,
         ) ??
         '';
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
@@ -198,7 +198,7 @@ class MusicCatalogParser {
     for (Map textRun
         in ParserHelper.parse<List?>(
               collectionRecord,
-              PerformerCatalogParserKeys.albumSubtitleRuns,
+              PerformerCatalogParserKeys.albumSubtitleRunsPath,
             ) ??
             []) {
       secondaryText += textRun['text'];
@@ -215,19 +215,19 @@ class MusicCatalogParser {
   }) async {
     List childEntries = [];
     for (final childrenMap in childRecords) {
-      if (childrenMap.containsKey(PerformerCatalogParserKeys.richItem)) {
-        Map nestedRecord = childrenMap[PerformerCatalogParserKeys.richItem];
+      if (childrenMap.containsKey(PerformerCatalogParserKeys.richItemNode)) {
+        Map nestedRecord = childrenMap[PerformerCatalogParserKeys.richItemNode];
         String? playlistIdLocal = ParserHelper.parse<String>(
           nestedRecord,
-          PerformerCatalogParserKeys.albumId,
+          PerformerCatalogParserKeys.albumIdPath,
         );
         String? videoRendererVideoIdLocal = ParserHelper.parse<String>(
           nestedRecord,
-          PerformerCatalogParserKeys.videoRendererVideoId,
+          PerformerCatalogParserKeys.videoRendererVideoIdPath,
         );
         Map? lockupViewModelLocal = ParserHelper.parse<Map>(
           nestedRecord,
-          PerformerCatalogParserKeys.lockupViewModelVideoItem,
+          PerformerCatalogParserKeys.lockupViewModelVideoItemPath,
         );
         if (videoRendererVideoIdLocal != null) {
           FileInfo mediaEntry = await decodeArtistVideoRendererVideo(
@@ -256,13 +256,14 @@ class MusicCatalogParser {
           childEntries.add(playlistLocal);
         }
       } else if (childrenMap.containsKey(
-        PerformerCatalogParserKeys.lockupViewModelPlaylistItem,
+        PerformerCatalogParserKeys.lockupViewModelPlaylistItemNode,
       )) {
         Map nestedRecord =
-            childrenMap[PerformerCatalogParserKeys.lockupViewModelPlaylistItem];
+            childrenMap[PerformerCatalogParserKeys
+                .lockupViewModelPlaylistItemNode];
         String? playlistIdLocal = ParserHelper.parse<String>(
           nestedRecord,
-          PerformerCatalogParserKeys.lockupViewModelId,
+          PerformerCatalogParserKeys.lockupViewModelIdPath,
         );
         if (playlistIdLocal != null) {
           MediaCollection playlistLocal = await decodeArtistPlaylist(
@@ -285,29 +286,29 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.lockupViewModelId,
+          PerformerCatalogParserKeys.lockupViewModelIdPath,
         ) ??
         '';
     mediaEntry.type = ParserHelper.parse<String>(
       mediaRecord,
-      PerformerCatalogParserKeys.lockupViewModelType,
+      PerformerCatalogParserKeys.lockupViewModelTypePath,
     );
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.lockupViewModelVideoCover,
+          PerformerCatalogParserKeys.lockupViewModelVideoCoverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.lockupViewModelTitle,
+          PerformerCatalogParserKeys.lockupViewModelTitlePath,
         ) ??
         '';
     mediaEntry.artist =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.lockupViewModelSubtitle,
+          PerformerCatalogParserKeys.lockupViewModelSubtitlePath,
         ) ??
         '';
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
@@ -321,18 +322,18 @@ class MusicCatalogParser {
     MediaCollection mediaCollectionLocal = MediaCollection();
     mediaCollectionLocal.playlistType = ParserHelper.parse<String>(
       collectionRecord,
-      PerformerCatalogParserKeys.lockupViewModelType,
+      PerformerCatalogParserKeys.lockupViewModelTypePath,
     );
     mediaCollectionLocal.thumbnail =
         ParserHelper.parse<String>(
           collectionRecord,
-          PerformerCatalogParserKeys.lockupViewModelPlaylistCover,
+          PerformerCatalogParserKeys.lockupViewModelPlaylistCoverPath,
         ) ??
         '';
     mediaCollectionLocal.name =
         ParserHelper.parse<String>(
           collectionRecord,
-          PerformerCatalogParserKeys.lockupViewModelTitle,
+          PerformerCatalogParserKeys.lockupViewModelTitlePath,
         ) ??
         '';
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
@@ -348,32 +349,32 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.videoRendererVideoId,
+          PerformerCatalogParserKeys.videoRendererVideoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.videoRendererVideoCover,
+          PerformerCatalogParserKeys.videoRendererVideoCoverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          PerformerCatalogParserKeys.videoRendererVideoTitle,
+          PerformerCatalogParserKeys.videoRendererVideoTitlePath,
         ) ??
         '';
     String? viewCountTextLocal = ParserHelper.parse<String>(
       mediaRecord,
-      PerformerCatalogParserKeys.videoRendererViewCountText,
+      PerformerCatalogParserKeys.videoRendererViewCountTextPath,
     );
     String? lengthTextLocal = ParserHelper.parse<String>(
       mediaRecord,
-      PerformerCatalogParserKeys.videoRendererLengthText,
+      PerformerCatalogParserKeys.videoRendererLengthTextPath,
     );
     String? publishedTimeTextLocal = ParserHelper.parse<String>(
       mediaRecord,
-      PerformerCatalogParserKeys.videoRendererPublishedTimeText,
+      PerformerCatalogParserKeys.videoRendererPublishedTimeTextPath,
     );
     mediaEntry.artist = [
       viewCountTextLocal,
@@ -391,15 +392,15 @@ class MusicCatalogParser {
   }) async {
     List childEntries = [];
     for (final childrenMap in childRecords) {
-      if (childrenMap.containsKey(DiscoveryCatalogParserKeys.richItem)) {
-        Map nestedRecord = childrenMap[DiscoveryCatalogParserKeys.richItem];
+      if (childrenMap.containsKey(DiscoveryCatalogParserKeys.richItemNode)) {
+        Map nestedRecord = childrenMap[DiscoveryCatalogParserKeys.richItemNode];
         String? playlistTypeLocal = ParserHelper.parse<String>(
           nestedRecord,
-          DiscoveryCatalogParserKeys.playlistType,
+          DiscoveryCatalogParserKeys.playlistTypePath,
         );
         String? mediaId = ParserHelper.parse<String>(
           nestedRecord,
-          DiscoveryCatalogParserKeys.videoId,
+          DiscoveryCatalogParserKeys.videoIdPath,
         );
         if (playlistTypeLocal ==
                 CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name ||
@@ -440,11 +441,11 @@ class MusicCatalogParser {
   }) async {
     List<MediaCollection> entries = [];
     for (Map groupMap in groupMapListArg) {
-      if (groupMap.containsKey(DiscoveryCatalogParserKeys.sectionParent)) {
+      if (groupMap.containsKey(DiscoveryCatalogParserKeys.sectionParentNode)) {
         groupMap =
             ParserHelper.parse<Map>(
               groupMap,
-              DiscoveryCatalogParserKeys.sectionItem,
+              DiscoveryCatalogParserKeys.sectionItemPath,
             ) ??
             {};
         MediaCollection mediaCollectionLocal =
@@ -466,15 +467,15 @@ class MusicCatalogParser {
     MediaCollection mediaCollectionLocal = MediaCollection();
     mediaCollectionLocal.id = ParserHelper.parse<String>(
       fileGroupMapArg,
-      DiscoveryCatalogParserKeys.groupId,
+      DiscoveryCatalogParserKeys.groupIdPath,
     );
     mediaCollectionLocal.name =
         ParserHelper.parse<String>(
           fileGroupMapArg,
-          DiscoveryCatalogParserKeys.groupName,
+          DiscoveryCatalogParserKeys.groupNamePath,
         ) ??
         '';
-    List childRecords = fileGroupMapArg[SharedParserKeys.children] ?? [];
+    List childRecords = fileGroupMapArg[SharedParserKeys.childrenNode] ?? [];
     List childEntries = await decodeHomeChildren(
       childRecords,
       mediaCollectionArg: mediaCollectionLocal,
@@ -514,24 +515,24 @@ class MusicCatalogParser {
     MediaCollection mediaCollectionLocal = MediaCollection();
     mediaCollectionLocal.id = ParserHelper.parse<String>(
       collectionRecord,
-      DiscoveryCatalogParserKeys.playlistId,
+      DiscoveryCatalogParserKeys.playlistIdPath,
     );
     mediaCollectionLocal.thumbnail =
         ParserHelper.parse<String>(
           collectionRecord,
-          DiscoveryCatalogParserKeys.playlistCover,
+          DiscoveryCatalogParserKeys.playlistCoverPath,
         ) ??
         '';
     mediaCollectionLocal.name =
         ParserHelper.parse<String>(
           collectionRecord,
-          DiscoveryCatalogParserKeys.playlistTitle,
+          DiscoveryCatalogParserKeys.playlistTitlePath,
         ) ??
         '';
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
     mediaCollectionLocal.detail = ParserHelper.parse<String>(
       collectionRecord,
-      DiscoveryCatalogParserKeys.playlistSubtitle,
+      DiscoveryCatalogParserKeys.playlistSubtitlePath,
     );
     await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
@@ -545,24 +546,24 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          DiscoveryCatalogParserKeys.playlistVideoId,
+          DiscoveryCatalogParserKeys.playlistVideoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          DiscoveryCatalogParserKeys.playlistVideoCover,
+          DiscoveryCatalogParserKeys.playlistVideoCoverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          DiscoveryCatalogParserKeys.playlistVideoTitle,
+          DiscoveryCatalogParserKeys.playlistVideoTitlePath,
         ) ??
         '';
     mediaEntry.artist = ParserHelper.parse<String>(
       mediaRecord,
-      DiscoveryCatalogParserKeys.playlistVideoSubtitle,
+      DiscoveryCatalogParserKeys.playlistVideoSubtitlePath,
     );
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
@@ -576,24 +577,24 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          DiscoveryCatalogParserKeys.videoId,
+          DiscoveryCatalogParserKeys.videoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          DiscoveryCatalogParserKeys.videoCover,
+          DiscoveryCatalogParserKeys.videoCoverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          DiscoveryCatalogParserKeys.videoTitle,
+          DiscoveryCatalogParserKeys.videoTitlePath,
         ) ??
         '';
     mediaEntry.artist = ParserHelper.parse<String>(
       mediaRecord,
-      DiscoveryCatalogParserKeys.videoSubtitle,
+      DiscoveryCatalogParserKeys.videoSubtitlePath,
     );
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
@@ -607,13 +608,13 @@ class MusicCatalogParser {
     List childEntries = [];
     for (final childrenMap in childRecords) {
       if (childrenMap.containsKey(
-        PlaybackSuggestionParserKeys.lockupViewModel,
+        PlaybackSuggestionParserKeys.lockupViewModelNode,
       )) {
         Map nestedRecord =
-            childrenMap[PlaybackSuggestionParserKeys.lockupViewModel];
+            childrenMap[PlaybackSuggestionParserKeys.lockupViewModelNode];
         String? mediaId = ParserHelper.parse<String>(
           nestedRecord,
-          PlaybackSuggestionParserKeys.videoId,
+          PlaybackSuggestionParserKeys.videoIdPath,
         );
         if (mediaId != null) {
           FileInfo mediaEntry = await decodePlayRecommendVideo(
@@ -638,24 +639,24 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          PlaybackSuggestionParserKeys.videoId,
+          PlaybackSuggestionParserKeys.videoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          PlaybackSuggestionParserKeys.cover,
+          PlaybackSuggestionParserKeys.coverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          PlaybackSuggestionParserKeys.title,
+          PlaybackSuggestionParserKeys.titlePath,
         ) ??
         '';
     mediaEntry.artist = ParserHelper.parse<String>(
       mediaRecord,
-      PlaybackSuggestionParserKeys.subtitle,
+      PlaybackSuggestionParserKeys.subtitlePath,
     );
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
@@ -668,11 +669,11 @@ class MusicCatalogParser {
   }) async {
     List childEntries = [];
     for (final childrenMap in childRecords) {
-      if (childrenMap.containsKey(CollectionCatalogParserKeys.panel)) {
-        Map nestedRecord = childrenMap[CollectionCatalogParserKeys.panel];
+      if (childrenMap.containsKey(CollectionCatalogParserKeys.panelNode)) {
+        Map nestedRecord = childrenMap[CollectionCatalogParserKeys.panelNode];
         String? mediaId = ParserHelper.parse<String>(
           nestedRecord,
-          CollectionCatalogParserKeys.videoId,
+          CollectionCatalogParserKeys.videoIdPath,
         );
         if (mediaId != null) {
           FileInfo mediaEntry = await decodePlaylistVideo(
@@ -697,24 +698,24 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          CollectionCatalogParserKeys.videoId,
+          CollectionCatalogParserKeys.videoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          CollectionCatalogParserKeys.cover,
+          CollectionCatalogParserKeys.coverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          CollectionCatalogParserKeys.title,
+          CollectionCatalogParserKeys.titlePath,
         ) ??
         '';
     mediaEntry.artist = ParserHelper.parse<String>(
       mediaRecord,
-      CollectionCatalogParserKeys.subtitle,
+      CollectionCatalogParserKeys.subtitlePath,
     );
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
@@ -727,12 +728,12 @@ class MusicCatalogParser {
     PerformerDetails artistLocal = PerformerDetails();
     artistLocal.ytId = ParserHelper.parse<String>(
       performerRecord,
-      SearchCatalogParserKeys.artistBrowseId,
+      SearchCatalogParserKeys.artistBrowseIdPath,
     );
     artistLocal.thumbnail =
         ParserHelper.parse<String>(
           performerRecord,
-          SearchCatalogParserKeys.artistCover,
+          SearchCatalogParserKeys.artistCoverPath,
         ) ??
         '';
     if (artistLocal.thumbnail.startsWith('http') == false) {
@@ -741,13 +742,13 @@ class MusicCatalogParser {
     artistLocal.name =
         ParserHelper.parse<String>(
           performerRecord,
-          SearchCatalogParserKeys.artistTitle,
+          SearchCatalogParserKeys.artistTitlePath,
         ) ??
         '';
     artistLocal.desc =
         ParserHelper.parse<String>(
           performerRecord,
-          SearchCatalogParserKeys.artistSubtitle,
+          SearchCatalogParserKeys.artistSubtitlePath,
         ) ??
         '';
     await RecordSyncHelper.reconcileArtist(artistLocal);
@@ -761,23 +762,28 @@ class MusicCatalogParser {
   }) async {
     List childEntries = [];
     for (final childrenMap in childRecords) {
-      if (childrenMap.containsKey(SearchCatalogParserKeys.channelRenderer)) {
-        Map nestedRecord = childrenMap[SearchCatalogParserKeys.channelRenderer];
+      if (childrenMap.containsKey(
+        SearchCatalogParserKeys.channelRendererNode,
+      )) {
+        Map nestedRecord =
+            childrenMap[SearchCatalogParserKeys.channelRendererNode];
         PerformerDetails artistLocal = await decodeSearchArtist(nestedRecord);
         childEntries.add(artistLocal);
       } else if (childrenMap.containsKey(
-        SearchCatalogParserKeys.playlistItem,
+        SearchCatalogParserKeys.playlistItemNode,
       )) {
-        Map nestedRecord = childrenMap[SearchCatalogParserKeys.playlistItem];
+        Map nestedRecord =
+            childrenMap[SearchCatalogParserKeys.playlistItemNode];
         MediaCollection playlistLocal = await decodeSearchPlaylist(
           nestedRecord,
           mediaOrigin: mediaOrigin,
         );
         childEntries.add(playlistLocal);
       } else if (childrenMap.containsKey(
-        SearchCatalogParserKeys.videoRenderer,
+        SearchCatalogParserKeys.videoRendererNode,
       )) {
-        Map nestedRecord = childrenMap[SearchCatalogParserKeys.videoRenderer];
+        Map nestedRecord =
+            childrenMap[SearchCatalogParserKeys.videoRendererNode];
         FileInfo mediaEntry = await decodeSearchVideo(
           nestedRecord,
           mediaOrigin: mediaOrigin,
@@ -795,28 +801,28 @@ class MusicCatalogParser {
     MediaCollection mediaCollectionLocal = MediaCollection();
     mediaCollectionLocal.id = ParserHelper.parse<String>(
       collectionRecord,
-      SearchCatalogParserKeys.playlistId,
+      SearchCatalogParserKeys.playlistIdPath,
     );
     mediaCollectionLocal.playlistType = ParserHelper.parse<String>(
       collectionRecord,
-      SearchCatalogParserKeys.playlistType,
+      SearchCatalogParserKeys.playlistTypePath,
     );
     mediaCollectionLocal.thumbnail =
         ParserHelper.parse<String>(
           collectionRecord,
-          SearchCatalogParserKeys.playlistCover,
+          SearchCatalogParserKeys.playlistCoverPath,
         ) ??
         '';
     mediaCollectionLocal.name =
         ParserHelper.parse<String>(
           collectionRecord,
-          SearchCatalogParserKeys.playlistTitle,
+          SearchCatalogParserKeys.playlistTitlePath,
         ) ??
         '';
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
     mediaCollectionLocal.detail = ParserHelper.parse<String>(
       collectionRecord,
-      SearchCatalogParserKeys.playlistSubtitle,
+      SearchCatalogParserKeys.playlistSubtitlePath,
     );
     await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
@@ -829,24 +835,24 @@ class MusicCatalogParser {
     PerformerDetails artistLocal = PerformerDetails();
     artistLocal.ytId = ParserHelper.parse<String>(
       performerRecord,
-      SearchCatalogParserKeys.topCardBrowseId,
+      SearchCatalogParserKeys.topCardBrowseIdPath,
     );
     artistLocal.thumbnail =
         ParserHelper.parse<String>(
           performerRecord,
-          SearchCatalogParserKeys.topCardArtistCover,
+          SearchCatalogParserKeys.topCardArtistCoverPath,
         ) ??
         '';
     artistLocal.name =
         ParserHelper.parse<String>(
           performerRecord,
-          SearchCatalogParserKeys.topCardTitle,
+          SearchCatalogParserKeys.topCardTitlePath,
         ) ??
         '';
     artistLocal.desc =
         ParserHelper.parse<String>(
           performerRecord,
-          SearchCatalogParserKeys.topCardSubtitle,
+          SearchCatalogParserKeys.topCardSubtitlePath,
         ) ??
         '';
     await RecordSyncHelper.reconcileArtist(artistLocal);
@@ -860,17 +866,17 @@ class MusicCatalogParser {
     MediaCollection mediaCollectionLocal = MediaCollection();
     mediaCollectionLocal.id = ParserHelper.parse<String>(
       collectionRecord,
-      SearchCatalogParserKeys.topCardBrowseId,
+      SearchCatalogParserKeys.topCardBrowseIdPath,
     );
     mediaCollectionLocal.name =
         ParserHelper.parse<String>(
           collectionRecord,
-          SearchCatalogParserKeys.topCardTitle,
+          SearchCatalogParserKeys.topCardTitlePath,
         ) ??
         '';
     mediaCollectionLocal.detail = ParserHelper.parse<String>(
       collectionRecord,
-      SearchCatalogParserKeys.topCardSubtitle,
+      SearchCatalogParserKeys.topCardSubtitlePath,
     );
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
     await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
@@ -884,8 +890,9 @@ class MusicCatalogParser {
   }) async {
     List childEntries = [];
     for (final childrenMap in childRecords) {
-      if (childrenMap.containsKey(SearchCatalogParserKeys.topVideoItem)) {
-        Map nestedRecord = childrenMap[SearchCatalogParserKeys.topVideoItem];
+      if (childrenMap.containsKey(SearchCatalogParserKeys.topVideoItemNode)) {
+        Map nestedRecord =
+            childrenMap[SearchCatalogParserKeys.topVideoItemNode];
         FileInfo mediaEntry = await decodeSearchTopVideo(
           nestedRecord,
           mediaOrigin: mediaOrigin,
@@ -893,13 +900,15 @@ class MusicCatalogParser {
         //B面parentId只用于埋点，无其他实际逻辑
         mediaEntry.parentId = mediaCollectionArg?.name;
         childEntries.add(mediaEntry);
-      } else if (childrenMap.containsKey(SearchCatalogParserKeys.topCardItem)) {
-        Map nestedRecord = childrenMap[SearchCatalogParserKeys.topCardItem];
+      } else if (childrenMap.containsKey(
+        SearchCatalogParserKeys.topCardItemNode,
+      )) {
+        Map nestedRecord = childrenMap[SearchCatalogParserKeys.topCardItemNode];
         String? pageTypeLocal = ParserHelper.parse<String>(
           nestedRecord,
-          SearchCatalogParserKeys.topCardPageType,
+          SearchCatalogParserKeys.topCardPageTypePath,
         );
-        if (pageTypeLocal == PerformerDetails.ytSearchTypeName) {
+        if (pageTypeLocal == PerformerDetails.channelSearchPageType) {
           PerformerDetails artistLocal = await decodeSearchTopCardArtist(
             nestedRecord,
           );
@@ -924,7 +933,7 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.topVideoId,
+          SearchCatalogParserKeys.topVideoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
@@ -932,17 +941,17 @@ class MusicCatalogParser {
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.topVideoTitle,
+          SearchCatalogParserKeys.topVideoTitlePath,
         ) ??
         '';
     mediaEntry.artist =
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.topVideoSubtitle,
+          SearchCatalogParserKeys.topVideoSubtitlePath,
         ) ??
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.topVideoSubtitle1,
+          SearchCatalogParserKeys.topVideoSubtitle1Path,
         );
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
@@ -956,28 +965,28 @@ class MusicCatalogParser {
     mediaEntry.fileId =
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.videoId,
+          SearchCatalogParserKeys.videoIdPath,
         ) ??
         '';
     mediaEntry.thumbnail =
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.videoCover,
+          SearchCatalogParserKeys.videoCoverPath,
         ) ??
         'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
     mediaEntry.name =
         ParserHelper.parse<String>(
           mediaRecord,
-          SearchCatalogParserKeys.videoTitle,
+          SearchCatalogParserKeys.videoTitlePath,
         ) ??
         '';
     mediaEntry.artist = ParserHelper.parse<String>(
       mediaRecord,
-      SearchCatalogParserKeys.videoSubtitle,
+      SearchCatalogParserKeys.videoSubtitlePath,
     );
     mediaEntry.uid = ParserHelper.parse<String>(
       mediaRecord,
-      SearchCatalogParserKeys.videoUid,
+      SearchCatalogParserKeys.videoUidPath,
     );
     await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
@@ -985,7 +994,7 @@ class MusicCatalogParser {
 }
 
 class PerformerCatalogParserKeys {
-  static List cover = [
+  static List coverPath = [
     'header',
     'pageHeaderRenderer',
     'content',
@@ -996,13 +1005,13 @@ class PerformerCatalogParserKeys {
     'avatarViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 2},
+    {ParserHelper.positionField: 2},
     'url',
   ];
 
-  static List tabs = ['contents', 'twoColumnBrowseResultsRenderer', 'tabs'];
+  static List tabsPath = ['contents', 'twoColumnBrowseResultsRenderer', 'tabs'];
 
-  static List tabUrl = [
+  static List tabUrlPath = [
     'tabRenderer',
     'endpoint',
     'commandMetadata',
@@ -1010,21 +1019,26 @@ class PerformerCatalogParserKeys {
     'url',
   ];
 
-  static List tabTitle = ['tabRenderer', 'title'];
+  static List tabTitlePath = ['tabRenderer', 'title'];
 
   //视频
-  static String videos = 'videos';
+  static String videosNode = 'videos';
   //发布作品
-  static String releases = 'releases';
+  static String releasesNode = 'releases';
   //播放列表
-  static String playlists = 'playlists';
+  static String playlistsNode = 'playlists';
 
-  static List params = ['tabRenderer', 'endpoint', 'browseEndpoint', 'params'];
+  static List paramsPath = [
+    'tabRenderer',
+    'endpoint',
+    'browseEndpoint',
+    'params',
+  ];
 
   //歌手详情里面的视频和专辑都是richItem
-  static String richItem = 'richItemRenderer';
+  static String richItemNode = 'richItemRenderer';
   //音乐和专辑是richItem
-  static List richItems = [
+  static List richItemsPath = [
     'tabRenderer',
     'content',
     'richGridRenderer',
@@ -1032,64 +1046,68 @@ class PerformerCatalogParserKeys {
   ];
 
   //歌手详情里面的视频start-------------
-  static List videoRendererVideoId = ['content', 'videoRenderer', 'videoId'];
-  static List videoRendererVideoTitle = [
+  static List videoRendererVideoIdPath = [
+    'content',
+    'videoRenderer',
+    'videoId',
+  ];
+  static List videoRendererVideoTitlePath = [
     'content',
     'videoRenderer',
     'title',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
-  static List videoRendererViewCountText = [
+  static List videoRendererViewCountTextPath = [
     'content',
     'videoRenderer',
     'viewCountText',
     'simpleText',
   ];
-  static List videoRendererLengthText = [
+  static List videoRendererLengthTextPath = [
     'content',
     'videoRenderer',
     'lengthText',
     'simpleText',
   ];
-  static List videoRendererPublishedTimeText = [
+  static List videoRendererPublishedTimeTextPath = [
     'content',
     'videoRenderer',
     'publishedTimeText',
     'simpleText',
   ];
-  static List videoRendererVideoCover = [
+  static List videoRendererVideoCoverPath = [
     'content',
     'videoRenderer',
     'thumbnail',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
   //歌手详情里面的视频end-------------
 
   //歌手详情里面的专辑start-------------
-  static List albumId = ['content', 'playlistRenderer', 'playlistId'];
-  static List albumTitle = [
+  static List albumIdPath = ['content', 'playlistRenderer', 'playlistId'];
+  static List albumTitlePath = [
     'content',
     'playlistRenderer',
     'title',
     'simpleText',
   ];
-  static List albumSubtitleRuns = [
+  static List albumSubtitleRunsPath = [
     'content',
     'playlistRenderer',
     'shortBylineText',
     'runs',
   ];
-  static List albumCover = [
+  static List albumCoverPath = [
     'content',
     'playlistRenderer',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
   //歌手详情里面的专辑end-------------
@@ -1097,29 +1115,29 @@ class PerformerCatalogParserKeys {
   //歌手详情里面的播放列表或视频start-------------
   //播放列表的第一层就是lockupViewModel
   //而视频的话上层是richItemRenderer，下一层才是lockupViewModel
-  static String lockupViewModelPlaylistItem = 'lockupViewModel';
-  static List lockupViewModelVideoItem = ['content', 'lockupViewModel'];
-  static List lockupViewModelPlaylistItems = [
+  static String lockupViewModelPlaylistItemNode = 'lockupViewModel';
+  static List lockupViewModelVideoItemPath = ['content', 'lockupViewModel'];
+  static List lockupViewModelPlaylistItemsPath = [
     'tabRenderer',
     'content',
     'sectionListRenderer',
     'contents',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'itemSectionRenderer',
     'contents',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'gridRenderer',
     'items',
   ];
-  static List lockupViewModelId = ['contentId'];
-  static List lockupViewModelType = ['contentType'];
-  static List lockupViewModelTitle = [
+  static List lockupViewModelIdPath = ['contentId'];
+  static List lockupViewModelTypePath = ['contentType'];
+  static List lockupViewModelTitlePath = [
     'metadata',
     'lockupMetadataViewModel',
     'title',
     'content',
   ];
-  static List lockupViewModelSubtitle = [
+  static List lockupViewModelSubtitlePath = [
     'content',
     'lockupViewModel',
     'metadata',
@@ -1127,39 +1145,39 @@ class PerformerCatalogParserKeys {
     'metadata',
     'contentMetadataViewModel',
     'metadataRows',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'metadataParts',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
     'content',
   ];
-  static List lockupViewModelPlaylistCover = [
+  static List lockupViewModelPlaylistCoverPath = [
     'contentImage',
     'collectionThumbnailViewModel',
     'primaryThumbnail',
     'thumbnailViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
-  static List lockupViewModelVideoCover = [
+  static List lockupViewModelVideoCoverPath = [
     'content',
     'lockupViewModel',
     'contentImage',
     'thumbnailViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
   //歌手详情里面的播放列表end-------------
 }
 
 class PlaybackSuggestionParserKeys {
-  static String lockupViewModel = 'lockupViewModel';
+  static String lockupViewModelNode = 'lockupViewModel';
 
-  static List resourceList = [
+  static List resourceListPath = [
     'contents',
     'twoColumnWatchNextResults',
     'secondaryResults',
@@ -1167,35 +1185,35 @@ class PlaybackSuggestionParserKeys {
     'results',
   ];
 
-  static List videoId = ['contentId'];
-  static List videoType = ['contentType'];
+  static List videoIdPath = ['contentId'];
+  static List videoTypePath = ['contentType'];
 
-  static List title = [
+  static List titlePath = [
     'metadata',
     'lockupMetadataViewModel',
     'title',
     'content',
   ];
 
-  static List subtitle = [
+  static List subtitlePath = [
     'metadata',
     'lockupMetadataViewModel',
     'metadata',
     'contentMetadataViewModel',
     'metadataRows',
-    {ParserHelper.indexKey: 1},
+    {ParserHelper.positionField: 1},
     'metadataParts',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
     'content',
   ];
 
-  static List cover = [
+  static List coverPath = [
     'contentImage',
     'thumbnailViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
 }
@@ -1204,123 +1222,127 @@ class SearchCatalogParserKeys {
   ///最佳搜索(可能没有)start-------------
   //最佳搜索有最佳搜索的卡片和下面带的列表
   //有这个表示有最佳搜索
-  static List topUniversalWatchCardRenderer = [
+  static List topUniversalWatchCardRendererPath = [
     'contents',
     'twoColumnSearchResultsRenderer',
     'secondaryContents',
     'secondarySearchContainerRenderer',
     'contents',
-    {ParserHelper.filterKey: 'universalWatchCardRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'universalWatchCardRenderer'},
+    {ParserHelper.positionField: 0},
     'universalWatchCardRenderer',
   ];
 
   //可能是专辑，可能是歌手
-  static String topCard = 'header';
-  static String topCardItem = 'watchCardRichHeaderRenderer';
-  static List topCardPageType = [
+  static String topCardNode = 'header';
+  static String topCardItemNode = 'watchCardRichHeaderRenderer';
+  static List topCardPageTypePath = [
     'titleNavigationEndpoint',
     'commandMetadata',
     'webCommandMetadata',
     'webPageType',
   ];
-  static List topCardBrowseId = [
+  static List topCardBrowseIdPath = [
     'titleNavigationEndpoint',
     'browseEndpoint',
     'browseId',
   ];
-  static List topCardTitle = ['title', 'simpleText'];
-  static List topCardSubtitle = ['subtitle', 'simpleText'];
-  static List topCardAlbumCover = [
-    ...topUniversalWatchCardRenderer,
+  static List topCardTitlePath = ['title', 'simpleText'];
+  static List topCardSubtitlePath = ['subtitle', 'simpleText'];
+  static List topCardAlbumCoverPath = [
+    ...topUniversalWatchCardRendererPath,
     'callToAction',
     'watchCardHeroVideoRenderer',
     'heroImage',
     'singleHeroImageRenderer',
     'thumbnail',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
-  static List topCardArtistCover = [
+  static List topCardArtistCoverPath = [
     'avatar',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
 
   //最佳搜索下面带的列表
-  static List topVideoFileGroupFilterItems = [
+  static List topVideoFileGroupFilterItemsPath = [
     'sections',
-    {ParserHelper.filterKey: 'watchCardSectionSequenceRenderer'},
+    {ParserHelper.matchField: 'watchCardSectionSequenceRenderer'},
   ];
-  static List topVideoFileGroupItems = [
+  static List topVideoFileGroupItemsPath = [
     'watchCardSectionSequenceRenderer',
     'lists',
-    {ParserHelper.filterKey: 'verticalWatchCardListRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'verticalWatchCardListRenderer'},
+    {ParserHelper.positionField: 0},
     'verticalWatchCardListRenderer',
     'items',
   ];
 
-  static String topVideoItem = 'watchCardCompactVideoRenderer';
-  static List topVideoId = ['navigationEndpoint', 'watchEndpoint', 'videoId'];
-  static List topVideoTitle = ['title', 'simpleText'];
-  static List topVideoSubtitle = ['subtitle', 'simpleText'];
-  static List topVideoSubtitle1 = [
+  static String topVideoItemNode = 'watchCardCompactVideoRenderer';
+  static List topVideoIdPath = [
+    'navigationEndpoint',
+    'watchEndpoint',
+    'videoId',
+  ];
+  static List topVideoTitlePath = ['title', 'simpleText'];
+  static List topVideoSubtitlePath = ['subtitle', 'simpleText'];
+  static List topVideoSubtitle1Path = [
     'subtitle',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
 
   ///最佳搜索(可能没有)end-------------
 
-  static List resourceList = [
+  static List resourceListPath = [
     'contents',
     'twoColumnSearchResultsRenderer',
     'primaryContents',
     'sectionListRenderer',
     'contents',
-    {ParserHelper.filterKey: 'itemSectionRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'itemSectionRenderer'},
+    {ParserHelper.positionField: 0},
     'itemSectionRenderer',
     'contents',
   ];
 
-  static List moreResourceList = [
+  static List moreResourceListPath = [
     'onResponseReceivedCommands',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'appendContinuationItemsAction',
     'continuationItems',
-    {ParserHelper.filterKey: 'itemSectionRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'itemSectionRenderer'},
+    {ParserHelper.positionField: 0},
     'itemSectionRenderer',
     'contents',
   ];
 
   //翻页参数
-  static List continuation = [
+  static List continuationPath = [
     'contents',
     'twoColumnSearchResultsRenderer',
     'primaryContents',
     'sectionListRenderer',
     'contents',
-    {ParserHelper.filterKey: 'continuationItemRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'continuationItemRenderer'},
+    {ParserHelper.positionField: 0},
     'continuationItemRenderer',
     'continuationEndpoint',
     'continuationCommand',
     'token',
   ];
 
-  static List moreContinuation = [
+  static List moreContinuationPath = [
     'onResponseReceivedCommands',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'appendContinuationItemsAction',
     'continuationItems',
-    {ParserHelper.filterKey: 'continuationItemRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'continuationItemRenderer'},
+    {ParserHelper.positionField: 0},
     'continuationItemRenderer',
     'continuationEndpoint',
     'continuationCommand',
@@ -1328,30 +1350,30 @@ class SearchCatalogParserKeys {
   ];
 
   //搜索列表里面的视频start-------------
-  static String videoRenderer = 'videoRenderer';
-  static List videoId = ['videoId'];
-  static List videoCover = [
+  static String videoRendererNode = 'videoRenderer';
+  static List videoIdPath = ['videoId'];
+  static List videoCoverPath = [
     'thumbnail',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
-  static List videoTitle = [
+  static List videoTitlePath = [
     'title',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
-  static List videoSubtitle = [
+  static List videoSubtitlePath = [
     'ownerText',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
-  static List videoUid = [
+  static List videoUidPath = [
     'ownerText',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'navigationEndpoint',
     'browseEndpoint',
     'browseId',
@@ -1359,48 +1381,48 @@ class SearchCatalogParserKeys {
   //搜索列表里面的视频end-------------
 
   //搜索列表里面的播放列表start-------------
-  static String playlistItem = 'lockupViewModel';
-  static List playlistId = ['contentId'];
-  static List playlistType = ['contentType'];
-  static List playlistTitle = [
+  static String playlistItemNode = 'lockupViewModel';
+  static List playlistIdPath = ['contentId'];
+  static List playlistTypePath = ['contentType'];
+  static List playlistTitlePath = [
     'metadata',
     'lockupMetadataViewModel',
     'title',
     'content',
   ];
-  static List playlistSubtitle = [
+  static List playlistSubtitlePath = [
     'metadata',
     'lockupMetadataViewModel',
     'metadata',
     'contentMetadataViewModel',
     'metadataRows',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'metadataParts',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
     'content',
   ];
-  static List playlistCover = [
+  static List playlistCoverPath = [
     'contentImage',
     'collectionThumbnailViewModel',
     'primaryThumbnail',
     'thumbnailViewModel',
     'image',
     'sources',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
   //搜索列表里面的播放列表end-------------
 
   //搜索列表里面的歌手start-------------
-  static String channelRenderer = 'channelRenderer';
-  static List artistBrowseId = ['channelId'];
-  static List artistTitle = ['title', 'simpleText'];
-  static List artistSubtitle = ['videoCountText', 'simpleText'];
-  static List artistCover = [
+  static String channelRendererNode = 'channelRenderer';
+  static List artistBrowseIdPath = ['channelId'];
+  static List artistTitlePath = ['title', 'simpleText'];
+  static List artistSubtitlePath = ['videoCountText', 'simpleText'];
+  static List artistCoverPath = [
     'thumbnail',
     'thumbnails',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'url',
   ];
   //搜索列表里面的歌手end-------------

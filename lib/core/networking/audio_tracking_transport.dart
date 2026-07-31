@@ -7,7 +7,7 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 
 class AudioTrackingTransport {
   //videoId: {playbackUrl:,watchTimeUrl:, end:}
-  static Map<String, Map> playTrackingInfo = {};
+  static Map<String, Map> playbackTelemetry = {};
 
   static String get watchCpn {
     const charsLocal =
@@ -30,23 +30,23 @@ class AudioTrackingTransport {
 
   static Future post({required FileInfo mediaEntry}) async {
     String mediaId = mediaEntry.fileId;
-    Map details = playTrackingInfo[mediaId] ?? {};
+    Map details = playbackTelemetry[mediaId] ?? {};
     String? playbackUrlLocal, watchTimeUrlValueLocal;
     if (details.length < 2) {
       String cpnLocal = watchCpn;
       Map requestParameters = {'videoId': mediaId, 'cpn': cpnLocal};
       dynamic response = await MusicCatalogGateway.post(
-        resourceUrl: MusicCatalogEndpoints.player,
+        resourceUrl: MusicCatalogEndpoints.playbackInfo,
         pramsArg: requestParameters,
         isAppArg: true,
       );
       playbackUrlLocal = ParserHelper.parse<String>(
         response,
-        PlaybackTrackingParserKeys.playbackUrl,
+        PlaybackTrackingParserKeys.playbackTrackingPath,
       );
       watchTimeUrlValueLocal = ParserHelper.parse<String>(
         response,
-        PlaybackTrackingParserKeys.watchTimeUrl,
+        PlaybackTrackingParserKeys.watchTimeTrackingPath,
       );
 
       if (playbackUrlLocal != null && playbackUrlLocal.startsWith('http')) {
@@ -62,7 +62,7 @@ class AudioTrackingTransport {
         details['watchTimeUrl'] = watchTimeUrlValueLocal;
       }
       details['cpn'] = cpnLocal;
-      playTrackingInfo[mediaId] = details;
+      playbackTelemetry[mediaId] = details;
     } else {
       playbackUrlLocal = details['playbackUrl'];
       watchTimeUrlValueLocal = details['watchTimeUrl'];
@@ -89,8 +89,8 @@ class AudioTrackingTransport {
         "&cmt=${mediaEntry.position}"
         "&hl=${MusicCatalogGateway.languageCode}"
         "&cr=${MusicCatalogGateway.countryCode}"
-        "&c=${MusicCatalogGateway.webPrams['context']?['client']?['clientName']}"
-        "&cver=${MusicCatalogGateway.webPrams['context']?['client']?['clientVersion']}";
+        "&c=${MusicCatalogGateway.musicWebContext['context']?['client']?['clientName']}"
+        "&cver=${MusicCatalogGateway.musicWebContext['context']?['client']?['clientVersion']}";
     if (playbackUrlLocal != null) {
       playbackUrlLocal += pathLocal;
       await NetworkManager.instance.requestMethod(
@@ -115,13 +115,13 @@ class AudioTrackingTransport {
 }
 
 class PlaybackTrackingParserKeys {
-  static List playbackUrl = [
+  static List playbackTrackingPath = [
     'playbackTracking',
     'videostatsPlaybackUrl',
     'baseUrl',
   ];
 
-  static List watchTimeUrl = [
+  static List watchTimeTrackingPath = [
     'playbackTracking',
     'videostatsWatchtimeUrl',
     'baseUrl',

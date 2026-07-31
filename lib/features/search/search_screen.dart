@@ -15,13 +15,13 @@ import 'package:echo_vault/features/playback/widgets/playback_bar.dart';
 import 'package:echo_vault/shared/widgets/tab_navigation_view.dart';
 
 class SearchScreen extends StatefulWidget {
-  static const String homeTag = 'home';
-  static const String tabTag = 'tab';
+  static const String discoveryEntryTag = 'home';
+  static const String resultTabTag = 'tab';
 
-  static ValueNotifier<int> currentTabIndex = ValueNotifier(0);
+  static ValueNotifier<int> selectedResultTab = ValueNotifier(0);
 
   final String tag;
-  const SearchScreen({super.key, this.tag = tabTag});
+  const SearchScreen({super.key, this.tag = resultTabTag});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -183,7 +183,7 @@ class _SearchScreenState extends State<SearchScreen>
         vsync: this,
       );
       tabController!.addListener(() {
-        SearchScreen.currentTabIndex.value = tabController!.index;
+        SearchScreen.selectedResultTab.value = tabController!.index;
       });
     }
     return Column(
@@ -198,7 +198,7 @@ class _SearchScreenState extends State<SearchScreen>
           ),
         Expanded(
           child: ValueListenableBuilder(
-            valueListenable: SearchScreen.currentTabIndex,
+            valueListenable: SearchScreen.selectedResultTab,
             builder:
                 (
                   BuildContext buildContext,

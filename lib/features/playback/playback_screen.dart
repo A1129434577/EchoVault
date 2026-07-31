@@ -16,7 +16,7 @@ import 'package:echo_vault/features/playback/widgets/playback_slider.dart';
 import 'package:echo_vault/shared/widgets/media/save_media_view.dart';
 
 class PlaybackNavigator {
-  static String routeName = '/$_PlaybackScreen';
+  static String screenRoute = '/$_PlaybackScreen';
 
   static toPlay({
     List<FileInfo>? mediaQueue,
@@ -42,7 +42,7 @@ class PlaybackNavigator {
       backgroundColor: Colors.white,
       isScrollControlled: true,
       routeSettings: RouteSettings(
-        name: PlaybackNavigator.routeName,
+        name: PlaybackNavigator.screenRoute,
         arguments: mediaEntry,
       ),
       builder: (buildContext) {
@@ -151,8 +151,8 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                 ) {
                   if (currentMediaInfo?.fileId != _lastNativeAdMedia?.fileId) {
                     AdHelper.loadSceneAdIfNull(
-                      scene: AdvertisingScene.playNative,
-                      detailScene: AdvertisingDetailScene.play,
+                      scene: AdvertisingScene.playbackNative,
+                      detailScene: AdvertisingDetailScene.playback,
                     );
                   }
                   return Column(

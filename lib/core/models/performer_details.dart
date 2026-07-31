@@ -3,9 +3,9 @@ part 'performer_details.generated.dart';
 
 @JsonSerializable()
 class PerformerDetails {
-  static const String ytmTypeName = 'MUSIC_PAGE_TYPE_ARTIST';
-  static const String ytTypeName = 'YT_PAGE_TYPE_ARTIST';
-  static const String ytSearchTypeName = 'WEB_PAGE_TYPE_CHANNEL';
+  static const String musicArtistPageType = 'MUSIC_PAGE_TYPE_ARTIST';
+  static const String videoArtistPageType = 'YT_PAGE_TYPE_ARTIST';
+  static const String channelSearchPageType = 'WEB_PAGE_TYPE_CHANNEL';
 
   @JsonKey(name: 'id')
   String? id;

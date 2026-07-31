@@ -13,12 +13,12 @@ import 'package:echo_vault/core/state/bookmark_media_state.dart';
 import 'package:echo_vault/core/persistence/performer_repository.dart';
 import 'package:echo_vault/core/persistence/media_collection_repository.dart';
 import 'package:echo_vault/core/persistence/media_repository.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 import 'package:echo_vault/core/media/media_origin.dart';
 import 'package:echo_vault/generated/assets.dart';
 import 'package:echo_vault/utils/string_cipher.dart';
 import 'package:echo_vault/core/models/performer_details.dart';
 import 'package:echo_vault/features/catalog/controllers/catalog_state.dart';
-import 'package:echo_vault/features/playback/controllers/playback_coordinator.dart';
 import 'package:echo_vault/core/networking/music_catalog_gateway.dart';
 import 'package:echo_vault/core/parsing/shared_parser.dart';
 import 'package:echo_vault/core/parsing/music_catalog_parser.dart';
@@ -26,7 +26,7 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class DiscoveryState with ChangeNotifier {
-  static final DiscoveryState _instance = DiscoveryState._();
+  static final DiscoveryState _sharedState = DiscoveryState._();
 
   ValueNotifier<bool> isYoutubeMusicEnable = ValueNotifier(true);
 
@@ -49,7 +49,7 @@ class DiscoveryState with ChangeNotifier {
 
   bool isRefreshing = false;
   factory DiscoveryState() {
-    return _instance;
+    return _sharedState;
   }
   DiscoveryState._() {
     PlayerPlayback.instance.player.playStatusStream.listen((playStateInputArg) {
@@ -58,7 +58,7 @@ class DiscoveryState with ChangeNotifier {
         if (playStateInputArg.state == PlayState.start ||
             playStateInputArg.state == PlayState.playIndex) {
           if (mediaEntry != null) {
-            mediaEntry.source1 = MediaOrigin.history;
+            mediaEntry.source1 = MediaOrigin.listeningHistory;
             MediaRepository.addFileInfo(mediaEntry);
             fetchRecommend();
           }
@@ -82,7 +82,7 @@ class DiscoveryState with ChangeNotifier {
       fetchMyArtist();
     });
   }
-  static DiscoveryState get instance => _instance;
+  static DiscoveryState get instance => _sharedState;
   Future fetchMoreResource() async {
     if (isYoutubeMusicEnable.value == false) {
       return IndicatorResult.noMore;
@@ -148,7 +148,7 @@ class DiscoveryState with ChangeNotifier {
         CatalogState.instance.mediaCollections.value;
     List<MediaCollection> newGroupListLocal = [];
     for (final group in groupListLocal) {
-      if (group.id?.startsWith(NewCollectionDialog.createPlaylistNamePrefix) ==
+      if (group.id?.startsWith(NewCollectionDialog.generatedCollectionPrefix) ==
           true) {
         if (group.children.isNotEmpty) {
           newGroupListLocal.add(group);
@@ -166,14 +166,14 @@ class DiscoveryState with ChangeNotifier {
     List<FileInfo> entries = await MediaRepository.fetchFileInfo(
       whereArg:
           '''
-    (json_content LIKE '%${'"source1":"${MediaOrigin.history.name}"'}%')
-    OR (json_content LIKE '%${'"source":"${MediaOrigin.homeReco.name}"'}%')
+    (json_content LIKE '%${'"source1":"${MediaOrigin.listeningHistory.name}"'}%')
+    OR (json_content LIKE '%${'"source":"${MediaOrigin.homeRecommendations.name}"'}%')
     OR (download_status = 3)
     OR (is_favorite = 1)
     ''',
     );
     for (final mediaDetails in entries) {
-      mediaDetails.source = MediaOrigin.homeReco;
+      mediaDetails.source = MediaOrigin.homeRecommendations;
     }
     if (entries.isNotEmpty) {
       recommendList.value = entries;
@@ -259,7 +259,7 @@ class DiscoveryState with ChangeNotifier {
       queryLocal = {'continuation': continuationArg};
     }
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.home,
+      resourceUrl: MusicCatalogEndpoints.discoveryFeed,
       pramsArg: requestParameters,
       queryArg: queryLocal,
     );
@@ -267,7 +267,7 @@ class DiscoveryState with ChangeNotifier {
     if ((await MusicCatalogGateway.visitorData) == null) {
       final visitorDataLocal = ParserHelper.parse<String>(
         response,
-        SharedParserKeys.visitorData,
+        SharedParserKeys.visitorDataPath,
       );
       if (visitorDataLocal != null) {
         MusicCatalogGateway.visitorData = visitorDataLocal;
@@ -276,7 +276,7 @@ class DiscoveryState with ChangeNotifier {
 
     List? itemSectionsLocal = ParserHelper.parse<List>(
       response,
-      SectionListParserKeys.itemSectionRenderer,
+      SectionListParserKeys.itemSectionRendererPath,
     );
 
     String? newContinuationLocal;
@@ -286,12 +286,12 @@ class DiscoveryState with ChangeNotifier {
       //将下一页的分页请求参数保存下来
       newContinuationLocal = ParserHelper.parse<String>(
         response,
-        SectionListParserKeys.initContinuation,
+        SectionListParserKeys.initContinuationPath,
       );
       _continuation = newContinuationLocal;
       response = ParserHelper.parse<List>(
         response,
-        SectionListParserKeys.initResourceList,
+        SectionListParserKeys.initResourceListPath,
       );
       if (response == null ||
           (itemSectionsLocal is List && itemSectionsLocal.isEmpty)) {
@@ -306,14 +306,14 @@ class DiscoveryState with ChangeNotifier {
     } else {
       newContinuationLocal = ParserHelper.parse<String>(
         response,
-        SectionListParserKeys.moreContinuation,
+        SectionListParserKeys.moreContinuationPath,
       );
       if (newContinuationLocal != null) {
         _continuation = newContinuationLocal;
       }
       response = ParserHelper.parse<List>(
         response,
-        SectionListParserKeys.moreResourceList,
+        SectionListParserKeys.moreResourceListPath,
       );
     }
 
@@ -327,7 +327,7 @@ class DiscoveryState with ChangeNotifier {
     _originalResourceList.addAll(response);
     List<MediaCollection> entries = await SharedParser.decodeContents(
       response,
-      mediaOrigin: MediaOrigin.homeNet,
+      mediaOrigin: MediaOrigin.onlineHome,
     );
     resourceFileGroupList.value.addAll(entries);
     resourceFileGroupList.notifyListeners();
@@ -346,7 +346,7 @@ class DiscoveryState with ChangeNotifier {
     //source是自定义埋点字段，和接口无关
     requestParameters['_source'] = mediaOrigin;
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.ytHome,
+      resourceUrl: MusicCatalogEndpoints.videoDiscoveryFeed,
       pramsArg: requestParameters,
       isMusicArg: false,
     );
@@ -355,7 +355,7 @@ class DiscoveryState with ChangeNotifier {
     if ((await MusicCatalogGateway.visitorData) == null) {
       final visitorDataLocal = ParserHelper.parse<String>(
         response,
-        SharedParserKeys.visitorData,
+        SharedParserKeys.visitorDataPath,
       );
       if (visitorDataLocal != null) {
         MusicCatalogGateway.visitorData = visitorDataLocal;
@@ -371,14 +371,14 @@ class DiscoveryState with ChangeNotifier {
     response =
         ParserHelper.parse<List>(
           response,
-          DiscoveryCatalogParserKeys.resourceList,
+          DiscoveryCatalogParserKeys.resourceListPath,
         ) ??
         [];
 
     _originalResourceList = response;
     List<MediaCollection> entries = await MusicCatalogParser.decodeHomeContents(
       response,
-      mediaOrigin: MediaOrigin.homeNet,
+      mediaOrigin: MediaOrigin.onlineHome,
     );
     resourceFileGroupList.value = entries;
     resourceFileGroupList.notifyListeners();
@@ -390,7 +390,7 @@ class DiscoveryState with ChangeNotifier {
   Future _resumePlayback() async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
     String? serializedJson = spLocal.getString(
-      PlaybackCoordinator.lastPlayingListCacheKey,
+      UserPreferenceKeys.playbackQueue,
     );
     if (serializedJson != null) {
       final fileMapListLocal = jsonDecode(serializedJson);
@@ -400,10 +400,9 @@ class DiscoveryState with ChangeNotifier {
           FileInfo mediaEntry = FileInfo.fromJson(info);
           mediaQueue.add(mediaEntry);
         }
-        int itemIndex =
-            spLocal.getInt(PlaybackCoordinator.lastPlayIndexCacheKey) ?? 0;
+        int itemIndex = spLocal.getInt(UserPreferenceKeys.playbackIndex) ?? 0;
         int playModeIndexLocal =
-            spLocal.getInt(PlaybackCoordinator.lastPlayModeCacheKey) ?? 0;
+            spLocal.getInt(UserPreferenceKeys.playbackMode) ?? 0;
         PlayerPlayMode playModeLocal =
             PlayerPlayMode.values[playModeIndexLocal];
         PlayerPlayback.instance.playModeInfo.value = PlayerPlayModeInfo(

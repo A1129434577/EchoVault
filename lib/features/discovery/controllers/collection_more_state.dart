@@ -17,17 +17,17 @@ class CollectionMoreState with ChangeNotifier {
       'params': mediaCollection.params,
     };
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.detail,
+      resourceUrl: MusicCatalogEndpoints.browseResource,
       pramsArg: requestParameters,
     );
     dynamic entries = ParserHelper.parse<List>(
       response,
-      SectionListParserKeys.initResourceList,
+      SectionListParserKeys.initResourceListPath,
     );
     entries ??=
         ParserHelper.parse<List>(
           response,
-          SectionListParserKeys.tapMoreResourceList,
+          SectionListParserKeys.tapMoreResourceListPath,
         ) ??
         [];
     entries = await SharedParser.decodeContents(entries);

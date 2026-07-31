@@ -5,7 +5,7 @@ import 'package:player_base/player_base.dart';
 import 'package:echo_vault/generated/assets.dart';
 
 class RatingDialog extends StatelessWidget {
-  static String routeName = '$RatingDialog';
+  static String dialogRoute = '$RatingDialog';
 
   const RatingDialog({super.key});
 
@@ -163,7 +163,7 @@ class RatingDialog extends StatelessWidget {
     showDialog(
       context: Get.context!,
       barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: dialogRoute),
       builder: (buildContext) {
         return RatingDialog();
       },

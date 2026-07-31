@@ -8,40 +8,40 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 
 class SearchTabResultParserKeys {
   //翻页参数
-  static List initContinuation = [
+  static List initialCursorPath = [
     'contents',
     'tabbedSearchResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'sectionListRenderer',
     'contents',
-    {ParserHelper.filterKey: 'musicShelfRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'musicShelfRenderer'},
+    {ParserHelper.positionField: 0},
     'musicShelfRenderer',
     'continuations',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'nextContinuationData',
     'continuation',
   ];
 
   //翻页参数
-  static List moreContinuation = [
+  static List nextCursorPath = [
     'continuationContents',
     'musicShelfContinuation',
     'continuations',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'nextContinuationData',
     'continuation',
   ];
 
   //翻页第一页数据列表
-  static List initResourceList = [
+  static List initialItemsPath = [
     'contents',
     'tabbedSearchResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'sectionListRenderer',
@@ -49,7 +49,7 @@ class SearchTabResultParserKeys {
   ];
 
   //翻页更多页数据列表
-  static List moreResourceList = [
+  static List nextItemsPath = [
     'continuationContents',
     'musicShelfContinuation',
     'contents',
@@ -84,7 +84,7 @@ class SearchTabResultState with ChangeNotifier {
       queryLocal = {'continuation': continuationArg};
     }
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.searchTabResult,
+      resourceUrl: MusicCatalogEndpoints.filteredSearch,
       pramsArg: requestParameters,
       queryArg: queryLocal,
     );
@@ -95,24 +95,24 @@ class SearchTabResultState with ChangeNotifier {
       //将下一页的分页请求参数保存下来
       newContinuationLocal = ParserHelper.parse<String>(
         response,
-        SearchTabResultParserKeys.initContinuation,
+        SearchTabResultParserKeys.initialCursorPath,
       );
       _continuation = newContinuationLocal;
       response =
           ParserHelper.parse<List>(
             response,
-            SearchTabResultParserKeys.initResourceList,
+            SearchTabResultParserKeys.initialItemsPath,
           ) ??
           [];
       List<MediaCollection> entries = await SharedParser.decodeContents(
         response,
-        mediaOrigin: MediaOrigin.search,
+        mediaOrigin: MediaOrigin.searchResults,
       );
       records.value.addAll(entries.firstOrNull?.children ?? []);
     } else {
       newContinuationLocal = ParserHelper.parse<String>(
         response,
-        SearchTabResultParserKeys.moreContinuation,
+        SearchTabResultParserKeys.nextCursorPath,
       );
       if (newContinuationLocal != null) {
         _continuation = newContinuationLocal;
@@ -120,12 +120,12 @@ class SearchTabResultState with ChangeNotifier {
       response =
           ParserHelper.parse<List>(
             response,
-            SearchTabResultParserKeys.moreResourceList,
+            SearchTabResultParserKeys.nextItemsPath,
           ) ??
           [];
       List entries = await SharedParser.decodeChildren(
         response,
-        mediaOrigin: MediaOrigin.search,
+        mediaOrigin: MediaOrigin.searchResults,
       );
       records.value.addAll(entries);
     }

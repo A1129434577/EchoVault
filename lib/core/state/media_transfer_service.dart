@@ -18,23 +18,23 @@ import 'package:echo_vault/core/networking/playback_http_transport.dart';
 ///下载和缓存路径都是先放入temp文件夹，防止因暂停下载等状态时文件不完整，但是却判断文件为已下载的情况
 @pragma('vm:item-point')
 class MediaTransferService {
-  static const String _downloaderSendPortName = 'flutter_downloader_send_port';
+  static const String _transferPortName = 'flutter_downloader_send_port';
 
   //下载中的文件taskId:FileInfo
-  static Map<String, FileInfo> downloadingFilesMap = {};
+  static Map<String, FileInfo> activeDownloads = {};
   //缓存中的文件taskId:FileInfo
-  static Map<String, FileInfo> cachingFilesMap = {};
-  static final StreamController<FileInfo> _downloaderController =
+  static Map<String, FileInfo> activeCacheTasks = {};
+  static final StreamController<FileInfo> _transferEvents =
       StreamController.broadcast();
-  static final StreamController<TransferStartInfo> _downloaderStartController =
+  static final StreamController<TransferStartInfo> _transferStartEvents =
       StreamController.broadcast();
 
   //下载开始流
   static Stream<TransferStartInfo> get downloadStartStream =>
-      _downloaderStartController.stream;
+      _transferStartEvents.stream;
 
   //下载详细状态更新流
-  static Stream<FileInfo> get downloadStream => _downloaderController.stream;
+  static Stream<FileInfo> get downloadStream => _transferEvents.stream;
 
   ///缓存
   static Future<String?> cache({
@@ -79,7 +79,7 @@ class MediaTransferService {
     );
     mediaEntry.cacheDownloadTaskId = cacheDownloadTaskIdLocal;
     if (cacheDownloadTaskIdLocal != null) {
-      cachingFilesMap[cacheDownloadTaskIdLocal] = mediaEntry;
+      activeCacheTasks[cacheDownloadTaskIdLocal] = mediaEntry;
     }
     return cacheDownloadTaskIdLocal;
   }
@@ -100,14 +100,14 @@ class MediaTransferService {
         if (transferTaskLocal.status == DownloadTaskStatus.paused) {
           //暂停的任务好像取消没反应，这里直接通知出去处理一次
           mediaEntry.downloadStatus = DownloadTaskStatus.canceled.index;
-          _downloaderController.add(mediaEntry);
+          _transferEvents.add(mediaEntry);
         }
       } else {
         remove(mediaEntry);
       }
     } else {
       mediaEntry.downloadStatus = DownloadTaskStatus.canceled.index;
-      _downloaderController.add(mediaEntry);
+      _transferEvents.add(mediaEntry);
     }
   }
 
@@ -116,12 +116,12 @@ class MediaTransferService {
     required FileInfo mediaEntry,
     bool isClickArg = true,
   }) async {
-    _downloaderStartController.add(
+    _transferStartEvents.add(
       TransferStartInfo(mediaDetails: mediaEntry, isClick: isClickArg),
     );
 
     mediaEntry.downloadStatus = DownloadTaskStatus.enqueued.index;
-    _downloaderController.add(mediaEntry);
+    _transferEvents.add(mediaEntry);
 
     String filePathLocal = await mediaEntry.filePath;
     String cachedMediaPath = await mediaEntry.cacheFilePath;
@@ -130,7 +130,7 @@ class MediaTransferService {
     if (fileLocal.existsSync()) {
       //文件已下载
       mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
-      _downloaderController.add(mediaEntry);
+      _transferEvents.add(mediaEntry);
       return null;
     }
     File cacheFileLocal = File(cachedMediaPath);
@@ -143,14 +143,14 @@ class MediaTransferService {
         cacheFileLocal.deleteSync();
       }, RootIsolateToken.instance!);
       mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
-      _downloaderController.add(mediaEntry);
+      _transferEvents.add(mediaEntry);
       return filePathLocal;
     }
 
     String? resultPathLocal = await reconcileTaskToFileInfo(mediaEntry);
     if (resultPathLocal != null) {
       mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
-      _downloaderController.add(mediaEntry);
+      _transferEvents.add(mediaEntry);
       return resultPathLocal;
     }
     PlaybackHttpTransport httpClientLocal = PlaybackHttpTransport();
@@ -167,7 +167,7 @@ class MediaTransferService {
     }
     if (resourceUrl == null) {
       mediaEntry.downloadStatus = DownloadTaskStatus.failed.index;
-      _downloaderController.add(mediaEntry);
+      _transferEvents.add(mediaEntry);
       //文件下载地址获取失败
       return null;
     }
@@ -208,7 +208,7 @@ class MediaTransferService {
     );
     mediaEntry.downloadTaskId = downloadTaskIdLocal;
     if (downloadTaskIdLocal != null) {
-      downloadingFilesMap[downloadTaskIdLocal] = mediaEntry;
+      activeDownloads[downloadTaskIdLocal] = mediaEntry;
     }
     return completerLocal.future;
   }
@@ -220,18 +220,18 @@ class MediaTransferService {
     int progressArg,
   ) {
     final SendPort? sendLocal = IsolateNameServer.lookupPortByName(
-      _downloaderSendPortName,
+      _transferPortName,
     );
     sendLocal?.send([idArg, currentStatus, progressArg]);
   }
 
   static Future initializeSdk() async {
     await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
-    IsolateNameServer.removePortNameMapping(_downloaderSendPortName);
+    IsolateNameServer.removePortNameMapping(_transferPortName);
     ReceivePort receivePortLocal = ReceivePort();
     IsolateNameServer.registerPortWithName(
       receivePortLocal.sendPort,
-      _downloaderSendPortName,
+      _transferPortName,
     );
     receivePortLocal.listen((dynamic payload) async {
       String taskIdLocal = payload[0];
@@ -241,14 +241,14 @@ class MediaTransferService {
       //进度0-1
       int newProgressLocal = payload[2];
 
-      FileInfo? mediaEntry = downloadingFilesMap[taskIdLocal];
+      FileInfo? mediaEntry = activeDownloads[taskIdLocal];
       if (mediaEntry == null) {
         List<FileInfo> mediaEntries = await MediaRepository.fetchFileInfo(
           whereArg: 'download_task_id = "$taskIdLocal"',
         );
         if (mediaEntries.isNotEmpty) {
           mediaEntry = mediaEntries.first;
-          downloadingFilesMap[taskIdLocal] = mediaEntry;
+          activeDownloads[taskIdLocal] = mediaEntry;
         }
       }
       if (mediaEntry != null) {
@@ -267,16 +267,16 @@ class MediaTransferService {
         }
         mediaEntry.downloadProgress = newProgressLocal;
         mediaEntry.downloadStatus = newStatusLocal.index;
-        _downloaderController.add(mediaEntry);
+        _transferEvents.add(mediaEntry);
 
         if (newStatusLocal == DownloadTaskStatus.complete ||
             newStatusLocal == DownloadTaskStatus.failed ||
             newStatusLocal == DownloadTaskStatus.canceled) {
-          downloadingFilesMap.remove(taskIdLocal);
+          activeDownloads.remove(taskIdLocal);
         }
       }
 
-      FileInfo? cacheFileInfoLocal = cachingFilesMap[taskIdLocal];
+      FileInfo? cacheFileInfoLocal = activeCacheTasks[taskIdLocal];
       if (cacheFileInfoLocal != null) {
         if (newStatusLocal == DownloadTaskStatus.complete) {
           compute((rootIsolateTokenInputArg) async {
@@ -294,7 +294,7 @@ class MediaTransferService {
         if (newStatusLocal == DownloadTaskStatus.complete ||
             newStatusLocal == DownloadTaskStatus.failed ||
             newStatusLocal == DownloadTaskStatus.canceled) {
-          cachingFilesMap.remove(taskIdLocal);
+          activeCacheTasks.remove(taskIdLocal);
         }
       }
     });
@@ -330,7 +330,7 @@ class MediaTransferService {
     mediaEntry.downloadTaskId = null;
     mediaEntry.downloadProgress = null;
     mediaEntry.downloadStatus = DownloadTaskStatus.undefined.index;
-    _downloaderController.add(mediaEntry);
+    _transferEvents.add(mediaEntry);
     return mediaEntry;
   }
 
@@ -359,7 +359,7 @@ class MediaTransferService {
             tempFileLocal.deleteSync();
           }, RootIsolateToken.instance!);
           mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
-          _downloaderController.add(mediaEntry);
+          _transferEvents.add(mediaEntry);
           return mediaEntry;
         }
       } else if (transferTaskLocal.status == DownloadTaskStatus.paused) {
@@ -368,7 +368,7 @@ class MediaTransferService {
         );
         mediaEntry.downloadTaskId = newTaskIdLocal;
         if (newTaskIdLocal != null) {
-          downloadingFilesMap[newTaskIdLocal] = mediaEntry;
+          activeDownloads[newTaskIdLocal] = mediaEntry;
         }
         return mediaEntry;
       } else if (transferTaskLocal.status == DownloadTaskStatus.canceled ||
@@ -378,7 +378,7 @@ class MediaTransferService {
         // String? newTaskId = await FlutterDownloader.retry(taskId: transferTask.taskId);
         // mediaDetails.downloadTaskId = newTaskId;
         // if(newTaskId!=null) {
-        //   downloadingFilesMap[newTaskId] = mediaDetails;
+        //   activeDownloads[newTaskId] = mediaDetails;
         // }
         // return mediaDetails;
 

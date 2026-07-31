@@ -12,15 +12,13 @@ import 'package:echo_vault/features/performers/performer_detail_screen.dart';
 import 'package:echo_vault/features/performers/widgets/bookmark_performer_view.dart';
 import 'package:echo_vault/features/collections/collection_detail_screen.dart';
 import 'package:echo_vault/core/networking/music_catalog_gateway.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 
 class AdvertisingDisplayCoordinator {
-  static final String _rateAlertShowCountKey = '_rateAlertShowCountKey';
-  static final String _rateAlertLastShowTimeKey = '_rateAlertLastShowTimeKey';
-  static int rateAlertLastShowTime = DateTime.now().millisecondsSinceEpoch;
-  static bool isMuted = false;
+  static int ratingPromptTimestamp = DateTime.now().millisecondsSinceEpoch;
+  static bool audioTemporarilyMuted = false;
 
-  static final DebounceUtil _debounce = DebounceUtil();
-
+  static final DebounceUtil _displayThrottle = DebounceUtil();
 
   static Future<bool?> showScene({
     required AdScene scene,
@@ -28,62 +26,74 @@ class AdvertisingDisplayCoordinator {
     bool verifyCd = true,
     dynamic params,
   }) async {
-    return _debounce<Future<bool?>>(Duration(milliseconds: 1500), () async {
-      bool? showSuccessValueLocal = await AdHelper.showScene(
-        scene: scene,
-        detailScene: detailScene,
-        verifyCd: verifyCd,
-        params: params,
-      );
-      if (showSuccessValueLocal != true) {
-        //搜索、下载、收藏或者播放的时候出现好评引导
-        if (detailScene == AdvertisingDetailScene.search ||
-            detailScene == AdvertisingDetailScene.download ||
-            detailScene == AdvertisingDetailScene.collection ||
-            detailScene == AdvertisingDetailScene.play) {
-          DateTime nowLocal = DateTime.now();
-          if (nowLocal
-              .difference(
-            DateTime.fromMillisecondsSinceEpoch(rateAlertLastShowTime),
-          )
-              .inHours >
-              24) {
-            int rateAlertShowCountLocal =
-                AdHelper.sharedPreferences.getInt(_rateAlertShowCountKey) ??
-                    0;
-            if (rateAlertShowCountLocal < 5) {
-              RatingDialog.show();
-              AdHelper.sharedPreferences.setInt(
-                _rateAlertLastShowTimeKey,
-                DateTime.now().millisecondsSinceEpoch,
-              );
-              rateAlertShowCountLocal++;
-              AdHelper.sharedPreferences.setInt(
-                _rateAlertShowCountKey,
-                rateAlertShowCountLocal,
-              );
+    return _displayThrottle<Future<bool?>>(
+      Duration(milliseconds: 1500),
+      () async {
+        bool? showSuccessValueLocal = await AdHelper.showScene(
+          scene: scene,
+          detailScene: detailScene,
+          verifyCd: verifyCd,
+          params: params,
+        );
+        if (showSuccessValueLocal != true) {
+          //搜索、下载、收藏或者播放的时候出现好评引导
+          if (detailScene == AdvertisingDetailScene.searchResults ||
+              detailScene == AdvertisingDetailScene.mediaDownload ||
+              detailScene == AdvertisingDetailScene.savedCollection ||
+              detailScene == AdvertisingDetailScene.playback) {
+            DateTime nowLocal = DateTime.now();
+            if (nowLocal
+                    .difference(
+                      DateTime.fromMillisecondsSinceEpoch(
+                        ratingPromptTimestamp,
+                      ),
+                    )
+                    .inHours >
+                24) {
+              int rateAlertShowCountLocal =
+                  AdHelper.sharedPreferences.getInt(
+                    UserPreferenceKeys.ratingPromptCount,
+                  ) ??
+                  0;
+              if (rateAlertShowCountLocal < 5) {
+                RatingDialog.show();
+                AdHelper.sharedPreferences.setInt(
+                  UserPreferenceKeys.ratingPromptLastShown,
+                  DateTime.now().millisecondsSinceEpoch,
+                );
+                rateAlertShowCountLocal++;
+                AdHelper.sharedPreferences.setInt(
+                  UserPreferenceKeys.ratingPromptCount,
+                  rateAlertShowCountLocal,
+                );
+              }
             }
           }
         }
-      }
-      return showSuccessValueLocal;
-    });
+        return showSuccessValueLocal;
+      },
+    );
   }
 
   static void start() async {
-    int? rateAlertLastShowTimeNew = AdHelper.sharedPreferences.getInt(_rateAlertLastShowTimeKey);
-    if(rateAlertLastShowTimeNew == null){
-      AdHelper.sharedPreferences.setInt(_rateAlertLastShowTimeKey, rateAlertLastShowTime);
-    }else{
-      rateAlertLastShowTime = rateAlertLastShowTimeNew;
+    int? rateAlertLastShowTimeNew = AdHelper.sharedPreferences.getInt(
+      UserPreferenceKeys.ratingPromptLastShown,
+    );
+    if (rateAlertLastShowTimeNew == null) {
+      AdHelper.sharedPreferences.setInt(
+        UserPreferenceKeys.ratingPromptLastShown,
+        ratingPromptTimestamp,
+      );
+    } else {
+      ratingPromptTimestamp = rateAlertLastShowTimeNew;
     }
 
     //前后台监听
     AppLifecycleObserver.lifecycleStream.listen((stateArg) {
       if (stateArg == AppLifecycleState.foreground) {
         showScene(
-          scene: AdvertisingScene.open,
-          detailScene: AdvertisingDetailScene.hotOpen,
+          scene: AdvertisingScene.appLaunch,
+          detailScene: AdvertisingDetailScene.warmResume,
         );
       }
     });
@@ -94,12 +104,13 @@ class AdvertisingDisplayCoordinator {
           AppRouteObserver.observer.currentRouteName;
       String? previousRouteNameLocal =
           AppRouteObserver.observer.previousRouteName;
-      if ((currentRouteNameLocal == CollectionDetailScreenHelper.routeName ||
-              currentRouteNameLocal == PerformerDetailScreenHelper.routeName) &&
+      if ((currentRouteNameLocal == CollectionDetailScreenHelper.screenRoute ||
+              currentRouteNameLocal ==
+                  PerformerDetailScreenHelper.screenRoute) &&
           AppRouteObserver.observer.type == AppRouteChangeType.push) {
         showScene(
-          scene: AdvertisingScene.inApp,
-          detailScene: AdvertisingDetailScene.detail,
+          scene: AdvertisingScene.fullScreen,
+          detailScene: AdvertisingDetailScene.details,
         );
       }
       if (AppRouteObserver.observer.type == AppRouteChangeType.pop &&
@@ -107,8 +118,8 @@ class AdvertisingDisplayCoordinator {
           previousRouteNameLocal?.endsWith('Sheet') != true &&
           previousRouteNameLocal != null) {
         showScene(
-          scene: AdvertisingScene.inApp,
-          detailScene: AdvertisingDetailScene.pop,
+          scene: AdvertisingScene.fullScreen,
+          detailScene: AdvertisingDetailScene.popup,
         );
       }
     });
@@ -120,15 +131,15 @@ class AdvertisingDisplayCoordinator {
         String? previousRouteNameLocal =
             AppRouteObserver.observer.previousRouteName;
         if (playStateInputArg.state == PlayState.playIndex &&
-            previousRouteNameLocal != QueueListPanel.routeName) {
+            previousRouteNameLocal != QueueListPanel.panelRoute) {
           showScene(
-            scene: AdvertisingScene.inApp,
-            detailScene: AdvertisingDetailScene.playStart,
+            scene: AdvertisingScene.fullScreen,
+            detailScene: AdvertisingDetailScene.playbackStart,
           );
         } else {
           showScene(
-            scene: AdvertisingScene.inApp,
-            detailScene: AdvertisingDetailScene.play,
+            scene: AdvertisingScene.fullScreen,
+            detailScene: AdvertisingDetailScene.playback,
           );
         }
       }
@@ -137,8 +148,8 @@ class AdvertisingDisplayCoordinator {
     PlayerPlayback.instance.playModeInfo.addListener(() {
       if (PlayerPlayback.instance.playModeInfo.value.isAuto == false) {
         showScene(
-          scene: AdvertisingScene.inApp,
-          detailScene: AdvertisingDetailScene.play,
+          scene: AdvertisingScene.fullScreen,
+          detailScene: AdvertisingDetailScene.playback,
         );
       }
     });
@@ -148,13 +159,14 @@ class AdvertisingDisplayCoordinator {
       if (httpStatusInputArg.status == AppNetworkState.loading) {
         //搜索主页接口
         if (httpStatusInputArg.url ==
-                MusicCatalogGateway.baseUrl + MusicCatalogEndpoints.search ||
+                MusicCatalogGateway.musicApiRoot +
+                    MusicCatalogEndpoints.catalogSearch ||
             httpStatusInputArg.url ==
-                MusicCatalogGateway.ytBaseUrl +
-                    MusicCatalogEndpoints.ytSearch) {
+                MusicCatalogGateway.videoApiRoot +
+                    MusicCatalogEndpoints.videoSearch) {
           showScene(
-            scene: AdvertisingScene.inApp,
-            detailScene: AdvertisingDetailScene.search,
+            scene: AdvertisingScene.fullScreen,
+            detailScene: AdvertisingDetailScene.searchResults,
           );
         }
       }
@@ -163,22 +175,22 @@ class AdvertisingDisplayCoordinator {
     ///点击收藏监听
     BookmarkMediaState.favoriteStream.listen((entry) {
       showScene(
-        scene: AdvertisingScene.inApp,
-        detailScene: AdvertisingDetailScene.collection,
+        scene: AdvertisingScene.fullScreen,
+        detailScene: AdvertisingDetailScene.savedCollection,
       );
     });
     BookmarkPerformerState.favoriteStream.listen((entry) {
       showScene(
-        scene: AdvertisingScene.inApp,
-        detailScene: AdvertisingDetailScene.collection,
+        scene: AdvertisingScene.fullScreen,
+        detailScene: AdvertisingDetailScene.savedCollection,
       );
     });
     BookmarkCollectionState.favoriteStream.listen((entry) {
-      if (entry.id?.startsWith(NewCollectionDialog.createPlaylistNamePrefix) ==
+      if (entry.id?.startsWith(NewCollectionDialog.generatedCollectionPrefix) ==
           false) {
         showScene(
-          scene: AdvertisingScene.inApp,
-          detailScene: AdvertisingDetailScene.collection,
+          scene: AdvertisingScene.fullScreen,
+          detailScene: AdvertisingDetailScene.savedCollection,
         );
       }
     });
@@ -189,8 +201,8 @@ class AdvertisingDisplayCoordinator {
     ) {
       if (downloadStartInfoInputArg.isClick) {
         showScene(
-          scene: AdvertisingScene.inApp,
-          detailScene: AdvertisingDetailScene.download,
+          scene: AdvertisingScene.fullScreen,
+          detailScene: AdvertisingDetailScene.mediaDownload,
         );
       }
     });
@@ -198,23 +210,23 @@ class AdvertisingDisplayCoordinator {
     ///播放音乐时广告静音
     PlayerPlayback.instance.player.isLoading.addListener(() async {
       if (PlayerPlayback.instance.player.isLoading.value == true) {
-        if (isMuted == false) {
-          isMuted = true;
+        if (audioTemporarilyMuted == false) {
+          audioTemporarilyMuted = true;
           MobileAds.instance.setAppMuted(true);
         }
       }
     });
     PlayerPlayback.instance.player.isPlaying.addListener(() async {
       if (PlayerPlayback.instance.player.isPlaying.value == true) {
-        if (isMuted == false) {
-          isMuted = true;
+        if (audioTemporarilyMuted == false) {
+          audioTemporarilyMuted = true;
           MobileAds.instance.setAppMuted(true);
         }
       } else {
         await Future.delayed(Duration(seconds: 2));
         if (PlayerPlayback.instance.player.isLoading.value == false &&
             PlayerPlayback.instance.player.isPlaying.value == false) {
-          isMuted = false;
+          audioTemporarilyMuted = false;
           MobileAds.instance.setAppMuted(false);
         }
       }

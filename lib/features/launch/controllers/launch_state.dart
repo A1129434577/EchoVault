@@ -7,28 +7,27 @@ import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 
 class LaunchState with ChangeNotifier {
-  static const String isModulesUsableKey = 'isModulesUsableKey';
-
-  static final LaunchState _instance = LaunchState._();
+  static final LaunchState _sharedState = LaunchState._();
 
   ValueNotifier<bool?> isModulesUsable = ValueNotifier(null);
 
   final ValueNotifier<bool> isProgressFinish = ValueNotifier(false);
   StreamSubscription? _adStatusSubscription;
 
-  static bool isNetworkUsable = true;
+  static bool networkAvailable = true;
 
   late DateTime startTime;
   final Completer modulesCompleter = Completer();
   factory LaunchState() {
-    return _instance;
+    return _sharedState;
   }
   LaunchState._() {
     monitorNetwork();
   }
-  static LaunchState get instance => _instance;
+  static LaunchState get instance => _sharedState;
   Future monitorNetwork() async {
     await Future.delayed(Duration(seconds: 5));
     //是否曾经是wifi
@@ -42,7 +41,7 @@ class LaunchState with ChangeNotifier {
             connectivityResultArg.contains(ConnectivityResult.wifi) ||
             connectivityResultArg.contains(ConnectivityResult.ethernet) ||
             connectivityResultArg.contains(ConnectivityResult.vpn)) {
-          isNetworkUsable = true;
+          networkAvailable = true;
           if (isModulesUsable.value == null) {
             if (modulesCompleter.isCompleted) {
               _fetchModulesUsable(retryNumArg: 5);
@@ -62,9 +61,9 @@ class LaunchState with ChangeNotifier {
             isLastWifiValueLocal = true;
           }
         } else {
-          isNetworkUsable = false;
+          networkAvailable = false;
           Future.delayed(Duration(seconds: 1), () {
-            if (isNetworkUsable == false) {
+            if (networkAvailable == false) {
               MessageOverlay.presentWarning(
                 'Network Unavailable,Please check your Wi-Fi or mobile data connection and try again.'
                     .translate,
@@ -83,8 +82,8 @@ class LaunchState with ChangeNotifier {
     Completer<bool> adCompleterLocal = Completer();
     await Future.any([
       AdHelper.requestAd(
-        scene: AdvertisingScene.open,
-        detailScene: AdvertisingDetailScene.coldOpen,
+        scene: AdvertisingScene.appLaunch,
+        detailScene: AdvertisingDetailScene.coldLaunch,
       ),
       Future.delayed(Duration(seconds: AdHelper.openAppWaitSeconds)),
     ]);
@@ -97,7 +96,7 @@ class LaunchState with ChangeNotifier {
         adInfoInputArg,
       ) {
         if ((adInfoInputArg.realScene ?? adInfoInputArg.scene) ==
-            AdvertisingScene.open) {
+            AdvertisingScene.appLaunch) {
           if (adInfoInputArg.showState == AdShowStatus.showing) {
             isProgressFinish.value = true;
           }
@@ -110,8 +109,8 @@ class LaunchState with ChangeNotifier {
         }
       });
       bool? showedValueLocal = await AdvertisingDisplayCoordinator.showScene(
-        scene: AdvertisingScene.open,
-        detailScene: AdvertisingDetailScene.coldOpen,
+        scene: AdvertisingScene.appLaunch,
+        detailScene: AdvertisingDetailScene.coldLaunch,
       );
       Get.log(
         "Open ad show:$showedValueLocal ${DateTime.now().difference(startTime).inSeconds}s",
@@ -138,7 +137,8 @@ class LaunchState with ChangeNotifier {
   }
 
   Future _fetchModulesUsable({int retryNumArg = 10}) async {
-    String openVersionLocal = await RemoteFeatureSettings.modelCompleter.future;
+    String openVersionLocal =
+        await RemoteFeatureSettings.releaseModelReady.future;
     if (openVersionLocal.isEmpty) {
       openVersionLocal = '0.0.0';
     }
@@ -159,7 +159,7 @@ class LaunchState with ChangeNotifier {
     if (int.parse(openVersionLocal) >= int.parse(currentVersionStringLocal)) {
       isModulesUsable.value = true;
       SharedPreferences spLocal = await SharedPreferences.getInstance();
-      await spLocal.setBool(isModulesUsableKey, true);
+      await spLocal.setBool(UserPreferenceKeys.modulesEnabled, true);
     }
 
     if (isModulesUsable.value != true && retryNumArg > 0) {

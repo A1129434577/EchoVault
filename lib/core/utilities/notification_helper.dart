@@ -10,16 +10,16 @@ import 'package:echo_vault/features/discovery/controllers/discovery_state.dart';
 import 'package:timezone/data/latest.dart';
 
 class NotificationHelper {
-  static final AsyncMemoizer _memoizer = AsyncMemoizer();
+  static final AsyncMemoizer _initializationGuard = AsyncMemoizer();
 
-  static List _pushHourList = [];
+  static List _scheduledHours = [];
   static set pushConfig(int configArg) {
     if (configArg == 0) {
-      _pushHourList = [];
+      _scheduledHours = [];
     } else if (configArg == 1) {
-      _pushHourList = [10, 15];
+      _scheduledHours = [10, 15];
     } else if (configArg == 2) {
-      _pushHourList = [10, 15, 18, 20];
+      _scheduledHours = [10, 15, 18, 20];
     }
     if (Platform.isIOS) {
       _scheduleLocalNotification();
@@ -27,7 +27,7 @@ class NotificationHelper {
   }
 
   static Future<void> init() async {
-    await _memoizer.runOnce(() async {
+    await _initializationGuard.runOnce(() async {
       try {
         //初始化本地通知
         if (Platform.isIOS) {
@@ -57,7 +57,7 @@ class NotificationHelper {
   static Future<void> _scheduleLocalNotification() async {
     try {
       await FlutterLocalNotificationsPlugin().cancelAll();
-      if (_pushHourList.isEmpty) return;
+      if (_scheduledHours.isEmpty) return;
 
       List<FileInfo> suggestedItems = await DiscoveryState.instance
           .fetchRecommend();
@@ -68,14 +68,14 @@ class NotificationHelper {
       }
 
       Random randomLocal = Random();
-      for (int offset = 0; offset < _pushHourList.length; offset++) {
+      for (int offset = 0; offset < _scheduledHours.length; offset++) {
         int randomIndexLocal = randomLocal.nextInt(suggestedItems.length);
         FileInfo mediaEntry = suggestedItems[randomIndexLocal];
         if (suggestedItems.length > 1) {
           suggestedItems.remove(mediaEntry);
         }
 
-        int hourLocal = _pushHourList[offset];
+        int hourLocal = _scheduledHours[offset];
         TZDateTime dateTimeLocal = TZDateTime.from(
           DateTime.now().copyWith(hour: hourLocal, minute: 0, second: 3),
           local,

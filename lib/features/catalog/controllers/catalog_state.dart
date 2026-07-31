@@ -14,10 +14,10 @@ import 'package:echo_vault/features/performers/widgets/bookmark_performer_view.d
 import 'package:echo_vault/features/primary_navigation_screen.dart';
 
 class CatalogState with ChangeNotifier {
-  static final CatalogState _instance = CatalogState._();
+  static final CatalogState _sharedState = CatalogState._();
 
   final ValueNotifier<AdInfo?> libraryNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[AdvertisingScene.libraryNative],
+    AdHelper.adSceneCacheInfo[AdvertisingScene.libraryFeedNative],
   );
 
   ValueNotifier<List<FileInfo>> savedList = ValueNotifier([]);
@@ -28,12 +28,12 @@ class CatalogState with ChangeNotifier {
   bool isLikedNewly = false;
   bool isArtistNewly = false;
   factory CatalogState() {
-    return _instance;
+    return _sharedState;
   }
   CatalogState._() {
     AdHelper.loadSceneAdIfNull(
-      scene: AdvertisingScene.libraryNative,
-      detailScene: AdvertisingDetailScene.library,
+      scene: AdvertisingScene.libraryFeedNative,
+      detailScene: AdvertisingDetailScene.mediaLibrary,
     );
     TransferMediaState.downloadFinishAndRemoveStream.listen((mediaEntry) {
       if (DownloadTaskStatus.fromInt(mediaEntry.downloadStatus) ==
@@ -66,23 +66,23 @@ class CatalogState with ChangeNotifier {
       }
     });
     AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
-      if (adInfoInputArg.scene == AdvertisingScene.libraryNative) {
+      if (adInfoInputArg.scene == AdvertisingScene.libraryFeedNative) {
         if (adInfoInputArg.loadState == AdLoadStatus.loaded) {
           libraryNatoAd.value = adInfoInputArg;
           libraryNatoAd.notifyListeners();
         }
       }
     });
-    PrimaryNavigationScreen.currentTabIndex.addListener(() {
-      if (PrimaryNavigationScreen.currentTabIndex.value == 1) {
+    PrimaryNavigationScreen.selectedSection.addListener(() {
+      if (PrimaryNavigationScreen.selectedSection.value == 1) {
         AdHelper.loadSceneAdIfNull(
-          scene: AdvertisingScene.libraryNative,
-          detailScene: AdvertisingDetailScene.library,
+          scene: AdvertisingScene.libraryFeedNative,
+          detailScene: AdvertisingDetailScene.mediaLibrary,
         );
       }
     });
   }
-  static CatalogState get instance => _instance;
+  static CatalogState get instance => _sharedState;
 
   Future addFileInfoToPlaylist(
     FileInfo mediaEntry,

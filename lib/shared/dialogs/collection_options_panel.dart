@@ -10,7 +10,7 @@ import 'package:echo_vault/generated/assets.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class CollectionOptionsPanel extends StatefulWidget {
-  static String routeName = '$CollectionOptionsPanel';
+  static String panelRoute = '$CollectionOptionsPanel';
 
   final MediaCollection musicCollection;
   const CollectionOptionsPanel({super.key, required this.musicCollection});
@@ -23,7 +23,7 @@ class CollectionOptionsPanel extends StatefulWidget {
       context: Get.context!,
       backgroundColor: Colors.white,
       isScrollControlled: true,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: panelRoute),
       builder: (buildContext) {
         return CollectionOptionsPanel(musicCollection: musicCollectionArg);
       },

@@ -13,41 +13,41 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 import 'package:echo_vault/shared/widgets/resource_state_view.dart';
 
 class SearchParserKeys {
-  static List suggestionsList = [
+  static List suggestionItemsPath = [
     'contents',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'searchSuggestionsSectionRenderer',
     'contents',
   ];
 
-  static List suggestionsItemRuns = [
+  static List suggestionTextPath = [
     'searchSuggestionRenderer',
     'suggestion',
     'runs',
   ];
 
-  static String searchNewItem = 'itemSectionRenderer';
+  static String resultSectionKey = 'itemSectionRenderer';
 
   //最佳搜索
-  static List topResourceList = [
+  static List primaryResultsPath = [
     'contents',
     'tabbedSearchResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'sectionListRenderer',
     'contents',
   ];
 
-  static String tab = 'chipCloudChipRenderer';
+  static String filterChipKey = 'chipCloudChipRenderer';
 
   //其他tab
-  static List tabList = [
+  static List filterItemsPath = [
     'contents',
     'tabbedSearchResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'sectionListRenderer',
@@ -56,14 +56,14 @@ class SearchParserKeys {
     'chips',
   ];
 
-  static List tabGroupTitle = [
+  static List filterTitlePath = [
     'text',
     'runs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'text',
   ];
 
-  static List tabGroupParams = [
+  static List filterParamsPath = [
     'navigationEndpoint',
     'searchEndpoint',
     'params',
@@ -164,11 +164,14 @@ class SearchState with ChangeNotifier {
   Future fetchSuggestions(String keywordArg) async {
     Map<String, dynamic>? requestParameters = {'input': keywordArg};
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.suggestions,
+      resourceUrl: MusicCatalogEndpoints.querySuggestions,
       pramsArg: requestParameters,
     );
     List responses =
-        ParserHelper.parse<List>(response, SearchParserKeys.suggestionsList) ??
+        ParserHelper.parse<List>(
+          response,
+          SearchParserKeys.suggestionItemsPath,
+        ) ??
         [];
 
     List<String> entries = [];
@@ -176,7 +179,7 @@ class SearchState with ChangeNotifier {
       List runsLocal =
           ParserHelper.parse<List>(
             suggestionItemMap,
-            SearchParserKeys.suggestionsItemRuns,
+            SearchParserKeys.suggestionTextPath,
           ) ??
           [];
       String suggestionLocal = '';
@@ -195,7 +198,7 @@ class SearchState with ChangeNotifier {
       'from': mediaOrigin,
     };
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.search,
+      resourceUrl: MusicCatalogEndpoints.catalogSearch,
       pramsArg: requestParameters,
     );
     if (response == null) {
@@ -205,7 +208,7 @@ class SearchState with ChangeNotifier {
     if ((await MusicCatalogGateway.visitorData) == null) {
       final visitorDataLocal = ParserHelper.parse<String>(
         response,
-        SharedParserKeys.visitorData,
+        SharedParserKeys.visitorDataPath,
       );
       if (visitorDataLocal != null) {
         MusicCatalogGateway.visitorData = visitorDataLocal;
@@ -214,7 +217,10 @@ class SearchState with ChangeNotifier {
 
     List<MediaCollection> responses = [];
     List topMapListLocal =
-        ParserHelper.parse<List>(response, SearchParserKeys.topResourceList) ??
+        ParserHelper.parse<List>(
+          response,
+          SearchParserKeys.primaryResultsPath,
+        ) ??
         [];
     if (topMapListLocal.isNotEmpty) {
       //最佳搜索结果
@@ -224,45 +230,46 @@ class SearchState with ChangeNotifier {
       );
       List newSearchOtherListLocal = [];
       for (Map element in topMapListLocal) {
-        if (element.containsKey(CardShelfParserKeys.cardShelf)) {
+        if (element.containsKey(CardShelfParserKeys.cardShelfNode)) {
           //由于卡片不是分组，所以手动组装一个分组并加入卡片以及卡片紧跟的列表
           MediaCollection childGroupLocal = MediaCollection(children: []);
           //最佳搜索卡片:FilGroup|PerformerDetails|FileInfo
           final entry = (await SharedParser.decodeChildren([
             element,
-          ], mediaOrigin: MediaOrigin.search)).firstOrNull;
+          ], mediaOrigin: MediaOrigin.searchResults)).firstOrNull;
           if (entry != null) {
             childGroupLocal.children.add(entry);
           }
           //最佳搜索卡片紧跟的音乐（可能没有）
-          element = element[CardShelfParserKeys.cardShelf];
-          if (element.containsKey(SharedParserKeys.children)) {
-            final childRecords = element[SharedParserKeys.children];
+          element = element[CardShelfParserKeys.cardShelfNode];
+          if (element.containsKey(SharedParserKeys.childrenNode)) {
+            final childRecords = element[SharedParserKeys.childrenNode];
             if (childRecords != null) {
               List entries = await SharedParser.decodeChildren(
                 childRecords,
-                mediaOrigin: MediaOrigin.search,
+                mediaOrigin: MediaOrigin.searchResults,
               );
               childGroupLocal.children.addAll(entries);
             }
           }
           topFileGroupLocal.children.add(childGroupLocal);
-        } else if (element.containsKey(ShelfParserKeys.shelf)) {
+        } else if (element.containsKey(ShelfParserKeys.shelfNode)) {
           //最佳搜索延伸的音乐
           List<MediaCollection> entries = await SharedParser.decodeContents([
             element,
-          ], mediaOrigin: MediaOrigin.search);
+          ], mediaOrigin: MediaOrigin.searchResults);
           topFileGroupLocal.children.addAll(entries);
-        } else if (element.containsKey(SearchParserKeys.searchNewItem)) {
-          element = element[SearchParserKeys.searchNewItem];
-          List responsiveListLocal = element[SharedParserKeys.children] ?? [];
+        } else if (element.containsKey(SearchParserKeys.resultSectionKey)) {
+          element = element[SearchParserKeys.resultSectionKey];
+          List responsiveListLocal =
+              element[SharedParserKeys.childrenNode] ?? [];
           newSearchOtherListLocal.addAll(responsiveListLocal);
         }
       }
       if (newSearchOtherListLocal.isNotEmpty) {
         List entries = await SharedParser.decodeChildren(
           newSearchOtherListLocal,
-          mediaOrigin: MediaOrigin.search,
+          mediaOrigin: MediaOrigin.searchResults,
         );
         MediaCollection newSearchOtherGroupLocal = MediaCollection(
           type: MediaCollectionShowType.listMusic,
@@ -279,20 +286,21 @@ class SearchState with ChangeNotifier {
 
     //搜索结果所有tab
     List tabMapListLocal =
-        ParserHelper.parse<List>(response, SearchParserKeys.tabList) ?? [];
+        ParserHelper.parse<List>(response, SearchParserKeys.filterItemsPath) ??
+        [];
     for (Map tabMap in tabMapListLocal) {
-      if (tabMap.containsKey(SearchParserKeys.tab)) {
-        tabMap = tabMap[SearchParserKeys.tab];
+      if (tabMap.containsKey(SearchParserKeys.filterChipKey)) {
+        tabMap = tabMap[SearchParserKeys.filterChipKey];
         MediaCollection tabFileGroupLocal = MediaCollection();
         tabFileGroupLocal.name =
             ParserHelper.parse<String>(
               tabMap,
-              SearchParserKeys.tabGroupTitle,
+              SearchParserKeys.filterTitlePath,
             ) ??
             '';
         tabFileGroupLocal.params = ParserHelper.parse<String>(
           tabMap,
-          SearchParserKeys.tabGroupParams,
+          SearchParserKeys.filterParamsPath,
         );
         responses.add(tabFileGroupLocal);
       }
@@ -314,7 +322,7 @@ class SearchState with ChangeNotifier {
       queryLocal = {'continuation': continuationArg};
     }
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.ytSearch,
+      resourceUrl: MusicCatalogEndpoints.videoSearch,
       pramsArg: requestParameters,
       queryArg: queryLocal,
       isMusicArg: false,
@@ -326,7 +334,7 @@ class SearchState with ChangeNotifier {
     if ((await MusicCatalogGateway.visitorData) == null) {
       final visitorDataLocal = ParserHelper.parse<String>(
         response,
-        SharedParserKeys.visitorData,
+        SharedParserKeys.visitorDataPath,
       );
       if (visitorDataLocal != null) {
         MusicCatalogGateway.visitorData = visitorDataLocal;
@@ -338,7 +346,7 @@ class SearchState with ChangeNotifier {
       //将下一页的分页请求参数保存下来
       newContinuationLocal = ParserHelper.parse<String>(
         response,
-        SearchCatalogParserKeys.continuation,
+        SearchCatalogParserKeys.continuationPath,
       );
       _continuation = newContinuationLocal;
 
@@ -351,23 +359,23 @@ class SearchState with ChangeNotifier {
       Map cardLocal =
           ParserHelper.parse<Map>(
             response,
-            SearchCatalogParserKeys.topUniversalWatchCardRenderer,
+            SearchCatalogParserKeys.topUniversalWatchCardRendererPath,
           ) ??
           {};
       //由于卡片不是分组，所以手动组装一个分组并加入卡片以及卡片紧跟的列表
       MediaCollection childGroupLocal = MediaCollection(children: []);
-      if (cardLocal.containsKey(SearchCatalogParserKeys.topCard)) {
-        Map headerLocal = cardLocal[SearchCatalogParserKeys.topCard];
+      if (cardLocal.containsKey(SearchCatalogParserKeys.topCardNode)) {
+        Map headerLocal = cardLocal[SearchCatalogParserKeys.topCardNode];
         //最佳搜索卡片:FilGroup|PerformerDetails
         final entry = (await MusicCatalogParser.decodeSearchTopChildren([
           headerLocal,
-        ], mediaOrigin: MediaOrigin.search)).firstOrNull;
+        ], mediaOrigin: MediaOrigin.searchResults)).firstOrNull;
         if (entry != null) {
           if (entry is MediaCollection) {
             entry.thumbnail =
                 ParserHelper.parse<String>(
                   response,
-                  SearchCatalogParserKeys.topCardAlbumCover,
+                  SearchCatalogParserKeys.topCardAlbumCoverPath,
                 ) ??
                 '';
           }
@@ -379,14 +387,14 @@ class SearchState with ChangeNotifier {
       List topGroupParentListLocal =
           ParserHelper.parse<List>(
             cardLocal,
-            SearchCatalogParserKeys.topVideoFileGroupFilterItems,
+            SearchCatalogParserKeys.topVideoFileGroupFilterItemsPath,
           ) ??
           [];
       for (final part in topGroupParentListLocal) {
         List childRecords =
             ParserHelper.parse<List>(
               part,
-              SearchCatalogParserKeys.topVideoFileGroupItems,
+              SearchCatalogParserKeys.topVideoFileGroupItemsPath,
             ) ??
             [];
         List topChildrenLocal =
@@ -401,7 +409,7 @@ class SearchState with ChangeNotifier {
       List entries =
           ParserHelper.parse<List>(
             response,
-            SearchCatalogParserKeys.resourceList,
+            SearchCatalogParserKeys.resourceListPath,
           ) ??
           [];
       MediaCollection mediaCollectionLocal = MediaCollection(
@@ -417,7 +425,7 @@ class SearchState with ChangeNotifier {
     } else {
       newContinuationLocal = ParserHelper.parse<String>(
         response,
-        SearchCatalogParserKeys.moreContinuation,
+        SearchCatalogParserKeys.moreContinuationPath,
       );
       if (newContinuationLocal != null) {
         _continuation = newContinuationLocal;
@@ -425,7 +433,7 @@ class SearchState with ChangeNotifier {
       List entries =
           ParserHelper.parse<List>(
             response,
-            SearchCatalogParserKeys.moreResourceList,
+            SearchCatalogParserKeys.moreResourceListPath,
           ) ??
           [];
       List childEntries = await MusicCatalogParser.decodeSearchChildren(

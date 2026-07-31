@@ -5,7 +5,7 @@ import 'package:echo_vault/core/persistence/media_collection_repository.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class BookmarkCollectionState with ChangeNotifier {
-  static final StreamController<MediaCollection> _favoriteController =
+  static final StreamController<MediaCollection> _bookmarkEvents =
       StreamController.broadcast();
 
   late ValueNotifier<MediaCollection> notifier;
@@ -20,8 +20,7 @@ class BookmarkCollectionState with ChangeNotifier {
       }
     });
   }
-  static Stream<MediaCollection> get favoriteStream =>
-      _favoriteController.stream;
+  static Stream<MediaCollection> get favoriteStream => _bookmarkEvents.stream;
 
   @override
   void dispose() {
@@ -55,6 +54,6 @@ class BookmarkCollectionState with ChangeNotifier {
       MessageOverlay.presentMessage('Removed from Library.');
       await MediaCollectionRepository.removeFileGroup(musicCollectionLocal);
     }
-    _favoriteController.add(musicCollectionLocal);
+    _bookmarkEvents.add(musicCollectionLocal);
   }
 }

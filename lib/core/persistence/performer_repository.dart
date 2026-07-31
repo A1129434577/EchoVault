@@ -7,7 +7,7 @@ class PerformerRepository {
   static Future<int> removeArtistInfo(PerformerDetails performerProfile) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
-      DatabaseTables.performer,
+      DatabaseTables.performerTable,
       where: 'id = "${performerProfile.id}"',
     );
     return deleteCountLocal;
@@ -17,7 +17,7 @@ class PerformerRepository {
     int timestampLocal = DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(performerProfile.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
-    int idLocal = await databaseLocal.insert(DatabaseTables.performer, {
+    int idLocal = await databaseLocal.insert(DatabaseTables.performerTable, {
       'id': performerProfile.id,
       'is_favorite': performerProfile.isFavorite,
       'json_content': encodedContent,
@@ -32,7 +32,7 @@ class PerformerRepository {
   }) async {
     Database databaseLocal = await ApplicationDatabase.database;
     List<Map<String, Object?>> storedRecords = await databaseLocal.query(
-      DatabaseTables.performer,
+      DatabaseTables.performerTable,
       limit: limitInputArg,
       where: whereArg,
       orderBy: 'create_time desc',

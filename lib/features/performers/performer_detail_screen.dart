@@ -17,7 +17,7 @@ import 'package:echo_vault/shared/widgets/media/collection_list_view.dart';
 import 'package:echo_vault/shared/widgets/paged_refresh_view.dart';
 
 class PerformerDetailScreenHelper {
-  static String routeName = '/$_PerformerDetailScreen';
+  static String screenRoute = '/$_PerformerDetailScreen';
   static to({required PerformerDetails performerProfile}) {
     Get.to(
       arguments: performerProfile,

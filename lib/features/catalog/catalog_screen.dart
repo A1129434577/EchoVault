@@ -98,8 +98,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                 onCloseButtonClick: () {
                                   _libraryController.libraryNatoAd.value = null;
                                   AdHelper.loadSceneAdIfNull(
-                                    scene: AdvertisingScene.libraryNative,
-                                    detailScene: AdvertisingDetailScene.library,
+                                    scene: AdvertisingScene.libraryFeedNative,
+                                    detailScene:
+                                        AdvertisingDetailScene.mediaLibrary,
                                   );
                                 },
                               ),
@@ -142,7 +143,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   mediaCollection: musicCollectionLocal,
                   showMoreAction:
                       musicCollectionLocal.id?.startsWith(
-                        NewCollectionDialog.createPlaylistNamePrefix,
+                        NewCollectionDialog.generatedCollectionPrefix,
                       ) ==
                       true,
                 );

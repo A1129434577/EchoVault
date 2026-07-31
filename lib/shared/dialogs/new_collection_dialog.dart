@@ -8,8 +8,8 @@ import 'package:echo_vault/shared/widgets/dialog_text_field.dart';
 import 'package:echo_vault/shared/widgets/shared_button.dart';
 
 class NewCollectionDialog extends StatelessWidget {
-  static String routeName = '$NewCollectionDialog';
-  static const String createPlaylistNamePrefix = 'via_timer';
+  static String dialogRoute = '$NewCollectionDialog';
+  static const String generatedCollectionPrefix = 'echo_vault';
 
   final MediaCollection? mediaCollection;
   const NewCollectionDialog({super.key, this.mediaCollection});
@@ -99,7 +99,7 @@ class NewCollectionDialog extends StatelessWidget {
                                       MediaCollection? newMusicGroupLocal =
                                           (mediaCollection?..name = value.text);
                                       newMusicGroupLocal ??= MediaCollection(
-                                        id: '$createPlaylistNamePrefix${DateTime.now().millisecondsSinceEpoch}',
+                                        id: '$generatedCollectionPrefix${DateTime.now().millisecondsSinceEpoch}',
                                         name: value.text,
                                         thumbnail: Assets
                                             .images
@@ -131,7 +131,7 @@ class NewCollectionDialog extends StatelessWidget {
     await showDialog(
       context: Get.context!,
       barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: dialogRoute),
       builder: (buildContext) {
         return NewCollectionDialog(mediaCollection: musicCollectionArg);
       },

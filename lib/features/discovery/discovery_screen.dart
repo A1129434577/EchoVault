@@ -321,7 +321,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           Expanded(
             child: GestureDetector(
               onTap: () {
-                Get.to(SearchScreen(tag: SearchScreen.homeTag));
+                Get.to(SearchScreen(tag: SearchScreen.discoveryEntryTag));
               },
               child: DialogTextField(
                 enabled: false,

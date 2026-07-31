@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:player_base/player_base.dart';
 import 'package:echo_vault/core/state/transfer_media_state.dart';
+import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 import 'package:echo_vault/generated/assets.dart';
 
 class SaveGuideView extends StatelessWidget {
-  static String routeName = '$SaveGuideView';
-
-  static final String _saveGuideShowedKey = '_saveGuideShowedKey';
+  static String dialogRoute = '$SaveGuideView';
 
   final GlobalKey targetKey;
   final FileInfo? mediaDetails;
@@ -102,15 +101,17 @@ class SaveGuideView extends StatelessWidget {
 
   static show({required GlobalKey targetKeyArg, FileInfo? mediaEntry}) async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
-    bool? saveGuideShowedValueLocal = spLocal.getBool(_saveGuideShowedKey);
+    bool? saveGuideShowedValueLocal = spLocal.getBool(
+      UserPreferenceKeys.saveMediaGuideSeen,
+    );
     if (saveGuideShowedValueLocal == true) {
       return;
     }
-    spLocal.setBool(_saveGuideShowedKey, true);
+    spLocal.setBool(UserPreferenceKeys.saveMediaGuideSeen, true);
     showDialog(
       context: Get.context!,
       useSafeArea: false,
-      routeSettings: RouteSettings(name: routeName),
+      routeSettings: RouteSettings(name: dialogRoute),
       builder: (buildContext) {
         return SaveGuideView(targetKey: targetKeyArg, mediaDetails: mediaEntry);
       },

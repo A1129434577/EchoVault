@@ -24,13 +24,13 @@ class PerformerListState with ChangeNotifier {
       'browseId': mediaCollection!.id!,
     };
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.detail,
+      resourceUrl: MusicCatalogEndpoints.browseResource,
       pramsArg: requestParameters,
     );
     response =
         ParserHelper.parse<List>(
           response,
-          SectionListParserKeys.initResourceList,
+          SectionListParserKeys.initResourceListPath,
         ) ??
         [];
     List<MediaCollection> entries = await SharedParser.decodeContents(response);

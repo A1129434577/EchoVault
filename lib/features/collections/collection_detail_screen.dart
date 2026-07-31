@@ -17,7 +17,7 @@ import 'package:echo_vault/features/collections/widgets/bookmark_collection_view
 import 'package:echo_vault/shared/widgets/paged_refresh_view.dart';
 
 class CollectionDetailScreenHelper {
-  static String routeName = '/$_CollectionDetailScreen';
+  static String screenRoute = '/$_CollectionDetailScreen';
   static to({required MediaCollection mediaCollectionArg}) {
     Get.to(
       arguments: mediaCollectionArg,
@@ -46,7 +46,7 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
   late final bool _isSelfBuiltPlaylist =
       mediaCollection.id == null ||
       mediaCollection.id?.startsWith(
-            NewCollectionDialog.createPlaylistNamePrefix,
+            NewCollectionDialog.generatedCollectionPrefix,
           ) ==
           true;
   final ValueNotifier<bool> _isHeaderClosed = ValueNotifier(false);

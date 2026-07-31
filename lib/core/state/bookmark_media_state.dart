@@ -6,7 +6,7 @@ import 'package:echo_vault/core/persistence/media_repository.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class BookmarkMediaState with ChangeNotifier {
-  static final StreamController<FileInfo> _favoriteController =
+  static final StreamController<FileInfo> _bookmarkEvents =
       StreamController.broadcast();
 
   ValueNotifier<FileInfo?> notifier = ValueNotifier(null);
@@ -21,7 +21,7 @@ class BookmarkMediaState with ChangeNotifier {
       }
     });
   }
-  static Stream<FileInfo> get favoriteStream => _favoriteController.stream;
+  static Stream<FileInfo> get favoriteStream => _bookmarkEvents.stream;
 
   @override
   void dispose() {
@@ -40,7 +40,7 @@ class BookmarkMediaState with ChangeNotifier {
       }
       notifier.notifyListeners();
       await MediaRepository.addFileInfo(mediaEntry);
-      _favoriteController.add(mediaEntry);
+      _bookmarkEvents.add(mediaEntry);
     }
   }
 }

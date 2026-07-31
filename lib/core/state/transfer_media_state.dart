@@ -9,7 +9,7 @@ import 'package:echo_vault/core/state/media_transfer_service.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class TransferMediaState with ChangeNotifier {
-  static final StreamController<FileInfo> _downloadFinishAndRemoveController =
+  static final StreamController<FileInfo> _completedTransferController =
       StreamController.broadcast();
 
   ValueNotifier<FileInfo?> fileInfoNotifier = ValueNotifier(null);
@@ -31,7 +31,7 @@ class TransferMediaState with ChangeNotifier {
   }
   //下载终止状态更新流（比如下载完成，删除）
   static Stream<FileInfo> get downloadFinishAndRemoveStream =>
-      _downloadFinishAndRemoveController.stream;
+      _completedTransferController.stream;
 
   @override
   void dispose() {
@@ -103,7 +103,7 @@ class TransferMediaState with ChangeNotifier {
         await MediaRepository.addFileInfo(mediaEntry);
       }
       if (taskStatusLocal == DownloadTaskStatus.complete) {
-        _downloadFinishAndRemoveController.add(mediaEntry);
+        _completedTransferController.add(mediaEntry);
         MessageOverlay.presentSuccess('Downloaded.'.translate);
       }
       if (taskStatusLocal == DownloadTaskStatus.failed) {
@@ -120,7 +120,7 @@ class TransferMediaState with ChangeNotifier {
     );
     if (removeFileInfoLocal != null) {
       await MediaRepository.addFileInfo(removeFileInfoLocal);
-      _downloadFinishAndRemoveController.add(removeFileInfoLocal);
+      _completedTransferController.add(removeFileInfoLocal);
     }
   }
 

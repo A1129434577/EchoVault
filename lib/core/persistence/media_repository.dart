@@ -7,7 +7,7 @@ class MediaRepository {
   static Future<int> removeFileInfo(FileInfo mediaEntry) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
-      DatabaseTables.files,
+      DatabaseTables.mediaTable,
       where: 'id = "${mediaEntry.fileId}"',
     );
     return deleteCountLocal;
@@ -17,7 +17,7 @@ class MediaRepository {
     int timestampLocal = DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(mediaEntry.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
-    int idLocal = await databaseLocal.insert(DatabaseTables.files, {
+    int idLocal = await databaseLocal.insert(DatabaseTables.mediaTable, {
       'id': mediaEntry.fileId,
       'download_status': mediaEntry.downloadStatus,
       'download_task_id': mediaEntry.downloadTaskId,
@@ -34,7 +34,7 @@ class MediaRepository {
   }) async {
     Database databaseLocal = await ApplicationDatabase.database;
     List<Map<String, Object?>> storedRecords = await databaseLocal.query(
-      DatabaseTables.files,
+      DatabaseTables.mediaTable,
       limit: limitInputArg,
       where: whereArg,
       orderBy: 'create_time desc',

@@ -11,21 +11,21 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 
 class PlaybackParserKeys {
   ///接下来播放的playlistId
-  static List nextPlayListId = [
+  static List recommendationTokenPath = [
     'contents',
     'singleColumnMusicWatchNextResultsRenderer',
     'tabbedRenderer',
     'watchNextTabbedResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'musicQueueRenderer',
     'content',
     'playlistPanelRenderer',
     'contents',
-    {ParserHelper.filterKey: 'automixPreviewVideoRenderer'},
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.matchField: 'automixPreviewVideoRenderer'},
+    {ParserHelper.positionField: 0},
     'automixPreviewVideoRenderer',
     'content',
     'automixPlaylistVideoRenderer',
@@ -34,13 +34,13 @@ class PlaybackParserKeys {
     'playlistId',
   ];
 
-  static List nextPlaylistResourceList = [
+  static List recommendationItemsPath = [
     'contents',
     'singleColumnMusicWatchNextResultsRenderer',
     'tabbedRenderer',
     'watchNextTabbedResultsRenderer',
     'tabs',
-    {ParserHelper.indexKey: 0},
+    {ParserHelper.positionField: 0},
     'tabRenderer',
     'content',
     'musicQueueRenderer',
@@ -53,7 +53,7 @@ class PlaybackParserKeys {
 class PlaybackScreenState with ChangeNotifier {
   final Player player = PlayerPlayback.instance.player;
   final ValueNotifier<AdInfo?> playNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[AdvertisingScene.playNative],
+    AdHelper.adSceneCacheInfo[AdvertisingScene.playbackNative],
   );
 
   StreamSubscription? _adLoadSubscription;
@@ -63,11 +63,11 @@ class PlaybackScreenState with ChangeNotifier {
   String? playlistId;
   PlaybackScreenState({this.mediaDetails}) {
     AdHelper.loadSceneAdIfNull(
-      scene: AdvertisingScene.playNative,
-      detailScene: AdvertisingDetailScene.play,
+      scene: AdvertisingScene.playbackNative,
+      detailScene: AdvertisingDetailScene.playback,
     );
     _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
-      if (adInfoInputArg.scene == AdvertisingScene.playNative) {
+      if (adInfoInputArg.scene == AdvertisingScene.playbackNative) {
         if (adInfoInputArg.loadState == AdLoadStatus.loaded) {
           playNatoAd.value = adInfoInputArg;
         }
@@ -99,20 +99,20 @@ class PlaybackScreenState with ChangeNotifier {
     }
     //请求接下来播放列表需要用到playlistId,所以如果没有playlistId的话要先通过next接口拿到playlistId
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.playRecommend,
+      resourceUrl: MusicCatalogEndpoints.playbackRecommendations,
       pramsArg: requestParameters,
     );
     if (playlistId == null) {
       playlistId = ParserHelper.parse<String>(
         response,
-        PlaybackParserKeys.nextPlayListId,
+        PlaybackParserKeys.recommendationTokenPath,
       );
       fetchRecommendList();
     } else {
       List responses =
           ParserHelper.parse<List>(
             response,
-            PlaybackParserKeys.nextPlaylistResourceList,
+            PlaybackParserKeys.recommendationItemsPath,
           ) ??
           [];
       final suggestedItems = await SharedParser.decodeChildren(responses);
@@ -126,14 +126,14 @@ class PlaybackScreenState with ChangeNotifier {
     }
     Map<String, dynamic>? requestParameters = {'videoId': mediaDetails?.fileId};
     dynamic response = await MusicCatalogGateway.post(
-      resourceUrl: MusicCatalogEndpoints.ytPlayRecommend,
+      resourceUrl: MusicCatalogEndpoints.videoPlaybackRecommendations,
       pramsArg: requestParameters,
       isMusicArg: false,
     );
     List responses =
         ParserHelper.parse<List>(
           response,
-          PlaybackSuggestionParserKeys.resourceList,
+          PlaybackSuggestionParserKeys.resourceListPath,
         ) ??
         [];
     final suggestedItems = await MusicCatalogParser.decodePlayRecommendChildren(
