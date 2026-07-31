@@ -13,30 +13,30 @@ class VideoPartGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double itemWidth = (constraints.maxWidth - 12) / 4 * 3;
-        double aspectRatio = 248 / 140;
+        double itemWidthLocal = (constraints.maxWidth - 12) / 4 * 3;
+        double aspectRatioLocal = 248 / 140;
         return SizedBox(
-          height: itemWidth / aspectRatio + 35,
+          height: itemWidthLocal / aspectRatioLocal + 35,
           child: GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 12),
             scrollDirection: Axis.horizontal,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisSpacing: 12,
-              mainAxisExtent: itemWidth,
+              mainAxisExtent: itemWidthLocal,
               crossAxisCount: 1,
             ),
             itemCount: fileList.length,
             itemBuilder: (BuildContext ctx, int index) {
-              FileInfo mediaDetails = fileList[index];
+              FileInfo mediaEntry = fileList[index];
               return GestureDetector(
                 onTap: () {
                   PlaybackNavigator.toPlay(
-                    fileList: fileList,
-                    mediaDetails: mediaDetails,
+                    mediaQueue: fileList,
+                    mediaEntry: mediaEntry,
                   );
                 },
                 behavior: HitTestBehavior.translucent,
-                child: _VideoGridCell(mediaDetails: mediaDetails),
+                child: _VideoGridCell(mediaDetails: mediaEntry),
               );
             },
           ),
@@ -52,11 +52,11 @@ class _VideoGridCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BookmarkMediaState favoriteFileController = BookmarkMediaState(
-      mediaDetails: mediaDetails,
+    BookmarkMediaState favoriteFileControllerLocal = BookmarkMediaState(
+      mediaEntry: mediaDetails,
     );
-    TransferMediaState downloadController = TransferMediaState();
-    downloadController.fileInfoNotifier.value = mediaDetails;
+    TransferMediaState downloadControllerLocal = TransferMediaState();
+    downloadControllerLocal.fileInfoNotifier.value = mediaDetails;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,19 +74,15 @@ class _VideoGridCell extends StatelessWidget {
                 ),
                 child: NetworkImageWidget(url: mediaDetails.thumbnail),
               ),
-              Center(
-                child: Assets.images.media.overlayPlay.image(
-                  width: 38,
-                ),
-              ),
+              Center(child: Assets.images.media.overlayPlay.image(width: 38)),
             ],
           ),
         ),
         ValueListenableBuilder(
-          valueListenable: favoriteFileController.notifier,
+          valueListenable: favoriteFileControllerLocal.notifier,
           builder: (BuildContext context, FileInfo? value, Widget? child) {
             return ValueListenableBuilder(
-              valueListenable: favoriteFileController.notifier,
+              valueListenable: favoriteFileControllerLocal.notifier,
               builder: (BuildContext context, FileInfo? value, Widget? child) {
                 return Text(
                   mediaDetails.name,

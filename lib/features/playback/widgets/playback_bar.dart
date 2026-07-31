@@ -9,7 +9,7 @@ import 'package:echo_vault/shared/widgets/progress_view.dart';
 import 'package:echo_vault/features/playback/widgets/playback_slider.dart';
 
 typedef PlaybackBarBuilder<T> =
-    Widget Function(BuildContext context, double barHeight);
+    Widget Function(BuildContext buildContext, double barHeightArg);
 
 class PlaybackBar extends StatefulWidget {
   final PlaybackBarBuilder builder;
@@ -24,25 +24,28 @@ class _PlaybackBarState extends State<PlaybackBar> {
 
   @override
   Widget build(BuildContext context) {
-    double contentHeight = 58;
-    double paddingBottom = max(MediaQuery.of(context).padding.bottom, 8);
-    double barHeight = contentHeight + paddingBottom;
+    double contentHeightLocal = 58;
+    double paddingBottomLocal = max(MediaQuery.of(context).padding.bottom, 8);
+    double barHeightLocal = contentHeightLocal + paddingBottomLocal;
 
-    Widget content = widget.builder(context, barHeight + paddingBottom);
+    Widget encodedContent = widget.builder(
+      context,
+      barHeightLocal + paddingBottomLocal,
+    );
 
     return ValueListenableBuilder(
       valueListenable: PlayerPlayback.instance.showPlayFileList,
       builder: (BuildContext context, List<FileInfo> showPlayFileList, Widget? child) {
-        double newBarHeight = barHeight;
+        double newBarHeightLocal = barHeightLocal;
         if (showPlayFileList.isEmpty) {
-          newBarHeight = 0;
+          newBarHeightLocal = 0;
         }
         return Stack(
           fit: StackFit.expand,
           children: [
-            newBarHeight != barHeight
-                ? widget.builder(context, newBarHeight)
-                : content,
+            newBarHeightLocal != barHeightLocal
+                ? widget.builder(context, newBarHeightLocal)
+                : encodedContent,
             if (showPlayFileList.isNotEmpty)
               Positioned(
                 left: 0,
@@ -52,10 +55,10 @@ class _PlaybackBarState extends State<PlaybackBar> {
                   padding: EdgeInsets.only(
                     left: 8,
                     right: 8,
-                    bottom: paddingBottom,
+                    bottom: paddingBottomLocal,
                   ),
                   child: SizedBox(
-                    height: contentHeight,
+                    height: contentHeightLocal,
                     child: Stack(
                       children: [
                         ValueListenableBuilder(

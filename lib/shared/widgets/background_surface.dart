@@ -13,9 +13,7 @@ class BackgroundSurface extends StatelessWidget {
       decoration: BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.fill,
-          image: AssetImage(
-            bg ?? Assets.images.shell.appBackdrop.path,
-          ),
+          image: AssetImage(bg ?? Assets.images.shell.appBackdrop.path),
         ),
       ),
       child: child,

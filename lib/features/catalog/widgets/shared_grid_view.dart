@@ -24,7 +24,7 @@ class SharedGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double itemWidth = (constraints.maxWidth * 0.9) / 2;
+        double itemWidthLocal = (constraints.maxWidth * 0.9) / 2;
         return GridView.builder(
           padding: padding,
           physics: physics,
@@ -32,21 +32,21 @@ class SharedGridView extends StatelessWidget {
             mainAxisSpacing: 16,
             crossAxisCount: 2,
             crossAxisSpacing: constraints.maxWidth * 0.1,
-            mainAxisExtent: itemWidth / (130 + 10) * 130 + 15,
+            mainAxisExtent: itemWidthLocal / (130 + 10) * 130 + 15,
           ),
           itemCount: resourceList.length,
           itemBuilder: (BuildContext ctx, int index) {
-            final item = resourceList[index];
+            final entry = resourceList[index];
             return _SharedGridCell(
-              item: item,
-              onTap: (item is FileInfo)
+              item: entry,
+              onTap: (entry is FileInfo)
                   ? () {
-                      List<FileInfo> fileList = resourceList
+                      List<FileInfo> mediaQueue = resourceList
                           .whereType<FileInfo>()
                           .toList();
                       PlaybackNavigator.toPlay(
-                        fileList: fileList,
-                        mediaDetails: item,
+                        mediaQueue: mediaQueue,
+                        mediaEntry: entry,
                       );
                     }
                   : null,
@@ -65,20 +65,20 @@ class _SharedGridCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String thumbnail = '', title = '';
-    String? subtitle;
+    String thumbnailLocal = '', displayTitle = '';
+    String? secondaryText;
     if (item is FileInfo) {
-      thumbnail = item.thumbnail;
-      title = item.name;
-      subtitle = item.artist;
+      thumbnailLocal = item.thumbnail;
+      displayTitle = item.name;
+      secondaryText = item.artist;
     } else if (item is MediaCollection) {
-      thumbnail = item.thumbnail;
-      title = item.displayName;
-      subtitle = item.detail;
+      thumbnailLocal = item.thumbnail;
+      displayTitle = item.displayName;
+      secondaryText = item.detail;
     } else if (item is PerformerDetails) {
-      thumbnail = item.thumbnail;
-      title = item.name;
-      subtitle = item.desc;
+      thumbnailLocal = item.thumbnail;
+      displayTitle = item.name;
+      secondaryText = item.desc;
     }
     return GestureDetector(
       onTap: () {
@@ -86,9 +86,9 @@ class _SharedGridCell extends StatelessWidget {
           onTap?.call();
         } else {
           if (item is MediaCollection) {
-            CollectionDetailScreenHelper.to(mediaCollection: item);
+            CollectionDetailScreenHelper.to(mediaCollectionArg: item);
           } else if (item is PerformerDetails) {
-            PerformerDetailScreenHelper.to(performerDetails: item);
+            PerformerDetailScreenHelper.to(performerProfile: item);
           }
         }
       },
@@ -113,23 +113,24 @@ class _SharedGridCell extends StatelessWidget {
                   aspectRatio: 1,
                   child: NetworkImageWidget(
                     radius: 10,
-                    url: thumbnail,
+                    url: thumbnailLocal,
                     fit: BoxFit.fill,
-                    defaultView: Assets.images.media.albumPlaceholder
-                        .image(fit: BoxFit.fill),
+                    defaultView: Assets.images.media.albumPlaceholder.image(
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           Text(
-            title,
+            displayTitle,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 14),
           ),
-          if (subtitle != null)
+          if (secondaryText != null)
             Text(
-              subtitle,
+              secondaryText,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 10,

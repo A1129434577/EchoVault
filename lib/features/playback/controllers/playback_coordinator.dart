@@ -30,82 +30,81 @@ class PlaybackCoordinator with ChangeNotifier {
   StreamSubscription? _playerRecoverSub;
 
   static final PlaybackCoordinator _instance = PlaybackCoordinator._();
-  static PlaybackCoordinator get instance => _instance;
   factory PlaybackCoordinator() {
     return _instance;
   }
   PlaybackCoordinator._() {
     _mediaListener = () async {
-      FileInfo? mediaDetails = player.currentMediaInfo.value;
-      if (mediaDetails != null) {
-        if (mediaDetails.type !=
+      FileInfo? mediaEntry = player.currentMediaInfo.value;
+      if (mediaEntry != null) {
+        if (mediaEntry.type !=
             MediaType.MUSIC_VIDEO_TYPE_PODCAST_EPISODE.name) {
-          if (mediaDetails.cacheDownloadTaskId != null ||
-              DownloadTaskStatus.fromInt(mediaDetails.downloadStatus) !=
+          if (mediaEntry.cacheDownloadTaskId != null ||
+              DownloadTaskStatus.fromInt(mediaEntry.downloadStatus) !=
                   DownloadTaskStatus.running ||
-              DownloadTaskStatus.fromInt(mediaDetails.downloadStatus) !=
+              DownloadTaskStatus.fromInt(mediaEntry.downloadStatus) !=
                   DownloadTaskStatus.enqueued) {
             //缓存当前音乐
             MediaTransferService.cache(
-              mediaDetails: mediaDetails,
-              httpClient: PlaybackHttpTransport(),
+              mediaEntry: mediaEntry,
+              httpClientArg: PlaybackHttpTransport(),
             );
           }
         }
-        int currentIndex = player.playMediaList.indexOf(mediaDetails);
-        FileInfo? nextFileInfo;
+        int currentIndexLocal = player.playMediaList.indexOf(mediaEntry);
+        FileInfo? nextFileInfoLocal;
         if (player.hasNext()) {
-          nextFileInfo = player.playMediaList[currentIndex + 1];
+          nextFileInfoLocal = player.playMediaList[currentIndexLocal + 1];
         } else if (player.playMediaList.isNotEmpty) {
-          nextFileInfo = player.playMediaList[0];
+          nextFileInfoLocal = player.playMediaList[0];
         }
-        if (nextFileInfo != null) {
+        if (nextFileInfoLocal != null) {
           //1.正在缓存的不用提前缓存
           //2.正在下载的不用提前缓存
           //3.文件比较大的不提前缓存
-          if (nextFileInfo.type !=
+          if (nextFileInfoLocal.type !=
               MediaType.MUSIC_VIDEO_TYPE_PODCAST_EPISODE.name) {
-            if (nextFileInfo.cacheDownloadTaskId != null ||
-                DownloadTaskStatus.fromInt(nextFileInfo.downloadStatus) !=
+            if (nextFileInfoLocal.cacheDownloadTaskId != null ||
+                DownloadTaskStatus.fromInt(nextFileInfoLocal.downloadStatus) !=
                     DownloadTaskStatus.running ||
-                DownloadTaskStatus.fromInt(nextFileInfo.downloadStatus) !=
+                DownloadTaskStatus.fromInt(nextFileInfoLocal.downloadStatus) !=
                     DownloadTaskStatus.enqueued) {
               //缓存下一个音乐
               MediaTransferService.cache(
-                mediaDetails: nextFileInfo,
-                httpClient: PlaybackHttpTransport(),
+                mediaEntry: nextFileInfoLocal,
+                httpClientArg: PlaybackHttpTransport(),
               );
             }
           }
         }
         //记住上次的播放的index
-        SharedPreferences sp = await SharedPreferences.getInstance();
-        sp.setInt(lastPlayIndexCacheKey, currentIndex);
+        SharedPreferences spLocal = await SharedPreferences.getInstance();
+        spLocal.setInt(lastPlayIndexCacheKey, currentIndexLocal);
       }
     };
     player.currentMediaInfo.addListener(_mediaListener);
 
     _playModeListener = () async {
       //记住上次的播放模式
-      SharedPreferences sp = await SharedPreferences.getInstance();
-      sp.setInt(
+      SharedPreferences spLocal = await SharedPreferences.getInstance();
+      spLocal.setInt(
         lastPlayModeCacheKey,
         PlayerPlayback.instance.playModeInfo.value.mode.index,
       );
     };
     PlayerPlayback.instance.playModeInfo.addListener(_playModeListener);
 
-    _playStatusSub = player.playStatusStream.listen((playState) {
-      if (playState.state == PlayState.start ||
-          playState.state == PlayState.playIndex ||
-          playState.state == PlayState.previous ||
-          playState.state == PlayState.next) {
-        _playStartNeedPlayNow = playState.startPlay ?? false;
-      } else if (playState.state == PlayState.loadFinish) {
+    _playStatusSub = player.playStatusStream.listen((playStateInputArg) {
+      if (playStateInputArg.state == PlayState.start ||
+          playStateInputArg.state == PlayState.playIndex ||
+          playStateInputArg.state == PlayState.previous ||
+          playStateInputArg.state == PlayState.next) {
+        _playStartNeedPlayNow = playStateInputArg.startPlay ?? false;
+      } else if (playStateInputArg.state == PlayState.loadFinish) {
         _continuousPlayback = 0;
-      } else if (playState.state == PlayState.loadFailed) {
-        FileInfo? mediaDetails = playState.fileInfo;
-        if (player.currentMediaInfo.value == mediaDetails) {
+      } else if (playStateInputArg.state == PlayState.loadFailed) {
+        FileInfo? mediaEntry = playStateInputArg.fileInfo;
+        if (player.currentMediaInfo.value == mediaEntry) {
           MessageOverlay.showError('Play Failed.'.translate);
           if (_continuousPlayback < 4 && _playStartNeedPlayNow == true) {
             player.playNext(startPlay: _playStartNeedPlayNow);
@@ -117,51 +116,21 @@ class PlaybackCoordinator with ChangeNotifier {
 
     _fileListListener = () async {
       //记住上次正常播放的列表
-      List<FileInfo> fileList = PlayerPlayback.instance.showPlayFileList.value;
-      List<Map> fileMapList = [];
-      for (final mediaDetails in fileList) {
-        fileMapList.add(mediaDetails.toJson());
+      List<FileInfo> mediaQueue =
+          PlayerPlayback.instance.showPlayFileList.value;
+      List<Map> fileMapListLocal = [];
+      for (final mediaDetails in mediaQueue) {
+        fileMapListLocal.add(mediaDetails.toJson());
       }
-      final jsonString = jsonEncode(fileMapList);
-      SharedPreferences sp = await SharedPreferences.getInstance();
-      sp.setString(lastPlayingListCacheKey, jsonString);
+      final serializedJson = jsonEncode(fileMapListLocal);
+      SharedPreferences spLocal = await SharedPreferences.getInstance();
+      spLocal.setString(lastPlayingListCacheKey, serializedJson);
     };
     PlayerPlayback.instance.showPlayFileList.addListener(_fileListListener);
 
     _playerRecoverSub = PlayerRecoverHelper.listen();
   }
-
-  Future<String?> queryMediaDetail(FileInfo mediaDetails) async {
-    Map<String, dynamic>? params = {'videoId': mediaDetails.fileId};
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.player,
-      prams: params,
-      isApp: true,
-    );
-    String? url = ParserHelper.parse<String>(
-      result,
-      PlaybackQueueParserKeys.fileUrl,
-    );
-    url ??= ParserHelper.parse<String>(
-      result,
-      PlaybackQueueParserKeys.liveFileUrl,
-    );
-    String? channelId = ParserHelper.parse<String>(
-      result,
-      PlaybackQueueParserKeys.channelId,
-    );
-    String? author = ParserHelper.parse<String>(
-      result,
-      PlaybackQueueParserKeys.author,
-    );
-    if (url != null || channelId != null) {
-      mediaDetails.url = url;
-      mediaDetails.uid = channelId;
-      mediaDetails.userName = author;
-      MediaRepository.insertFileInfo(mediaDetails);
-    }
-    return url;
-  }
+  static PlaybackCoordinator get instance => _instance;
 
   @override
   void dispose() {
@@ -171,6 +140,38 @@ class PlaybackCoordinator with ChangeNotifier {
     _playStatusSub?.cancel();
     _playerRecoverSub?.cancel();
     super.dispose();
+  }
+
+  Future<String?> queryMediaDetail(FileInfo mediaEntry) async {
+    Map<String, dynamic>? requestParameters = {'videoId': mediaEntry.fileId};
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.player,
+      pramsArg: requestParameters,
+      isAppArg: true,
+    );
+    String? resourceUrl = ParserHelper.parse<String>(
+      response,
+      PlaybackQueueParserKeys.fileUrl,
+    );
+    resourceUrl ??= ParserHelper.parse<String>(
+      response,
+      PlaybackQueueParserKeys.liveFileUrl,
+    );
+    String? channelIdLocal = ParserHelper.parse<String>(
+      response,
+      PlaybackQueueParserKeys.channelId,
+    );
+    String? authorLocal = ParserHelper.parse<String>(
+      response,
+      PlaybackQueueParserKeys.author,
+    );
+    if (resourceUrl != null || channelIdLocal != null) {
+      mediaEntry.url = resourceUrl;
+      mediaEntry.uid = channelIdLocal;
+      mediaEntry.userName = authorLocal;
+      MediaRepository.insertFileInfo(mediaEntry);
+    }
+    return resourceUrl;
   }
 }
 

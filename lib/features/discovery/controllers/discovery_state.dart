@@ -27,41 +27,6 @@ import 'package:echo_vault/core/utilities/message_overlay.dart';
 
 class DiscoveryState with ChangeNotifier {
   static final DiscoveryState _instance = DiscoveryState._();
-  static DiscoveryState get instance => _instance;
-  factory DiscoveryState() {
-    return _instance;
-  }
-  DiscoveryState._() {
-    PlayerPlayback.instance.player.playStatusStream.listen((playState) {
-      FileInfo? mediaDetails = playState.fileInfo;
-      if (playState.isAuto == false) {
-        if (playState.state == PlayState.start ||
-            playState.state == PlayState.playIndex) {
-          if (mediaDetails != null) {
-            mediaDetails.source1 = MediaOrigin.history;
-            MediaRepository.insertFileInfo(mediaDetails);
-            queryRecommend();
-          }
-        }
-      }
-    });
-    TransferMediaState.downloadFinishAndRemoveStream.listen((mediaDetails) {
-      queryRecommend();
-      queryMyPlaylist();
-    });
-    BookmarkMediaState.favoriteStream.listen((mediaDetails) {
-      queryRecommend();
-      queryMyPlaylist();
-    });
-    //首页展示的是非空的播放列表，在歌曲被添加自某个播放列表之后首页数据会更新，
-    //不仅仅是搜藏歌单，所以直接监听LibraryController.instance.mediaCollections
-    CatalogState.instance.mediaCollections.addListener(() {
-      queryMyPlaylist();
-    });
-    BookmarkPerformerState.favoriteStream.listen((mediaDetails) {
-      queryMyArtist();
-    });
-  }
 
   ValueNotifier<bool> isYoutubeMusicEnable = ValueNotifier(true);
 
@@ -79,6 +44,52 @@ class DiscoveryState with ChangeNotifier {
 
   List _originalResourceList = [];
 
+  //请求更多分页的参数
+  String? _continuation;
+
+  bool isRefreshing = false;
+  factory DiscoveryState() {
+    return _instance;
+  }
+  DiscoveryState._() {
+    PlayerPlayback.instance.player.playStatusStream.listen((playStateInputArg) {
+      FileInfo? mediaEntry = playStateInputArg.fileInfo;
+      if (playStateInputArg.isAuto == false) {
+        if (playStateInputArg.state == PlayState.start ||
+            playStateInputArg.state == PlayState.playIndex) {
+          if (mediaEntry != null) {
+            mediaEntry.source1 = MediaOrigin.history;
+            MediaRepository.insertFileInfo(mediaEntry);
+            queryRecommend();
+          }
+        }
+      }
+    });
+    TransferMediaState.downloadFinishAndRemoveStream.listen((mediaEntry) {
+      queryRecommend();
+      queryMyPlaylist();
+    });
+    BookmarkMediaState.favoriteStream.listen((mediaEntry) {
+      queryRecommend();
+      queryMyPlaylist();
+    });
+    //首页展示的是非空的播放列表，在歌曲被添加自某个播放列表之后首页数据会更新，
+    //不仅仅是搜藏歌单，所以直接监听LibraryController.instance.mediaCollections
+    CatalogState.instance.mediaCollections.addListener(() {
+      queryMyPlaylist();
+    });
+    BookmarkPerformerState.favoriteStream.listen((mediaEntry) {
+      queryMyArtist();
+    });
+  }
+  static DiscoveryState get instance => _instance;
+  Future loadMoreResource() async {
+    if (isYoutubeMusicEnable.value == false) {
+      return IndicatorResult.noMore;
+    }
+    return await _queryResource(continuationArg: _continuation);
+  }
+
   Future queryAllLocalData() async {
     await queryRecommend();
     await queryMyPlaylist();
@@ -88,9 +99,72 @@ class DiscoveryState with ChangeNotifier {
     await _resumePlayback();
   }
 
+  Future<List<PerformerDetails>> queryMyArtist() async {
+    List<PerformerDetails> entries =
+        await PerformerRepository.queryArtistInfo();
+    if (entries.isEmpty) {
+      final encryptedJsonLocal = await rootBundle.loadString(
+        Assets.data.artSeed,
+      );
+      String artisJsonStringLocal = StringCipher.decrypt(encryptedJsonLocal);
+      List artisMapListLocal = jsonDecode(artisJsonStringLocal);
+      for (final artistMap in artisMapListLocal) {
+        PerformerDetails performerProfile = PerformerDetails.fromJson(
+          artistMap,
+        );
+        await PerformerRepository.insertArtistInfo(performerProfile);
+        entries.add(performerProfile);
+      }
+    }
+    performers.value = entries;
+    return entries;
+  }
+
+  Future<List<MediaCollection>> queryMyPlaylist() async {
+    List<MediaCollection> collections = [];
+    List<FileInfo> likedListLocal = await CatalogState.instance
+        .queryLikedList();
+    if (likedListLocal.isNotEmpty) {
+      collections.add(
+        MediaCollection(
+          name: 'Like songs'.translate,
+          thumbnail: Assets.images.collection.listFavorite.path,
+          children: likedListLocal,
+        ),
+      );
+    }
+    List<FileInfo> savedListLocal = await CatalogState.instance
+        .querySavedList();
+    if (savedListLocal.isNotEmpty) {
+      collections.add(
+        MediaCollection(
+          name: 'Local songs'.translate,
+          thumbnail: Assets.images.collection.listSaved.path,
+          children: savedListLocal,
+        ),
+      );
+    }
+    List<MediaCollection> groupListLocal =
+        CatalogState.instance.mediaCollections.value;
+    List<MediaCollection> newGroupListLocal = [];
+    for (final group in groupListLocal) {
+      if (group.id?.startsWith(NewCollectionDialog.createPlaylistNamePrefix) ==
+          true) {
+        if (group.children.isNotEmpty) {
+          newGroupListLocal.add(group);
+        }
+      } else {
+        newGroupListLocal.add(group);
+      }
+    }
+    collections.addAll(newGroupListLocal);
+    playlistList.value = collections;
+    return collections;
+  }
+
   Future<List<FileInfo>> queryRecommend() async {
-    List<FileInfo> list = await MediaRepository.queryFileInfo(
-      where:
+    List<FileInfo> entries = await MediaRepository.queryFileInfo(
+      whereArg:
           '''
     (json_content LIKE '%${'"source1":"${MediaOrigin.history.name}"'}%')
     OR (json_content LIKE '%${'"source":"${MediaOrigin.homeReco.name}"'}%')
@@ -98,163 +172,247 @@ class DiscoveryState with ChangeNotifier {
     OR (is_favorite = 1)
     ''',
     );
-    for (final mediaDetails in list) {
+    for (final mediaDetails in entries) {
       mediaDetails.source = MediaOrigin.homeReco;
     }
-    if (list.isNotEmpty) {
-      recommendList.value = list;
+    if (entries.isNotEmpty) {
+      recommendList.value = entries;
     }
-    return list;
-  }
-
-  Future<List<MediaCollection>> queryMyPlaylist() async {
-    List<MediaCollection> mediaCollections = [];
-    List<FileInfo> likedList = await CatalogState.instance.queryLikedList();
-    if (likedList.isNotEmpty) {
-      mediaCollections.add(
-        MediaCollection(
-          name: 'Like songs'.translate,
-          thumbnail: Assets.images.collection.listFavorite.path,
-          children: likedList,
-        ),
-      );
-    }
-    List<FileInfo> savedList = await CatalogState.instance.querySavedList();
-    if (savedList.isNotEmpty) {
-      mediaCollections.add(
-        MediaCollection(
-          name: 'Local songs'.translate,
-          thumbnail: Assets.images.collection.listSaved.path,
-          children: savedList,
-        ),
-      );
-    }
-    List<MediaCollection> groupList =
-        CatalogState.instance.mediaCollections.value;
-    List<MediaCollection> newGroupList = [];
-    for (final group in groupList) {
-      if (group.id?.startsWith(NewCollectionDialog.createPlaylistNamePrefix) ==
-          true) {
-        if (group.children.isNotEmpty) {
-          newGroupList.add(group);
-        }
-      } else {
-        newGroupList.add(group);
-      }
-    }
-    mediaCollections.addAll(newGroupList);
-    playlistList.value = mediaCollections;
-    return mediaCollections;
-  }
-
-  Future<List<PerformerDetails>> queryMyArtist() async {
-    List<PerformerDetails> list = await PerformerRepository.queryArtistInfo();
-    if (list.isEmpty) {
-      final encryptedJson = await rootBundle.loadString(
-        Assets.data.artSeed,
-      );
-      String artisJsonString = StringCipher.decrypt(encryptedJson);
-      List artisMapList = jsonDecode(artisJsonString);
-      for (final artistMap in artisMapList) {
-        PerformerDetails performerDetails = PerformerDetails.fromJson(
-          artistMap,
-        );
-        await PerformerRepository.insertArtistInfo(performerDetails);
-        list.add(performerDetails);
-      }
-    }
-    performers.value = list;
-    return list;
+    return entries;
   }
 
   Future<List<MediaCollection>> queryTopCharts() async {
-    List<MediaCollection> mediaCollections = [];
-    final encryptedJson = await rootBundle.loadString(
-      Assets.data.topSeed,
-    );
-    String jsonString = StringCipher.decrypt(encryptedJson);
-    Map data = jsonDecode(jsonString);
-    Locale sysLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    String countryCode = sysLocale.countryCode?.toLowerCase() ?? "us";
-    List jsonList = data['us'];
-    if (countryCode.contains('br')) {
-      jsonList = data['br'];
-    } else if (countryCode.contains('mx')) {
-      jsonList = data['mx'];
+    List<MediaCollection> collections = [];
+    final encryptedJsonLocal = await rootBundle.loadString(Assets.data.topSeed);
+    String serializedJson = StringCipher.decrypt(encryptedJsonLocal);
+    Map payload = jsonDecode(serializedJson);
+    Locale sysLocaleLocal = WidgetsBinding.instance.platformDispatcher.locale;
+    String countryCodeLocal = sysLocaleLocal.countryCode?.toLowerCase() ?? "us";
+    List jsonListLocal = payload['us'];
+    if (countryCodeLocal.contains('br')) {
+      jsonListLocal = payload['br'];
+    } else if (countryCodeLocal.contains('mx')) {
+      jsonListLocal = payload['mx'];
     }
-    for (final map in jsonList) {
-      MediaCollection mediaCollection = MediaCollection.fromJson(map);
-      mediaCollection.thumbnail =
+    for (final map in jsonListLocal) {
+      MediaCollection mediaCollectionLocal = MediaCollection.fromJson(map);
+      mediaCollectionLocal.thumbnail =
           Assets.images.media.albumPlaceholder.path;
-      mediaCollection.playlistType =
+      mediaCollectionLocal.playlistType =
           CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name;
-      mediaCollections.add(mediaCollection);
+      collections.add(mediaCollectionLocal);
     }
-    topChartsList.value = mediaCollections;
-    return mediaCollections;
+    topChartsList.value = collections;
+    return collections;
+  }
+
+  Future refreshResource({String? mediaOrigin = 'drop_down'}) async {
+    if (isRefreshing) {
+      return;
+    }
+    return await _queryResource(mediaOrigin: mediaOrigin);
+  }
+
+  Future _cacheResourceData() async {
+    String cachedMediaPath =
+        '${await FileInfo.filesCacheDirectoryPath}${Platform.pathSeparator}home_cache_data';
+    File fileLocal = File(cachedMediaPath);
+    await fileLocal.writeAsString(jsonEncode(_originalResourceList));
   }
 
   Future _getCacheResourceData() async {
-    String cachePath =
+    String cachedMediaPath =
         '${await FileInfo.filesCacheDirectoryPath}${Platform.pathSeparator}home_cache_data';
-    File file = File(cachePath);
-    if (file.existsSync()) {
-      String jsonString = await file.readAsString();
-      List l = [];
+    File fileLocal = File(cachedMediaPath);
+    if (fileLocal.existsSync()) {
+      String serializedJson = await fileLocal.readAsString();
+      List lLocal = [];
       try {
-        l = jsonDecode(jsonString);
+        lLocal = jsonDecode(serializedJson);
       } catch (_) {}
-      if (l.isEmpty) {
-        file.deleteSync();
+      if (lLocal.isEmpty) {
+        fileLocal.deleteSync();
         return;
       }
-      _originalResourceList = l;
-      List<MediaCollection> list = await SharedParser.parseContents(
+      _originalResourceList = lLocal;
+      List<MediaCollection> entries = await SharedParser.parseContents(
         _originalResourceList,
       );
-      if (list.isEmpty) {
+      if (entries.isEmpty) {
         isYoutubeMusicEnable.value = false;
-        list = await MusicCatalogParser.parseHomeContents(
+        entries = await MusicCatalogParser.parseHomeContents(
           _originalResourceList,
         );
       }
-      resourceFileGroupList.value.addAll(list);
+      resourceFileGroupList.value.addAll(entries);
       resourceFileGroupList.notifyListeners();
     }
   }
 
-  Future _cacheResourceData() async {
-    String cachePath =
-        '${await FileInfo.filesCacheDirectoryPath}${Platform.pathSeparator}home_cache_data';
-    File file = File(cachePath);
-    await file.writeAsString(jsonEncode(_originalResourceList));
+  Future _queryResource({String? continuationArg, String? mediaOrigin}) async {
+    isRefreshing = true;
+    Map<String, dynamic>? requestParameters = {'browseId': 'FEmusic_home'};
+    //source是自定义埋点字段，和接口无关
+    requestParameters['_source'] = mediaOrigin;
+    Map<String, dynamic>? queryLocal;
+    if (continuationArg != null) {
+      queryLocal = {'continuation': continuationArg};
+    }
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.home,
+      pramsArg: requestParameters,
+      queryArg: queryLocal,
+    );
+    //更新全局的visitorData
+    if ((await MusicCatalogGateway.visitorData) == null) {
+      final visitorDataLocal = ParserHelper.parse<String>(
+        response,
+        SharedParserKeys.visitorData,
+      );
+      if (visitorDataLocal != null) {
+        MusicCatalogGateway.visitorData = visitorDataLocal;
+      }
+    }
+
+    List? itemSectionsLocal = ParserHelper.parse<List>(
+      response,
+      SectionListParserKeys.itemSectionRenderer,
+    );
+
+    String? newContinuationLocal;
+    if (continuationArg == null) {
+      _originalResourceList.clear();
+      resourceFileGroupList.value.clear();
+      //将下一页的分页请求参数保存下来
+      newContinuationLocal = ParserHelper.parse<String>(
+        response,
+        SectionListParserKeys.initContinuation,
+      );
+      _continuation = newContinuationLocal;
+      response = ParserHelper.parse<List>(
+        response,
+        SectionListParserKeys.initResourceList,
+      );
+      if (response == null ||
+          (itemSectionsLocal is List && itemSectionsLocal.isEmpty)) {
+        if (response != null) {
+          MessageOverlay.showSuccess('Updated content.'.translate);
+        } else {
+          MessageOverlay.showWarning(
+            'Network issue. Please try again later.'.translate,
+          );
+        }
+      }
+    } else {
+      newContinuationLocal = ParserHelper.parse<String>(
+        response,
+        SectionListParserKeys.moreContinuation,
+      );
+      if (newContinuationLocal != null) {
+        _continuation = newContinuationLocal;
+      }
+      response = ParserHelper.parse<List>(
+        response,
+        SectionListParserKeys.moreResourceList,
+      );
+    }
+
+    if (itemSectionsLocal is List && itemSectionsLocal.isNotEmpty) {
+      await _queryYTResource(mediaOrigin: mediaOrigin);
+      return;
+    }
+    isRefreshing = false;
+    isYoutubeMusicEnable.value = true;
+    response ??= [];
+    _originalResourceList.addAll(response);
+    List<MediaCollection> entries = await SharedParser.parseContents(
+      response,
+      mediaOrigin: MediaOrigin.homeNet,
+    );
+    resourceFileGroupList.value.addAll(entries);
+    resourceFileGroupList.notifyListeners();
+    _cacheResourceData();
+    if (newContinuationLocal == null) {
+      return IndicatorResult.noMore;
+    }
+  }
+
+  Future _queryYTResource({String? mediaOrigin}) async {
+    isYoutubeMusicEnable.value = false;
+
+    Map<String, dynamic>? requestParameters = {
+      'browseId': 'UC-9-kyTW8ZkZNDHQJ6FgpwQ',
+    };
+    //source是自定义埋点字段，和接口无关
+    requestParameters['_source'] = mediaOrigin;
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.ytHome,
+      pramsArg: requestParameters,
+      isMusicArg: false,
+    );
+    isRefreshing = false;
+    //更新全局的visitorData
+    if ((await MusicCatalogGateway.visitorData) == null) {
+      final visitorDataLocal = ParserHelper.parse<String>(
+        response,
+        SharedParserKeys.visitorData,
+      );
+      if (visitorDataLocal != null) {
+        MusicCatalogGateway.visitorData = visitorDataLocal;
+      }
+    }
+    if (response != null) {
+      MessageOverlay.showSuccess('Updated content.'.translate);
+    } else {
+      MessageOverlay.showWarning(
+        'Network issue. Please try again later.'.translate,
+      );
+    }
+    response =
+        ParserHelper.parse<List>(
+          response,
+          DiscoveryCatalogParserKeys.resourceList,
+        ) ??
+        [];
+
+    _originalResourceList = response;
+    List<MediaCollection> entries = await MusicCatalogParser.parseHomeContents(
+      response,
+      mediaOrigin: MediaOrigin.homeNet,
+    );
+    resourceFileGroupList.value = entries;
+    resourceFileGroupList.notifyListeners();
+    _cacheResourceData();
+    return IndicatorResult.noMore;
   }
 
   //恢复之前的播放
   Future _resumePlayback() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    String? jsonString = sp.getString(
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    String? serializedJson = spLocal.getString(
       PlaybackCoordinator.lastPlayingListCacheKey,
     );
-    if (jsonString != null) {
-      final fileMapList = jsonDecode(jsonString);
-      if (fileMapList.isNotEmpty) {
-        List<FileInfo> fileList = [];
-        for (final info in fileMapList) {
-          FileInfo mediaDetails = FileInfo.fromJson(info);
-          fileList.add(mediaDetails);
+    if (serializedJson != null) {
+      final fileMapListLocal = jsonDecode(serializedJson);
+      if (fileMapListLocal.isNotEmpty) {
+        List<FileInfo> mediaQueue = [];
+        for (final info in fileMapListLocal) {
+          FileInfo mediaEntry = FileInfo.fromJson(info);
+          mediaQueue.add(mediaEntry);
         }
-        int index = sp.getInt(PlaybackCoordinator.lastPlayIndexCacheKey) ?? 0;
-        int playModeIndex =
-            sp.getInt(PlaybackCoordinator.lastPlayModeCacheKey) ?? 0;
-        PlayerPlayMode playMode = PlayerPlayMode.values[playModeIndex];
+        int itemIndex =
+            spLocal.getInt(PlaybackCoordinator.lastPlayIndexCacheKey) ?? 0;
+        int playModeIndexLocal =
+            spLocal.getInt(PlaybackCoordinator.lastPlayModeCacheKey) ?? 0;
+        PlayerPlayMode playModeLocal =
+            PlayerPlayMode.values[playModeIndexLocal];
         PlayerPlayback.instance.playModeInfo.value = PlayerPlayModeInfo(
-          mode: playMode,
+          mode: playModeLocal,
         );
         PlayerPlayback.instance.insertPlayList(
-          fileList,
+          mediaQueue,
           isAuto: true,
-          playIndex: index,
+          playIndex: itemIndex,
           startPlay: false,
         );
       }
@@ -266,156 +424,5 @@ class DiscoveryState with ChangeNotifier {
         startPlay: false,
       );
     }
-  }
-
-  Future refreshResource({String? source = 'drop_down'}) async {
-    if (isRefreshing) {
-      return;
-    }
-    return await _queryResource(source: source);
-  }
-
-  //请求更多分页的参数
-  String? _continuation;
-  Future loadMoreResource() async {
-    if (isYoutubeMusicEnable.value == false) {
-      return IndicatorResult.noMore;
-    }
-    return await _queryResource(continuation: _continuation);
-  }
-
-  bool isRefreshing = false;
-  Future _queryResource({String? continuation, String? source}) async {
-    isRefreshing = true;
-    Map<String, dynamic>? params = {'browseId': 'FEmusic_home'};
-    //source是自定义埋点字段，和接口无关
-    params['_source'] = source;
-    Map<String, dynamic>? query;
-    if (continuation != null) {
-      query = {'continuation': continuation};
-    }
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.home,
-      prams: params,
-      query: query,
-    );
-    //更新全局的visitorData
-    if ((await MusicCatalogGateway.visitorData) == null) {
-      final visitorData = ParserHelper.parse<String>(
-        result,
-        SharedParserKeys.visitorData,
-      );
-      if (visitorData != null) {
-        MusicCatalogGateway.visitorData = visitorData;
-      }
-    }
-
-    List? itemSections = ParserHelper.parse<List>(
-      result,
-      SectionListParserKeys.itemSectionRenderer,
-    );
-
-    String? newContinuation;
-    if (continuation == null) {
-      _originalResourceList.clear();
-      resourceFileGroupList.value.clear();
-      //将下一页的分页请求参数保存下来
-      newContinuation = ParserHelper.parse<String>(
-        result,
-        SectionListParserKeys.initContinuation,
-      );
-      _continuation = newContinuation;
-      result = ParserHelper.parse<List>(
-        result,
-        SectionListParserKeys.initResourceList,
-      );
-      if (result == null || (itemSections is List && itemSections.isEmpty)) {
-        if (result != null) {
-          MessageOverlay.showSuccess('Updated content.'.translate);
-        } else {
-          MessageOverlay.showWarning(
-            'Network issue. Please try again later.'.translate,
-          );
-        }
-      }
-    } else {
-      newContinuation = ParserHelper.parse<String>(
-        result,
-        SectionListParserKeys.moreContinuation,
-      );
-      if (newContinuation != null) {
-        _continuation = newContinuation;
-      }
-      result = ParserHelper.parse<List>(
-        result,
-        SectionListParserKeys.moreResourceList,
-      );
-    }
-
-    if (itemSections is List && itemSections.isNotEmpty) {
-      await _queryYTResource(source: source);
-      return;
-    }
-    isRefreshing = false;
-    isYoutubeMusicEnable.value = true;
-    result ??= [];
-    _originalResourceList.addAll(result);
-    List<MediaCollection> list = await SharedParser.parseContents(
-      result,
-      source: MediaOrigin.homeNet,
-    );
-    resourceFileGroupList.value.addAll(list);
-    resourceFileGroupList.notifyListeners();
-    _cacheResourceData();
-    if (newContinuation == null) {
-      return IndicatorResult.noMore;
-    }
-  }
-
-  Future _queryYTResource({String? source}) async {
-    isYoutubeMusicEnable.value = false;
-
-    Map<String, dynamic>? params = {'browseId': 'UC-9-kyTW8ZkZNDHQJ6FgpwQ'};
-    //source是自定义埋点字段，和接口无关
-    params['_source'] = source;
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.ytHome,
-      prams: params,
-      isMusic: false,
-    );
-    isRefreshing = false;
-    //更新全局的visitorData
-    if ((await MusicCatalogGateway.visitorData) == null) {
-      final visitorData = ParserHelper.parse<String>(
-        result,
-        SharedParserKeys.visitorData,
-      );
-      if (visitorData != null) {
-        MusicCatalogGateway.visitorData = visitorData;
-      }
-    }
-    if (result != null) {
-      MessageOverlay.showSuccess('Updated content.'.translate);
-    } else {
-      MessageOverlay.showWarning(
-        'Network issue. Please try again later.'.translate,
-      );
-    }
-    result =
-        ParserHelper.parse<List>(
-          result,
-          DiscoveryCatalogParserKeys.resourceList,
-        ) ??
-        [];
-
-    _originalResourceList = result;
-    List<MediaCollection> list = await MusicCatalogParser.parseHomeContents(
-      result,
-      source: MediaOrigin.homeNet,
-    );
-    resourceFileGroupList.value = list;
-    resourceFileGroupList.notifyListeners();
-    _cacheResourceData();
-    return IndicatorResult.noMore;
   }
 }

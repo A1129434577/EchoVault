@@ -75,7 +75,7 @@ class DialogTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController textEditingController =
+    TextEditingController textEditingControllerLocal =
         controller ?? TextEditingController(text: initText);
     return TextFormField(
       validator: validator,
@@ -85,7 +85,7 @@ class DialogTextField extends StatelessWidget {
       focusNode: focusNode,
       onChanged: onChanged,
       enabled: enabled,
-      controller: textEditingController,
+      controller: textEditingControllerLocal,
       autofocus: autofocus,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,

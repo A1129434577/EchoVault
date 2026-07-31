@@ -21,6 +21,10 @@ class AdvertisingDisplayCoordinator {
 
   static final DebounceUtil _debounce = DebounceUtil();
 
+  static final String _appIsFirstInTimeForRateKey =
+      '_appIsFirstInTimeForRateKey';
+  static int? appIsFirstInTimeForRate;
+
   static Future<bool?> showScene({
     required AdScene scene,
     AdDetailScene? detailScene,
@@ -28,20 +32,20 @@ class AdvertisingDisplayCoordinator {
     dynamic params,
   }) async {
     return _debounce<Future<bool?>>(Duration(milliseconds: 1500), () async {
-      bool? showSuccess = await AdHelper.showScene(
+      bool? showSuccessValueLocal = await AdHelper.showScene(
         scene: scene,
         detailScene: detailScene,
         verifyCd: verifyCd,
         params: params,
       );
-      if (showSuccess != true) {
+      if (showSuccessValueLocal != true) {
         //搜索、下载、收藏或者播放的时候出现好评引导
         if (detailScene == AdvertisingDetailScene.search ||
             detailScene == AdvertisingDetailScene.download ||
             detailScene == AdvertisingDetailScene.collection ||
             detailScene == AdvertisingDetailScene.play) {
-          DateTime now = DateTime.now();
-          if (now
+          DateTime nowLocal = DateTime.now();
+          if (nowLocal
                   .difference(
                     DateTime.fromMillisecondsSinceEpoch(
                       appIsFirstInTimeForRate ?? 0,
@@ -52,7 +56,7 @@ class AdvertisingDisplayCoordinator {
             rateAlertLastShowTime = AdHelper.sharedPreferences.getInt(
               _rateAlertLastShowTimeKey,
             );
-            if (now
+            if (nowLocal
                     .difference(
                       DateTime.fromMillisecondsSinceEpoch(
                         rateAlertLastShowTime ?? 0,
@@ -60,32 +64,28 @@ class AdvertisingDisplayCoordinator {
                     )
                     .inHours >
                 24) {
-              int rateAlertShowCount =
+              int rateAlertShowCountLocal =
                   AdHelper.sharedPreferences.getInt(_rateAlertShowCountKey) ??
                   0;
-              if (rateAlertShowCount < 5) {
+              if (rateAlertShowCountLocal < 5) {
                 RatingDialog.show();
                 AdHelper.sharedPreferences.setInt(
                   _rateAlertLastShowTimeKey,
                   DateTime.now().millisecondsSinceEpoch,
                 );
-                rateAlertShowCount++;
+                rateAlertShowCountLocal++;
                 AdHelper.sharedPreferences.setInt(
                   _rateAlertShowCountKey,
-                  rateAlertShowCount,
+                  rateAlertShowCountLocal,
                 );
               }
             }
           }
         }
       }
-      return showSuccess;
+      return showSuccessValueLocal;
     });
   }
-
-  static final String _appIsFirstInTimeForRateKey =
-      '_appIsFirstInTimeForRateKey';
-  static int? appIsFirstInTimeForRate;
 
   static void start() async {
     appIsFirstInTimeForRate = AdHelper.sharedPreferences.getInt(
@@ -99,8 +99,8 @@ class AdvertisingDisplayCoordinator {
     }
 
     //前后台监听
-    AppLifecycleObserver.lifecycleStream.listen((state) {
-      if (state == AppLifecycleState.foreground) {
+    AppLifecycleObserver.lifecycleStream.listen((stateArg) {
+      if (stateArg == AppLifecycleState.foreground) {
         showScene(
           scene: AdvertisingScene.open,
           detailScene: AdvertisingDetailScene.hotOpen,
@@ -110,10 +110,12 @@ class AdvertisingDisplayCoordinator {
 
     ///路由监听
     AppRouteObserver.observer.addListener(() {
-      String? currentRouteName = AppRouteObserver.observer.currentRouteName;
-      String? previousRouteName = AppRouteObserver.observer.previousRouteName;
-      if ((currentRouteName == CollectionDetailScreenHelper.routeName ||
-              currentRouteName == PerformerDetailScreenHelper.routeName) &&
+      String? currentRouteNameLocal =
+          AppRouteObserver.observer.currentRouteName;
+      String? previousRouteNameLocal =
+          AppRouteObserver.observer.previousRouteName;
+      if ((currentRouteNameLocal == CollectionDetailScreenHelper.routeName ||
+              currentRouteNameLocal == PerformerDetailScreenHelper.routeName) &&
           AppRouteObserver.observer.type == AppRouteChangeType.push) {
         showScene(
           scene: AdvertisingScene.inApp,
@@ -121,9 +123,9 @@ class AdvertisingDisplayCoordinator {
         );
       }
       if (AppRouteObserver.observer.type == AppRouteChangeType.pop &&
-          previousRouteName?.endsWith('Alert') != true &&
-          previousRouteName?.endsWith('Sheet') != true &&
-          previousRouteName != null) {
+          previousRouteNameLocal?.endsWith('Alert') != true &&
+          previousRouteNameLocal?.endsWith('Sheet') != true &&
+          previousRouteNameLocal != null) {
         showScene(
           scene: AdvertisingScene.inApp,
           detailScene: AdvertisingDetailScene.pop,
@@ -132,12 +134,13 @@ class AdvertisingDisplayCoordinator {
     });
 
     ///手动操作播放监听
-    PlayerPlayback.instance.player.playStatusStream.listen((playState) {
-      if (playState.isAuto == false &&
-          playState.state != PlayState.triggerSeek) {
-        String? previousRouteName = AppRouteObserver.observer.previousRouteName;
-        if (playState.state == PlayState.playIndex &&
-            previousRouteName != QueueListPanel.routeName) {
+    PlayerPlayback.instance.player.playStatusStream.listen((playStateInputArg) {
+      if (playStateInputArg.isAuto == false &&
+          playStateInputArg.state != PlayState.triggerSeek) {
+        String? previousRouteNameLocal =
+            AppRouteObserver.observer.previousRouteName;
+        if (playStateInputArg.state == PlayState.playIndex &&
+            previousRouteNameLocal != QueueListPanel.routeName) {
           showScene(
             scene: AdvertisingScene.inApp,
             detailScene: AdvertisingDetailScene.playStart,
@@ -161,12 +164,12 @@ class AdvertisingDisplayCoordinator {
     });
 
     ///网络请求监听
-    NetworkManager.httpStatusStream.listen((httpStatus) {
-      if (httpStatus.status == AppNetworkState.loading) {
+    NetworkManager.httpStatusStream.listen((httpStatusInputArg) {
+      if (httpStatusInputArg.status == AppNetworkState.loading) {
         //搜索主页接口
-        if (httpStatus.url ==
+        if (httpStatusInputArg.url ==
                 MusicCatalogGateway.baseUrl + MusicCatalogEndpoints.search ||
-            httpStatus.url ==
+            httpStatusInputArg.url ==
                 MusicCatalogGateway.ytBaseUrl +
                     MusicCatalogEndpoints.ytSearch) {
           showScene(
@@ -178,20 +181,20 @@ class AdvertisingDisplayCoordinator {
     });
 
     ///点击收藏监听
-    BookmarkMediaState.favoriteStream.listen((e) {
+    BookmarkMediaState.favoriteStream.listen((entry) {
       showScene(
         scene: AdvertisingScene.inApp,
         detailScene: AdvertisingDetailScene.collection,
       );
     });
-    BookmarkPerformerState.favoriteStream.listen((e) {
+    BookmarkPerformerState.favoriteStream.listen((entry) {
       showScene(
         scene: AdvertisingScene.inApp,
         detailScene: AdvertisingDetailScene.collection,
       );
     });
-    BookmarkCollectionState.favoriteStream.listen((e) {
-      if (e.id?.startsWith(NewCollectionDialog.createPlaylistNamePrefix) ==
+    BookmarkCollectionState.favoriteStream.listen((entry) {
+      if (entry.id?.startsWith(NewCollectionDialog.createPlaylistNamePrefix) ==
           false) {
         showScene(
           scene: AdvertisingScene.inApp,
@@ -201,8 +204,10 @@ class AdvertisingDisplayCoordinator {
     });
 
     ///点击下载监听
-    MediaTransferService.downloadStartStream.listen((downloadStartInfo) {
-      if (downloadStartInfo.isClick) {
+    MediaTransferService.downloadStartStream.listen((
+      downloadStartInfoInputArg,
+    ) {
+      if (downloadStartInfoInputArg.isClick) {
         showScene(
           scene: AdvertisingScene.inApp,
           detailScene: AdvertisingDetailScene.download,

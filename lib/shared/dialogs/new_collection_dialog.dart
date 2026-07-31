@@ -14,22 +14,10 @@ class NewCollectionDialog extends StatelessWidget {
   final MediaCollection? mediaCollection;
   const NewCollectionDialog({super.key, this.mediaCollection});
 
-  static Future show({MediaCollection? musicCollection}) async {
-    await showDialog(
-      context: Get.context!,
-      barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return NewCollectionDialog(mediaCollection: musicCollection);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final TextEditingController textEditingController = TextEditingController(
-      text: mediaCollection?.name,
-    );
+    final TextEditingController textEditingControllerLocal =
+        TextEditingController(text: mediaCollection?.name);
 
     return Dialog(
       child: Container(
@@ -90,13 +78,13 @@ class NewCollectionDialog extends StatelessWidget {
                       vertical: 22,
                     ),
                     hintText: 'Please input'.translate,
-                    controller: textEditingController,
+                    controller: textEditingControllerLocal,
                   ),
                   SizedBox(height: 22),
                   FractionallySizedBox(
                     widthFactor: 0.65,
                     child: ValueListenableBuilder(
-                      valueListenable: textEditingController,
+                      valueListenable: textEditingControllerLocal,
                       builder:
                           (
                             BuildContext context,
@@ -108,9 +96,9 @@ class NewCollectionDialog extends StatelessWidget {
                               onPressed: value.text.isEmpty
                                   ? null
                                   : () {
-                                      MediaCollection? newMusicGroup =
+                                      MediaCollection? newMusicGroupLocal =
                                           (mediaCollection?..name = value.text);
-                                      newMusicGroup ??= MediaCollection(
+                                      newMusicGroupLocal ??= MediaCollection(
                                         id: '$createPlaylistNamePrefix${DateTime.now().millisecondsSinceEpoch}',
                                         name: value.text,
                                         thumbnail: Assets
@@ -120,8 +108,8 @@ class NewCollectionDialog extends StatelessWidget {
                                             .path,
                                       );
                                       BookmarkCollectionState(
-                                        mediaCollection: newMusicGroup,
-                                      ).infoChange(isEditName: true);
+                                        mediaCollectionArg: newMusicGroupLocal,
+                                      ).infoChange(isEditNameArg: true);
                                       Navigator.pop(context);
                                     },
                               title: 'Save'.translate,
@@ -136,6 +124,17 @@ class NewCollectionDialog extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  static Future show({MediaCollection? musicCollectionArg}) async {
+    await showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      routeSettings: RouteSettings(name: routeName),
+      builder: (buildContext) {
+        return NewCollectionDialog(mediaCollection: musicCollectionArg);
+      },
     );
   }
 }

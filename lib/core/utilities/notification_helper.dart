@@ -12,6 +12,20 @@ import 'package:timezone/data/latest.dart';
 class NotificationHelper {
   static final AsyncMemoizer _memoizer = AsyncMemoizer();
 
+  static List _pushHourList = [];
+  static set pushConfig(int configArg) {
+    if (configArg == 0) {
+      _pushHourList = [];
+    } else if (configArg == 1) {
+      _pushHourList = [10, 15];
+    } else if (configArg == 2) {
+      _pushHourList = [10, 15, 18, 20];
+    }
+    if (Platform.isIOS) {
+      _scheduleLocalNotification();
+    }
+  }
+
   static Future<void> init() async {
     await _memoizer.runOnce(() async {
       try {
@@ -30,7 +44,7 @@ class NotificationHelper {
               android: AndroidInitializationSettings('logo'),
             ),
             onDidReceiveNotificationResponse:
-                (NotificationResponse notificationResponse) {},
+                (NotificationResponse notificationResponseArg) {},
           );
           _scheduleLocalNotification();
         }
@@ -40,52 +54,38 @@ class NotificationHelper {
     });
   }
 
-  static List _pushHourList = [];
-  static set pushConfig(int config) {
-    if (config == 0) {
-      _pushHourList = [];
-    } else if (config == 1) {
-      _pushHourList = [10, 15];
-    } else if (config == 2) {
-      _pushHourList = [10, 15, 18, 20];
-    }
-    if (Platform.isIOS) {
-      _scheduleLocalNotification();
-    }
-  }
-
   static Future<void> _scheduleLocalNotification() async {
     try {
       await FlutterLocalNotificationsPlugin().cancelAll();
       if (_pushHourList.isEmpty) return;
 
-      List<FileInfo> recommendList = await DiscoveryState.instance
+      List<FileInfo> suggestedItems = await DiscoveryState.instance
           .queryRecommend();
-      if (recommendList.isEmpty) {
-        recommendList.add(
+      if (suggestedItems.isEmpty) {
+        suggestedItems.add(
           FileInfo(name: 'Open Via Timer and let the sound focus you'),
         );
       }
 
-      Random random = Random();
-      for (int i = 0; i < _pushHourList.length; i++) {
-        int randomIndex = random.nextInt(recommendList.length);
-        FileInfo mediaDetails = recommendList[randomIndex];
-        if (recommendList.length > 1) {
-          recommendList.remove(mediaDetails);
+      Random randomLocal = Random();
+      for (int offset = 0; offset < _pushHourList.length; offset++) {
+        int randomIndexLocal = randomLocal.nextInt(suggestedItems.length);
+        FileInfo mediaEntry = suggestedItems[randomIndexLocal];
+        if (suggestedItems.length > 1) {
+          suggestedItems.remove(mediaEntry);
         }
 
-        int hour = _pushHourList[i];
-        TZDateTime dateTime = TZDateTime.from(
-          DateTime.now().copyWith(hour: hour, minute: 0, second: 3),
+        int hourLocal = _pushHourList[offset];
+        TZDateTime dateTimeLocal = TZDateTime.from(
+          DateTime.now().copyWith(hour: hourLocal, minute: 0, second: 3),
           local,
         );
 
         await FlutterLocalNotificationsPlugin().zonedSchedule(
-          id: mediaDetails.hashCode,
-          title: mediaDetails.name,
-          body: mediaDetails.artist,
-          scheduledDate: dateTime,
+          id: mediaEntry.hashCode,
+          title: mediaEntry.name,
+          body: mediaEntry.artist,
+          scheduledDate: dateTimeLocal,
           notificationDetails: NotificationDetails(
             iOS: DarwinNotificationDetails(presentBadge: true, badgeNumber: 1),
           ),

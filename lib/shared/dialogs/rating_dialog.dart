@@ -9,20 +9,9 @@ class RatingDialog extends StatelessWidget {
 
   const RatingDialog({super.key});
 
-  static void show() {
-    showDialog(
-      context: Get.context!,
-      barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return RatingDialog();
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    ValueNotifier<int> currentIndex = ValueNotifier(-1);
+    ValueNotifier<int> currentIndexLocal = ValueNotifier(-1);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -50,9 +39,7 @@ class RatingDialog extends StatelessWidget {
                     maxHeight: 140,
                     maxWidth: 140,
                     alignment: Alignment.bottomCenter,
-                    child: Assets.images.feedback.ratingPanel.image(
-                      width: 140,
-                    ),
+                    child: Assets.images.feedback.ratingPanel.image(width: 140),
                   ),
                 ),
                 SizedBox(height: 12),
@@ -77,7 +64,7 @@ class RatingDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 ValueListenableBuilder(
-                  valueListenable: currentIndex,
+                  valueListenable: currentIndexLocal,
                   builder: (BuildContext context, int value, Widget? child) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
@@ -85,26 +72,25 @@ class RatingDialog extends StatelessWidget {
                         return IconButton(
                           padding: EdgeInsets.zero,
                           onPressed: () async {
-                            currentIndex.value = index;
+                            currentIndexLocal.value = index;
                             await Future.delayed(Duration(milliseconds: 300));
                             if (index > 2) {
-                              const String url =
+                              const String resourceUrl =
                                   "https://apps.apple.com/app/id6755465583?action=write-review";
-                              if (await canLaunchUrlString(url)) {
-                                await launchUrlString(url);
+                              if (await canLaunchUrlString(resourceUrl)) {
+                                await launchUrlString(resourceUrl);
                               }
                             } else {
                               Get.off(UserFeedbackScreen());
                             }
                           },
                           isSelected: index <= value,
-                          icon: Assets.images.feedback.ratingStar
-                              .image(width: 28),
-                          selectedIcon: Assets
-                              .images
-                              .feedback
-                              .starActive
-                              .image(width: 28),
+                          icon: Assets.images.feedback.ratingStar.image(
+                            width: 28,
+                          ),
+                          selectedIcon: Assets.images.feedback.starActive.image(
+                            width: 28,
+                          ),
                         );
                       }),
                     );
@@ -145,11 +131,9 @@ class RatingDialog extends StatelessWidget {
                               Positioned(
                                 left: 10,
                                 top: 10,
-                                child: Assets
-                                    .images
-                                    .feedback
-                                    .ratingHand
-                                    .image(width: 56),
+                                child: Assets.images.feedback.ratingHand.image(
+                                  width: 56,
+                                ),
                               ),
                             ],
                           ),
@@ -172,6 +156,17 @@ class RatingDialog extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  static void show() {
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      routeSettings: RouteSettings(name: routeName),
+      builder: (buildContext) {
+        return RatingDialog();
+      },
     );
   }
 }

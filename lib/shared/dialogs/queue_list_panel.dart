@@ -7,6 +7,11 @@ import 'package:echo_vault/shared/widgets/media/adaptive_list_view.dart';
 class QueueListPanel extends StatefulWidget {
   static String routeName = '$QueueListPanel';
 
+  const QueueListPanel({super.key});
+
+  @override
+  State<QueueListPanel> createState() => _PlayingListSheetState();
+
   static void show() {
     showModalBottomSheet(
       context: Get.context!,
@@ -14,16 +19,11 @@ class QueueListPanel extends StatefulWidget {
       isScrollControlled: true,
       useSafeArea: true,
       routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
+      builder: (buildContext) {
         return QueueListPanel();
       },
     );
   }
-
-  const QueueListPanel({super.key});
-
-  @override
-  State<QueueListPanel> createState() => _PlayingListSheetState();
 }
 
 class _PlayingListSheetState extends State<QueueListPanel> {
@@ -75,8 +75,9 @@ class _PlayingListSheetState extends State<QueueListPanel> {
                           },
                           sizeStyle: CupertinoButtonSize.small,
                           padding: EdgeInsets.zero,
-                          child: Assets.images.status.dialogDismiss
-                              .image(height: 24),
+                          child: Assets.images.status.dialogDismiss.image(
+                            height: 24,
+                          ),
                         ),
                       ],
                     ),

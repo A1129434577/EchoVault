@@ -16,8 +16,68 @@ import 'package:echo_vault/features/discovery/controllers/discovery_state.dart';
 import 'package:echo_vault/core/utilities/notification_helper.dart';
 import 'package:echo_vault/utils/string_cipher.dart';
 
+class AdRemoteParser {
+  static const String idKey = 'adid';
+  static const String typeKey = 'adtype';
+  static const String sourceKey = 'adsource';
+  static const String levelKey = 'adlevel';
+
+  static AdRemoteConfig fromJson(Map jsonArg) {
+    Map<AdScene, List<AdUnitRemoteConfig>> adSceneConfigLocal = {};
+    jsonArg.forEach((keyInputArg, currentValue) {
+      AdScene? adSceneLocal = AdScene.fromName(keyInputArg);
+      if (adSceneLocal != null) {
+        List configListLocal = currentValue;
+        List<AdUnitRemoteConfig> adUnitListLocal = configListLocal
+            .cast<Map>()
+            .map((entry) {
+              AdUnitRemoteConfig unitLocal = _RemoteAdUnitParser.fromJson(
+                entry,
+              );
+              return unitLocal;
+            })
+            .toList();
+        adSceneConfigLocal[adSceneLocal] = adUnitListLocal;
+        if (adSceneLocal == AdvertisingScene.searchNative) {
+          adSceneConfigLocal[AdvertisingScene.searchNative1] = adUnitListLocal;
+          adSceneConfigLocal[AdvertisingScene.libraryNative] = adUnitListLocal;
+          adSceneConfigLocal[AdvertisingScene.playNative] = adUnitListLocal;
+        }
+      }
+    });
+    return AdRemoteConfig(
+      adSceneConfig: adSceneConfigLocal,
+      adIntervalSeconds: jsonArg['adinterval'],
+      loadTimeOut: 30,
+    );
+  }
+}
+
 class RemoteFeatureSettings {
   static Completer firebaseInitCompleter = Completer();
+
+  static Completer<String> modelCompleter = Completer();
+
+  static const String _adConfigStringKey = '_adConfigStringKey';
+  static Future<void> getUpdateRemoteAdConfig({
+    String? adConfigArg,
+    bool isNeedSetArg = true,
+  }) async {
+    try {
+      if (adConfigArg == null) {
+        SharedPreferences spLocal = await SharedPreferences.getInstance();
+        adConfigArg = spLocal.getString(_adConfigStringKey);
+      } else {
+        SharedPreferences.getInstance().then((spInputArg) {
+          spInputArg.setString(_adConfigStringKey, adConfigArg!);
+        });
+      }
+      if (adConfigArg?.isNotEmpty != true) return;
+      Map adConfigMapLocal = jsonDecode(adConfigArg!);
+      if (isNeedSetArg == false) return;
+      AdHelper.setAdConfig(AdRemoteParser.fromJson(adConfigMapLocal));
+    } catch (_) {}
+  }
 
   static Future<void> init() async {
     if (await EventsInfoUtil.isFirstIn) {
@@ -31,22 +91,22 @@ class RemoteFeatureSettings {
         firebaseInitCompleter.complete();
       }
 
-      FirebaseRemoteConfig firebaseConfig = FirebaseRemoteConfig.instance;
-      firebaseConfig
+      FirebaseRemoteConfig firebaseConfigLocal = FirebaseRemoteConfig.instance;
+      firebaseConfigLocal
           .setConfigSettings(
             RemoteConfigSettings(
               minimumFetchInterval: const Duration(hours: 24),
               fetchTimeout: const Duration(minutes: 1),
             ),
           )
-          .then((value) async {
+          .then((currentValue) async {
             try {
-              await firebaseConfig.fetchAndActivate();
+              await firebaseConfigLocal.fetchAndActivate();
               upgradeConfig();
             } catch (_) {}
-            firebaseConfig.onConfigUpdated.listen((event) async {
+            firebaseConfigLocal.onConfigUpdated.listen((eventInputArg) async {
               try {
-                await firebaseConfig.activate();
+                await firebaseConfigLocal.activate();
                 upgradeConfig();
               } catch (_) {}
             });
@@ -54,13 +114,12 @@ class RemoteFeatureSettings {
     } catch (_) {}
   }
 
-  static Completer<String> modelCompleter = Completer();
   static void upgradeConfig() async {
     ///用户模式云控
     try {
-      String version = FirebaseRemoteConfig.instance.getString('version');
+      String versionLocal = FirebaseRemoteConfig.instance.getString('version');
       if (!modelCompleter.isCompleted) {
-        modelCompleter.complete(version);
+        modelCompleter.complete(versionLocal);
       }
     } catch (_) {
       modelCompleter.complete('');
@@ -68,118 +127,64 @@ class RemoteFeatureSettings {
 
     ///广告云控
     try {
-      String adConfig = FirebaseRemoteConfig.instance.getString('all_config');
-      getUpdateRemoteAdConfig(adConfig: adConfig);
+      String adConfigLocal = FirebaseRemoteConfig.instance.getString(
+        'all_config',
+      );
+      getUpdateRemoteAdConfig(adConfigArg: adConfigLocal);
     } catch (_) {}
 
     ///本地推送云控
     try {
-      int viaTimerPush = FirebaseRemoteConfig.instance.getInt('push_notice');
-      NotificationHelper.pushConfig = viaTimerPush;
+      int viaTimerPushLocal = FirebaseRemoteConfig.instance.getInt(
+        'push_notice',
+      );
+      NotificationHelper.pushConfig = viaTimerPushLocal;
     } catch (_) {}
 
     ///引流弹窗云控
     try {
-      int isNeedUpdate = FirebaseRemoteConfig.instance.getInt('update_switch');
-      UpgradeDialog.updateType = UpdateType.values[isNeedUpdate];
-      String updateLink = FirebaseRemoteConfig.instance.getString(
+      int isNeedUpdateLocal = FirebaseRemoteConfig.instance.getInt(
+        'update_switch',
+      );
+      UpgradeDialog.updateType = UpdateType.values[isNeedUpdateLocal];
+      String updateLinkLocal = FirebaseRemoteConfig.instance.getString(
         'update_link',
       );
-      UpgradeDialog.updateLink = updateLink;
-    } catch (_) {}
-  }
-
-  static const String _adConfigStringKey = '_adConfigStringKey';
-  static Future<void> getUpdateRemoteAdConfig({
-    String? adConfig,
-    bool isNeedSet = true,
-  }) async {
-    try {
-      if (adConfig == null) {
-        SharedPreferences sp = await SharedPreferences.getInstance();
-        adConfig = sp.getString(_adConfigStringKey);
-      } else {
-        SharedPreferences.getInstance().then((sp) {
-          sp.setString(_adConfigStringKey, adConfig!);
-        });
-      }
-      if (adConfig?.isNotEmpty != true) return;
-      Map adConfigMap = jsonDecode(adConfig!);
-      if (isNeedSet == false) return;
-      AdHelper.setAdConfig(AdRemoteParser.fromJson(adConfigMap));
+      UpgradeDialog.updateLink = updateLinkLocal;
     } catch (_) {}
   }
 
   static Future _initRecommendList() async {
     try {
-      final encryptedJson = await rootBundle.loadString(
+      final encryptedJsonLocal = await rootBundle.loadString(
         Assets.data.fileSeed,
       );
-      String recommendJson = StringCipher.decrypt(encryptedJson);
-      List recommend = jsonDecode(recommendJson);
-      List<FileInfo> recommendList = [];
-      for (Map fileMap in recommend.cast<Map>()) {
-        final fileId = fileMap['song_id'];
-        FileInfo mediaDetails = FileInfo(
+      String recommendJsonLocal = StringCipher.decrypt(encryptedJsonLocal);
+      List recommendLocal = jsonDecode(recommendJsonLocal);
+      List<FileInfo> suggestedItems = [];
+      for (Map fileMap in recommendLocal.cast<Map>()) {
+        final fileIdLocal = fileMap['song_id'];
+        FileInfo mediaEntry = FileInfo(
           extension: 'mp4',
           source: MediaOrigin.homeReco,
-          fileId: fileId,
-          thumbnail: 'https://i.ytimg.com/vi/$fileId/default.jpg',
+          fileId: fileIdLocal,
+          thumbnail: 'https://i.ytimg.com/vi/$fileIdLocal/default.jpg',
           name: fileMap['name'],
           artist: fileMap['artist'],
         );
-        recommendList.insert(0, mediaDetails);
-        MediaRepository.insertFileInfo(mediaDetails);
+        suggestedItems.insert(0, mediaEntry);
+        MediaRepository.insertFileInfo(mediaEntry);
       }
-      DiscoveryState.instance.recommendList.value = recommendList;
+      DiscoveryState.instance.recommendList.value = suggestedItems;
     } catch (_) {}
   }
 }
 
 class _RemoteAdUnitParser {
-  static AdUnitRemoteConfig fromJson(Map json) {
-    //0-100
-    double? nativeHitProbability = double.tryParse(
-      (json['native_hit']).toString(),
-    );
-    double? nativeCoseSize = double.tryParse(
-      (json['native_close_size']).toString(),
-    );
-    int? nativeShowSeconds = double.tryParse(
-      (json['native_time']).toString(),
-    )?.toInt();
-
-    AdFormatType type = AdFormatType.fromValue(json[AdRemoteParser.typeKey]);
-    AdUnitRemoteConfig unitRemoteConfig = AdUnitRemoteConfig(
-      id: json[AdRemoteParser.idKey] as String?,
-      type: type,
-      source: AdSource.fromValue(json[AdRemoteParser.sourceKey]),
-      level: json[AdRemoteParser.levelKey] ?? 0,
-    );
-    if (type == AdFormatType.native || type == AdFormatType.banner) {
-      unitRemoteConfig.aspectRatio = 300 / 180;
-      unitRemoteConfig.closeButtonBuilder = nativeCoseSize != null
-          ? () {
-              return closeButton(nativeCoseSize);
-            }
-          : null;
-      unitRemoteConfig.backgroundBuilder = () {
-        return Container(color: Color(0xffA68DFE));
-      };
-      unitRemoteConfig.nativeShowSeconds = nativeShowSeconds;
-      unitRemoteConfig.nativeHitProbability = nativeHitProbability;
-      unitRemoteConfig.size = AdSize(
-        width: (AdHelper.screenWidth - 16 * 2).toInt(),
-        height: (((AdHelper.screenWidth - 16 * 2)) * (250 / 300)).toInt(),
-      );
-    }
-    return unitRemoteConfig;
-  }
-
-  static Widget closeButton(double size) {
+  static Widget closeButton(double sizeArg) {
     return Container(
-      height: size,
-      width: size,
+      height: sizeArg,
+      width: sizeArg,
       alignment: Alignment.center,
       margin: EdgeInsets.only(top: 6, left: 6),
       decoration: BoxDecoration(
@@ -189,36 +194,47 @@ class _RemoteAdUnitParser {
       child: Icon(Icons.close, size: 15, color: Colors.white),
     );
   }
-}
 
-class AdRemoteParser {
-  static const String idKey = 'adid';
-  static const String typeKey = 'adtype';
-  static const String sourceKey = 'adsource';
-  static const String levelKey = 'adlevel';
-
-  static AdRemoteConfig fromJson(Map json) {
-    Map<AdScene, List<AdUnitRemoteConfig>> adSceneConfig = {};
-    json.forEach((key, value) {
-      AdScene? adScene = AdScene.fromName(key);
-      if (adScene != null) {
-        List configList = value;
-        List<AdUnitRemoteConfig> adUnitList = configList.cast<Map>().map((e) {
-          AdUnitRemoteConfig unit = _RemoteAdUnitParser.fromJson(e);
-          return unit;
-        }).toList();
-        adSceneConfig[adScene] = adUnitList;
-        if (adScene == AdvertisingScene.searchNative) {
-          adSceneConfig[AdvertisingScene.searchNative1] = adUnitList;
-          adSceneConfig[AdvertisingScene.libraryNative] = adUnitList;
-          adSceneConfig[AdvertisingScene.playNative] = adUnitList;
-        }
-      }
-    });
-    return AdRemoteConfig(
-      adSceneConfig: adSceneConfig,
-      adIntervalSeconds: json['adinterval'],
-      loadTimeOut: 30,
+  static AdUnitRemoteConfig fromJson(Map jsonArg) {
+    //0-100
+    double? nativeHitProbabilityValueLocal = double.tryParse(
+      (jsonArg['native_hit']).toString(),
     );
+    double? nativeCoseSizeValueLocal = double.tryParse(
+      (jsonArg['native_close_size']).toString(),
+    );
+    int? nativeShowSecondsValueLocal = double.tryParse(
+      (jsonArg['native_time']).toString(),
+    )?.toInt();
+
+    AdFormatType typeLocal = AdFormatType.fromValue(
+      jsonArg[AdRemoteParser.typeKey],
+    );
+    AdUnitRemoteConfig unitRemoteConfigLocal = AdUnitRemoteConfig(
+      id: jsonArg[AdRemoteParser.idKey] as String?,
+      type: typeLocal,
+      source: AdSource.fromValue(jsonArg[AdRemoteParser.sourceKey]),
+      level: jsonArg[AdRemoteParser.levelKey] ?? 0,
+    );
+    if (typeLocal == AdFormatType.native || typeLocal == AdFormatType.banner) {
+      unitRemoteConfigLocal.aspectRatio = 300 / 180;
+      unitRemoteConfigLocal.closeButtonBuilder =
+          nativeCoseSizeValueLocal != null
+          ? () {
+              return closeButton(nativeCoseSizeValueLocal);
+            }
+          : null;
+      unitRemoteConfigLocal.backgroundBuilder = () {
+        return Container(color: Color(0xffA68DFE));
+      };
+      unitRemoteConfigLocal.nativeShowSeconds = nativeShowSecondsValueLocal;
+      unitRemoteConfigLocal.nativeHitProbability =
+          nativeHitProbabilityValueLocal;
+      unitRemoteConfigLocal.size = AdSize(
+        width: (AdHelper.screenWidth - 16 * 2).toInt(),
+        height: (((AdHelper.screenWidth - 16 * 2)) * (250 / 300)).toInt(),
+      );
+    }
+    return unitRemoteConfigLocal;
   }
 }

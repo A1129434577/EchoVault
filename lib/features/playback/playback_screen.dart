@@ -19,21 +19,21 @@ class PlaybackNavigator {
   static String routeName = '/$_PlaybackScreen';
 
   static toPlay({
-    List<FileInfo>? fileList,
-    FileInfo? mediaDetails,
-    PlayerPlayMode? playMode,
+    List<FileInfo>? mediaQueue,
+    FileInfo? mediaEntry,
+    PlayerPlayMode? playModeArg,
   }) {
-    if (fileList?.isNotEmpty == true) {
-      mediaDetails ??= fileList!.first;
+    if (mediaQueue?.isNotEmpty == true) {
+      mediaEntry ??= mediaQueue!.first;
 
-      if (playMode != null) {
+      if (playModeArg != null) {
         PlayerPlayback.instance.playModeInfo.value = PlayerPlayModeInfo(
-          mode: playMode,
+          mode: playModeArg,
         );
       }
       PlayerPlayback.instance.startPlayList(
-        fileList!,
-        playIndex: fileList.indexOf(mediaDetails),
+        mediaQueue!,
+        playIndex: mediaQueue.indexOf(mediaEntry),
       );
     }
     showModalBottomSheet(
@@ -43,10 +43,10 @@ class PlaybackNavigator {
       isScrollControlled: true,
       routeSettings: RouteSettings(
         name: PlaybackNavigator.routeName,
-        arguments: mediaDetails,
+        arguments: mediaEntry,
       ),
-      builder: (context) {
-        return _PlaybackScreen(mediaDetails: mediaDetails);
+      builder: (buildContext) {
+        return _PlaybackScreen(mediaDetails: mediaEntry);
       },
     );
   }
@@ -76,18 +76,12 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 500), () {
         SaveGuideView.show(
-          targetKey: _saveButtonKey,
-          mediaDetails: _pageController.player.currentMediaInfo.value,
+          targetKeyArg: _saveButtonKey,
+          mediaEntry: _pageController.player.currentMediaInfo.value,
         );
       });
     });
     _pageController.queryRecommendList();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   @override
@@ -113,9 +107,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
               child: Container(
                 padding: EdgeInsets.all(16),
                 alignment: Alignment.centerLeft,
-                child: Assets.images.player.playerBack.image(
-                  height: 24,
-                ),
+                child: Assets.images.player.playerBack.image(height: 24),
               ),
             ),
             actions: [
@@ -135,13 +127,14 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                         child: CupertinoButton(
                           onPressed: () {
                             MediaOptionsPanel.show(
-                              mediaDetails: currentMediaInfo,
+                              mediaEntry: currentMediaInfo,
                             );
                           },
                           sizeStyle: CupertinoButtonSize.small,
                           padding: EdgeInsets.zero,
-                          child: Assets.images.collection.listOptions
-                              .image(width: 24),
+                          child: Assets.images.collection.listOptions.image(
+                            width: 24,
+                          ),
                         ),
                       );
                     },
@@ -226,30 +219,62 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
     );
   }
 
-  Widget _mediaView(FileInfo? currentMediaInfo) {
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Widget _durationText() {
+    return ValueListenableBuilder(
+      valueListenable: _pageController.player.currentMediaDuration,
+      builder:
+          (
+            BuildContext buildContext,
+            Duration? currentDurationArg,
+            Widget? nestedEntry,
+          ) {
+            return Text(
+              currentDurationArg == null
+                  ? '00.00'
+                  : currentDurationArg.format(isSimple: true),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+                color: Color(0xff121212).withAlpha((255 * 0.6).round()),
+              ),
+            );
+          },
+    );
+  }
+
+  Widget _mediaView(FileInfo? currentMediaInfoArg) {
     return ValueListenableBuilder(
       valueListenable: _pageController.player.playerLoadInfo,
       builder:
-          (BuildContext context, PlayerLoadInfo? playLoadInfo, Widget? child) {
-            VideoPlayerController? playerController =
-                playLoadInfo?.playerController;
-            if (playerController != null) {
-              double aspectRatio = playerController.value.aspectRatio;
+          (
+            BuildContext buildContext,
+            PlayerLoadInfo? playLoadInfoArg,
+            Widget? nestedEntry,
+          ) {
+            VideoPlayerController? playerControllerLocal =
+                playLoadInfoArg?.playerController;
+            if (playerControllerLocal != null) {
+              double aspectRatioLocal = playerControllerLocal.value.aspectRatio;
               return Padding(
                 padding: EdgeInsetsGeometry.symmetric(
-                  horizontal: (aspectRatio == 1) ? 24 : 0,
+                  horizontal: (aspectRatioLocal == 1) ? 24 : 0,
                 ),
                 child: AspectRatio(
-                  aspectRatio: aspectRatio,
+                  aspectRatio: aspectRatioLocal,
                   child: Stack(
                     children: [
                       NetworkImageWidget(
                         radius: 15,
-                        url: currentMediaInfo?.thumbnail ?? '',
-                        defaultView: Assets.images.media.audioNote
-                            .image(),
+                        url: currentMediaInfoArg?.thumbnail ?? '',
+                        defaultView: Assets.images.media.audioNote.image(),
                       ),
-                      VideoPlayer(playerController),
+                      VideoPlayer(playerControllerLocal),
                     ],
                   ),
                 ),
@@ -261,7 +286,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                 aspectRatio: 1,
                 child: NetworkImageWidget(
                   radius: 15,
-                  url: currentMediaInfo?.thumbnail ?? '',
+                  url: currentMediaInfoArg?.thumbnail ?? '',
                   defaultView: Assets.images.media.audioNote.image(),
                 ),
               ),
@@ -270,29 +295,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
     );
   }
 
-  Widget _notMediaViews(FileInfo? currentMediaInfo) {
-    return Padding(
-      padding: EdgeInsetsGeometry.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 50),
-          _otherActions(currentMediaInfo),
-          SizedBox(height: 30),
-          _progressView(),
-          SizedBox(height: 3),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [_positionText(), _durationText()],
-          ),
-          SizedBox(height: 30),
-          _playActions(currentMediaInfo),
-        ],
-      ),
-    );
-  }
-
-  Widget _nameText(FileInfo? currentMediaInfo) {
+  Widget _nameText(FileInfo? currentMediaInfoArg) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsetsGeometry.symmetric(horizontal: 24),
@@ -301,15 +304,15 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (currentMediaInfo != null)
+          if (currentMediaInfoArg != null)
             Text(
-              currentMediaInfo.displayName,
+              currentMediaInfoArg.displayName,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 24),
             ),
-          if (currentMediaInfo?.artist != null)
+          if (currentMediaInfoArg?.artist != null)
             Text(
-              currentMediaInfo!.artist!,
+              currentMediaInfoArg!.artist!,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
             ),
@@ -318,7 +321,29 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
     );
   }
 
-  Widget _otherActions(FileInfo? currentMediaInfo) {
+  Widget _notMediaViews(FileInfo? currentMediaInfoArg) {
+    return Padding(
+      padding: EdgeInsetsGeometry.symmetric(horizontal: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 50),
+          _otherActions(currentMediaInfoArg),
+          SizedBox(height: 30),
+          _progressView(),
+          SizedBox(height: 3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [_positionText(), _durationText()],
+          ),
+          SizedBox(height: 30),
+          _playActions(currentMediaInfoArg),
+        ],
+      ),
+    );
+  }
+
+  Widget _otherActions(FileInfo? currentMediaInfoArg) {
     return SizedBox(
       height: 24,
       child: Row(
@@ -326,16 +351,16 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
         children: [
           CupertinoButton(
             onPressed: () {
-              if (currentMediaInfo != null) {
-                AppendToCollectionPanel.show(mediaDetails: currentMediaInfo);
+              if (currentMediaInfoArg != null) {
+                AppendToCollectionPanel.show(mediaEntry: currentMediaInfoArg);
               }
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
             child: Assets.images.collection.addPlaylistAction.image(),
           ),
-          BookmarkMediaView(mediaDetails: currentMediaInfo),
-          SaveMediaView(key: _saveButtonKey, mediaDetails: currentMediaInfo),
+          BookmarkMediaView(mediaDetails: currentMediaInfoArg),
+          SaveMediaView(key: _saveButtonKey, mediaDetails: currentMediaInfoArg),
           CupertinoButton(
             onPressed: () {
               QueueListPanel.show();
@@ -349,115 +374,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
     );
   }
 
-  Widget _progressView() {
-    return ValueListenableBuilder(
-      valueListenable: _pageController.player.currentMediaDuration,
-      builder:
-          (BuildContext context, Duration? currentDuration, Widget? child) {
-            return ValueListenableBuilder(
-              valueListenable:
-                  _pageController.player.currentMediaBufferedPosition,
-              builder:
-                  (
-                    BuildContext context,
-                    Duration? currentBufferedPosition,
-                    Widget? child,
-                  ) {
-                    return ValueListenableBuilder(
-                      valueListenable:
-                          _pageController.player.currentMediaPosition,
-                      builder:
-                          (
-                            BuildContext context,
-                            Duration? currentPosition,
-                            Widget? child,
-                          ) {
-                            return ValueListenableBuilder(
-                              valueListenable: _dragPosition,
-                              builder:
-                                  (
-                                    BuildContext context,
-                                    Duration? dragPosition,
-                                    Widget? child,
-                                  ) {
-                                    return PlaybackSlider(
-                                      thumbSize: Size(10, 10),
-                                      duration: currentDuration,
-                                      position: dragPosition ?? currentPosition,
-                                      buffered: currentBufferedPosition,
-                                      onChanged: (value) {
-                                        _dragPosition.value = Duration(
-                                          seconds: value.toInt(),
-                                        );
-                                      },
-                                      onChangeEnd: (value) async {
-                                        await _pageController.player.seek(
-                                          Duration(seconds: value.toInt()),
-                                        );
-                                        _dragPosition.value = null;
-                                      },
-                                    );
-                                  },
-                            );
-                          },
-                    );
-                  },
-            );
-          },
-    );
-  }
-
-  Widget _positionText() {
-    return ValueListenableBuilder(
-      valueListenable: _pageController.player.currentMediaPosition,
-      builder:
-          (BuildContext context, Duration? currentPosition, Widget? child) {
-            return ValueListenableBuilder(
-              valueListenable: _dragPosition,
-              builder:
-                  (
-                    BuildContext context,
-                    Duration? dragPosition,
-                    Widget? child,
-                  ) {
-                    return Text(
-                      currentPosition == null
-                          ? '00.00'
-                          : dragPosition != null
-                          ? dragPosition.format(isSimple: true)
-                          : currentPosition.format(isSimple: true),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xff121212).withAlpha((255 * 0.6).round()),
-                      ),
-                    );
-                  },
-            );
-          },
-    );
-  }
-
-  Widget _durationText() {
-    return ValueListenableBuilder(
-      valueListenable: _pageController.player.currentMediaDuration,
-      builder:
-          (BuildContext context, Duration? currentDuration, Widget? child) {
-            return Text(
-              currentDuration == null
-                  ? '00.00'
-                  : currentDuration.format(isSimple: true),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-                color: Color(0xff121212).withAlpha((255 * 0.6).round()),
-              ),
-            );
-          },
-    );
-  }
-
-  Widget _playActions(FileInfo? currentMediaInfo) {
+  Widget _playActions(FileInfo? currentMediaInfoArg) {
     return SizedBox(
       height: 48,
       child: Row(
@@ -467,25 +384,26 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
             valueListenable: PlayerPlayback.instance.playModeInfo,
             builder:
                 (
-                  BuildContext context,
-                  PlayerPlayModeInfo playModeInfo,
-                  Widget? child,
+                  BuildContext buildContext,
+                  PlayerPlayModeInfo playModeInfoArg,
+                  Widget? nestedEntry,
                 ) {
                   return CupertinoButton(
                     onPressed: () {
-                      if (playModeInfo.mode == PlayerPlayMode.shuffle) {
+                      if (playModeInfoArg.mode == PlayerPlayMode.shuffle) {
                         PlayerPlayback.instance.playModeInfo.value =
                             PlayerPlayModeInfo(
                               mode: PlayerPlayMode.loop,
                               isAuto: false,
                             );
-                      } else if (playModeInfo.mode == PlayerPlayMode.loop) {
+                      } else if (playModeInfoArg.mode == PlayerPlayMode.loop) {
                         PlayerPlayback.instance.playModeInfo.value =
                             PlayerPlayModeInfo(
                               mode: PlayerPlayMode.loopOne,
                               isAuto: false,
                             );
-                      } else if (playModeInfo.mode == PlayerPlayMode.loopOne) {
+                      } else if (playModeInfoArg.mode ==
+                          PlayerPlayMode.loopOne) {
                         PlayerPlayback.instance.playModeInfo.value =
                             PlayerPlayModeInfo(
                               mode: PlayerPlayMode.loop,
@@ -496,7 +414,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
                     child:
-                        (playModeInfo.mode == PlayerPlayMode.loopOne
+                        (playModeInfoArg.mode == PlayerPlayMode.loopOne
                                 ? Assets.images.player.repeatOne
                                 : Assets.images.player.repeat)
                             .image(width: 32),
@@ -521,40 +439,45 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
             width: 64,
             child: ValueListenableBuilder(
               valueListenable: _pageController.player.isLoading,
-              builder: (BuildContext context, bool isLoading, Widget? child) {
-                return isLoading
-                    ? ProgressView()
-                    : ValueListenableBuilder(
-                        valueListenable: _pageController.player.isPlaying,
-                        builder:
-                            (
-                              BuildContext context,
-                              bool isPlaying,
-                              Widget? child,
-                            ) {
-                              return CupertinoButton(
-                                onPressed: () {
-                                  _pageController.player.playOrPause(
-                                    isAuto: false,
+              builder:
+                  (
+                    BuildContext buildContext,
+                    bool isLoadingArg,
+                    Widget? nestedEntry,
+                  ) {
+                    return isLoadingArg
+                        ? ProgressView()
+                        : ValueListenableBuilder(
+                            valueListenable: _pageController.player.isPlaying,
+                            builder:
+                                (
+                                  BuildContext buildContext,
+                                  bool isPlayingArg,
+                                  Widget? nestedEntry,
+                                ) {
+                                  return CupertinoButton(
+                                    onPressed: () {
+                                      _pageController.player.playOrPause(
+                                        isAuto: false,
+                                      );
+                                    },
+                                    sizeStyle: CupertinoButtonSize.small,
+                                    padding: EdgeInsets.zero,
+                                    child:
+                                        (isPlayingArg
+                                                ? Assets
+                                                      .images
+                                                      .player
+                                                      .pauseControl
+                                                : Assets
+                                                      .images
+                                                      .player
+                                                      .playControl)
+                                            .image(width: 64),
                                   );
                                 },
-                                sizeStyle: CupertinoButtonSize.small,
-                                padding: EdgeInsets.zero,
-                                child:
-                                    (isPlaying
-                                            ? Assets
-                                                  .images
-                                                  .player
-                                                  .pauseControl
-                                            : Assets
-                                                  .images
-                                                  .player
-                                                  .playControl)
-                                        .image(width: 64),
-                              );
-                            },
-                      );
-              },
+                          );
+                  },
             ),
           ),
           CupertinoButton(
@@ -575,9 +498,9 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
             valueListenable: PlayerPlayback.instance.playModeInfo,
             builder:
                 (
-                  BuildContext context,
-                  PlayerPlayModeInfo playModeInfo,
-                  Widget? child,
+                  BuildContext buildContext,
+                  PlayerPlayModeInfo playModeInfoArg,
+                  Widget? nestedEntry,
                 ) {
                   return CupertinoButton(
                     onPressed: () {
@@ -590,7 +513,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
                     child:
-                        (playModeInfo.mode == PlayerPlayMode.shuffle
+                        (playModeInfoArg.mode == PlayerPlayMode.shuffle
                                 ? Assets.images.player.shuffleActive
                                 : Assets.images.player.shuffleControl)
                             .image(width: 32),
@@ -599,6 +522,106 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _positionText() {
+    return ValueListenableBuilder(
+      valueListenable: _pageController.player.currentMediaPosition,
+      builder:
+          (
+            BuildContext buildContext,
+            Duration? currentPositionArg,
+            Widget? nestedEntry,
+          ) {
+            return ValueListenableBuilder(
+              valueListenable: _dragPosition,
+              builder:
+                  (
+                    BuildContext buildContext,
+                    Duration? dragPositionArg,
+                    Widget? nestedEntry,
+                  ) {
+                    return Text(
+                      currentPositionArg == null
+                          ? '00.00'
+                          : dragPositionArg != null
+                          ? dragPositionArg.format(isSimple: true)
+                          : currentPositionArg.format(isSimple: true),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xff121212).withAlpha((255 * 0.6).round()),
+                      ),
+                    );
+                  },
+            );
+          },
+    );
+  }
+
+  Widget _progressView() {
+    return ValueListenableBuilder(
+      valueListenable: _pageController.player.currentMediaDuration,
+      builder:
+          (
+            BuildContext buildContext,
+            Duration? currentDurationArg,
+            Widget? nestedEntry,
+          ) {
+            return ValueListenableBuilder(
+              valueListenable:
+                  _pageController.player.currentMediaBufferedPosition,
+              builder:
+                  (
+                    BuildContext buildContext,
+                    Duration? currentBufferedPositionArg,
+                    Widget? nestedEntry,
+                  ) {
+                    return ValueListenableBuilder(
+                      valueListenable:
+                          _pageController.player.currentMediaPosition,
+                      builder:
+                          (
+                            BuildContext buildContext,
+                            Duration? currentPositionArg,
+                            Widget? nestedEntry,
+                          ) {
+                            return ValueListenableBuilder(
+                              valueListenable: _dragPosition,
+                              builder:
+                                  (
+                                    BuildContext buildContext,
+                                    Duration? dragPositionArg,
+                                    Widget? nestedEntry,
+                                  ) {
+                                    return PlaybackSlider(
+                                      thumbSize: Size(10, 10),
+                                      duration: currentDurationArg,
+                                      position:
+                                          dragPositionArg ?? currentPositionArg,
+                                      buffered: currentBufferedPositionArg,
+                                      onChanged: (currentValue) {
+                                        _dragPosition.value = Duration(
+                                          seconds: currentValue.toInt(),
+                                        );
+                                      },
+                                      onChangeEnd: (currentValue) async {
+                                        await _pageController.player.seek(
+                                          Duration(
+                                            seconds: currentValue.toInt(),
+                                          ),
+                                        );
+                                        _dragPosition.value = null;
+                                      },
+                                    );
+                                  },
+                            );
+                          },
+                    );
+                  },
+            );
+          },
     );
   }
 }

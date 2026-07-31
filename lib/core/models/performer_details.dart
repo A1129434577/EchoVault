@@ -38,8 +38,8 @@ class PerformerDetails {
     this.isFavorite = 0,
   });
 
-  factory PerformerDetails.fromJson(Map<String, dynamic> json) =>
-      _$PerformerDetailsFromJson(json);
+  factory PerformerDetails.fromJson(Map<String, dynamic> jsonArg) =>
+      _$PerformerDetailsFromJson(jsonArg);
 
   Map<String, dynamic> toJson() => _$PerformerDetailsToJson(this);
 }

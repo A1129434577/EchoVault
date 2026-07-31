@@ -20,29 +20,28 @@ class BookmarkPerformerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BookmarkPerformerState favoriteController =
-        controller ?? BookmarkPerformerState(artist: artist);
+    BookmarkPerformerState favoriteControllerLocal =
+        controller ?? BookmarkPerformerState(artistArg: artist);
 
     return ValueListenableBuilder(
-      valueListenable: favoriteController.notifier,
+      valueListenable: favoriteControllerLocal.notifier,
       builder: (BuildContext context, PerformerDetails artist, Widget? child) {
-        Widget child = Image.asset(
+        Widget nestedEntry = Image.asset(
           artist.isFavorite == 1
-              ? (selectedIcon ??
-                    Assets.images.collection.favoriteActive.path)
+              ? (selectedIcon ?? Assets.images.collection.favoriteActive.path)
               : (icon ?? Assets.images.collection.favorite.path),
         );
         if (controller == null) {
           return CupertinoButton(
             onPressed: () {
-              favoriteController.favoriteStateChange();
+              favoriteControllerLocal.favoriteStateChange();
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: child,
+            child: nestedEntry,
           );
         }
-        return child;
+        return nestedEntry;
       },
     );
   }

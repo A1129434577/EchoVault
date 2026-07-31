@@ -18,8 +18,8 @@ class MediaCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BookmarkMediaState favoriteFileController = BookmarkMediaState(
-      mediaDetails: mediaDetails,
+    BookmarkMediaState favoriteFileControllerLocal = BookmarkMediaState(
+      mediaEntry: mediaDetails,
     );
     return Row(
       children: [
@@ -36,7 +36,7 @@ class MediaCell extends StatelessWidget {
         SizedBox(width: isGrid ? 10 : 12),
         Expanded(
           child: ValueListenableBuilder(
-            valueListenable: favoriteFileController.notifier,
+            valueListenable: favoriteFileControllerLocal.notifier,
             builder: (BuildContext context, FileInfo? value, Widget? child) {
               return Column(
                 spacing: isGrid ? 4 : 6,
@@ -59,7 +59,7 @@ class MediaCell extends StatelessWidget {
                             width: 16,
                             child: BookmarkMediaView(
                               mediaDetails: mediaDetails,
-                              controller: favoriteFileController,
+                              controller: favoriteFileControllerLocal,
                             ),
                           ),
                         if (mediaDetails.artist?.isNotEmpty == true)
@@ -88,13 +88,11 @@ class MediaCell extends StatelessWidget {
         SizedBox(width: isGrid ? 2 : 8),
         CupertinoButton(
           onPressed: () {
-            MediaOptionsPanel.show(mediaDetails: mediaDetails);
+            MediaOptionsPanel.show(mediaEntry: mediaDetails);
           },
           sizeStyle: CupertinoButtonSize.small,
           padding: EdgeInsets.zero,
-          child: Assets.images.collection.listOptions.image(
-            height: 24,
-          ),
+          child: Assets.images.collection.listOptions.image(height: 24),
         ),
       ],
     );

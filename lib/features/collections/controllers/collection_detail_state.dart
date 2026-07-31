@@ -11,10 +11,18 @@ import 'package:echo_vault/shared/widgets/resource_state_view.dart';
 
 class CollectionDetailState with ChangeNotifier {
   final MediaCollection mediaCollection;
-  CollectionDetailState({required this.mediaCollection});
   ValueNotifier<ResourceStatus> state = ValueNotifier(ResourceStatus.idl);
   EasyRefreshController refreshController = EasyRefreshController();
   ValueNotifier<List<MediaCollection>?> resourceList = ValueNotifier(null);
+  CollectionDetailState({required this.mediaCollection});
+
+  Future loadMoreYTData() async {
+    FileInfo mediaEntry = mediaCollection.children.first;
+    await _queryYTData(
+      moreParamsInputArg: {'videoId': mediaEntry.fileId, 'playlistIndex': 1},
+    );
+    return IndicatorResult.noMore;
+  }
 
   Future queryData() async {
     state.value = ResourceStatus.loading;
@@ -42,82 +50,78 @@ class CollectionDetailState with ChangeNotifier {
   }
 
   Future _queryData() async {
-    Map<String, dynamic>? params = {
+    Map<String, dynamic>? requestParameters = {
       'browseId': mediaCollection.id!,
       'params': mediaCollection.params,
     };
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.playlistDetail,
-      prams: params,
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.playlistDetail,
+      pramsArg: requestParameters,
     );
-    if (result == null) {
+    if (response == null) {
       return;
     }
-    dynamic list = ParserHelper.parse<List>(
-      result,
+    dynamic entries = ParserHelper.parse<List>(
+      response,
       SectionListParserKeys.tapMoreResourceList,
     );
     //也有可能是其他格式，所以再容错一下
-    list ??=
+    entries ??=
         ParserHelper.parse<List>(
-          result,
+          response,
           SectionListParserKeys.initResourceList,
         ) ??
         [];
     //playlist和album的详情页面都是同一个，
     //但是专辑有点不同的是可能还有推荐作品，所以统一再次规定格式为一个FilGroup分组
-    list = await SharedParser.parseContents(
-      list,
-      source: MediaOrigin.playlistHome,
+    entries = await SharedParser.parseContents(
+      entries,
+      mediaOrigin: MediaOrigin.playlistHome,
     );
-    if (list is List<MediaCollection>) {
+    if (entries is List<MediaCollection>) {
       mediaCollection.children =
-          list
+          entries
               .where(
-                (e) =>
-                    e.type == MediaCollectionShowType.listMusic ||
-                    e.type == MediaCollectionShowType.responsiveListMusic,
+                (entry) =>
+                    entry.type == MediaCollectionShowType.listMusic ||
+                    entry.type == MediaCollectionShowType.responsiveListMusic,
               )
               .firstOrNull
               ?.children ??
           [];
     }
-    resourceList.value = list;
+    resourceList.value = entries;
   }
 
   //请求更多显示根据
-  Future _queryYTData({Map<String, dynamic>? moreParams}) async {
-    Map<String, dynamic>? params = {'playlistId': mediaCollection.id!};
-    if (moreParams != null) {
-      params.addAll(moreParams);
+  Future _queryYTData({Map<String, dynamic>? moreParamsInputArg}) async {
+    Map<String, dynamic>? requestParameters = {
+      'playlistId': mediaCollection.id!,
+    };
+    if (moreParamsInputArg != null) {
+      requestParameters.addAll(moreParamsInputArg);
     }
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.ytPlaylistDetail,
-      prams: params,
-      isMusic: false,
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.ytPlaylistDetail,
+      pramsArg: requestParameters,
+      isMusicArg: false,
     );
-    if (result == null) {
+    if (response == null) {
       return;
     }
-    result =
+    response =
         ParserHelper.parse<List>(
-          result,
+          response,
           CollectionCatalogParserKeys.resourceList,
         ) ??
         [];
-    List newChildren = await MusicCatalogParser.parsePlaylistChildren(result);
+    List newChildrenLocal = await MusicCatalogParser.parsePlaylistChildren(
+      response,
+    );
     mediaCollection.children = [
       ...mediaCollection.children,
-      ...newChildren.cast<FileInfo>(),
+      ...newChildrenLocal.cast<FileInfo>(),
     ];
     resourceList.value = [mediaCollection];
-  }
-
-  Future loadMoreYTData() async {
-    FileInfo mediaDetails = mediaCollection.children.first;
-    await _queryYTData(
-      moreParams: {'videoId': mediaDetails.fileId, 'playlistIndex': 1},
-    );
-    return IndicatorResult.noMore;
   }
 }

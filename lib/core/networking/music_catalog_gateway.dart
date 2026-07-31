@@ -52,36 +52,8 @@ class MusicCatalogGateway {
 
   static const String visitorDataKey = 'visitorDataKey';
   static String? _visitorData;
-  static set visitorData(String? value) {
-    _visitorData = value;
-    SharedPreferences.getInstance().then((sp) async {
-      if (value != null) {
-        await sp.setString(visitorDataKey, value);
-      } else {
-        await sp.remove(visitorDataKey);
-      }
-    });
-  }
-
-  static Future<String?> get visitorData async {
-    if (_visitorData != null) {
-      return _visitorData;
-    }
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    _visitorData = sp.getString(visitorDataKey);
-    return _visitorData;
-  }
 
   static String? _languageCode;
-  static String get languageCode {
-    if (_languageCode != null) return _languageCode!;
-    String languageCode = PlatformDispatcher.instance.locale.languageCode;
-    if (languageCode.contains("zh")) {
-      languageCode = "zh-CN";
-    }
-    _languageCode = languageCode;
-    return languageCode;
-  }
 
   static String? _countryCode;
   static String get countryCode {
@@ -91,56 +63,86 @@ class MusicCatalogGateway {
     //   countryCode = "US";
     // }
     //其他国家或者地区可能也不能用，直接写死US
-    String countryCode = "US";
-    _countryCode = countryCode;
-    return countryCode;
+    String countryCodeLocal = "US";
+    _countryCode = countryCodeLocal;
+    return countryCodeLocal;
+  }
+
+  static String get languageCode {
+    if (_languageCode != null) return _languageCode!;
+    String languageCodeLocal = PlatformDispatcher.instance.locale.languageCode;
+    if (languageCodeLocal.contains("zh")) {
+      languageCodeLocal = "zh-CN";
+    }
+    _languageCode = languageCodeLocal;
+    return languageCodeLocal;
+  }
+
+  static set visitorData(String? currentValue) {
+    _visitorData = currentValue;
+    SharedPreferences.getInstance().then((spInputArg) async {
+      if (currentValue != null) {
+        await spInputArg.setString(visitorDataKey, currentValue);
+      } else {
+        await spInputArg.remove(visitorDataKey);
+      }
+    });
+  }
+
+  static Future<String?> get visitorData async {
+    if (_visitorData != null) {
+      return _visitorData;
+    }
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    _visitorData = spLocal.getString(visitorDataKey);
+    return _visitorData;
   }
 
   static Future<T?> post<T>({
-    required String url,
-    Map prams = const {},
-    Map<String, dynamic>? query,
-    bool? isApp,
-    bool isMusic = true,
+    required String resourceUrl,
+    Map pramsArg = const {},
+    Map<String, dynamic>? queryArg,
+    bool? isAppArg,
+    bool isMusicArg = true,
   }) async {
-    if (url.startsWith('http') == false) {
-      if (isMusic) {
-        url = baseUrl + url;
+    if (resourceUrl.startsWith('http') == false) {
+      if (isMusicArg) {
+        resourceUrl = baseUrl + resourceUrl;
       } else {
-        url = ytBaseUrl + url;
+        resourceUrl = ytBaseUrl + resourceUrl;
       }
     }
 
-    Map postPrams = {};
-    if (isApp == true) {
-      postPrams.addAll(appPrams);
+    Map postPramsLocal = {};
+    if (isAppArg == true) {
+      postPramsLocal.addAll(appPrams);
     } else {
-      if (isMusic) {
-        postPrams.addAll(webPrams);
+      if (isMusicArg) {
+        postPramsLocal.addAll(webPrams);
       } else {
-        postPrams.addAll(ytWebPrams);
+        postPramsLocal.addAll(ytWebPrams);
       }
     }
 
-    Map? special = specialPrams[url];
-    if (special != null) {
-      postPrams = special;
+    Map? specialLocal = specialPrams[resourceUrl];
+    if (specialLocal != null) {
+      postPramsLocal = specialLocal;
     }
 
-    String? vd = await visitorData;
-    if (vd != null) {
-      postPrams['context']['client']['visitorData'] = vd;
+    String? vdLocal = await visitorData;
+    if (vdLocal != null) {
+      postPramsLocal['context']['client']['visitorData'] = vdLocal;
     }
-    postPrams['context']['client']['hl'] = languageCode;
-    postPrams['context']['client']['gl'] = countryCode;
+    postPramsLocal['context']['client']['hl'] = languageCode;
+    postPramsLocal['context']['client']['gl'] = countryCode;
 
-    postPrams.addAll(prams);
+    postPramsLocal.addAll(pramsArg);
 
     return await NetworkManager.instance.requestMethod(
-      url: url,
+      url: resourceUrl,
       method: 'post',
-      body: postPrams,
-      query: query,
+      body: postPramsLocal,
+      query: queryArg,
     );
   }
 }

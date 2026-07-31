@@ -32,51 +32,54 @@ class AdaptiveListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GlobalKey selectedKey = GlobalKey();
-    ScrollController scrollController = ScrollController();
+    GlobalKey selectedKeyLocal = GlobalKey();
+    ScrollController scrollControllerLocal = ScrollController();
 
-    bool isAllVideo = false;
-    List<FileInfo> list = records.whereType<FileInfo>().toList();
-    if (list.length == records.length) {
-      isAllVideo = list
+    bool isAllVideoLocal = false;
+    List<FileInfo> entries = records.whereType<FileInfo>().toList();
+    if (entries.length == records.length) {
+      isAllVideoLocal = entries
           .where((e) => e.type == MediaType.MUSIC_VIDEO_TYPE_ATV.name)
           .isEmpty;
     }
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double cellHeight = 72, separatorHeight = 4;
+        double cellHeightLocal = 72, separatorHeightValueLocal = 4;
         if (isNeedPosition) {
-          int selectedIndex = -1;
-          FileInfo? currentMediaInfo =
+          int activeIndex = -1;
+          FileInfo? currentMediaInfoLocal =
               PlayerPlayback.instance.player.currentMediaInfo.value;
-          if (currentMediaInfo != null) {
-            selectedIndex = records.indexOf(currentMediaInfo);
-            if (selectedIndex < 0) {
-              selectedIndex = records.indexWhere((e) {
-                return e is FileInfo && e.fileId == currentMediaInfo.fileId;
+          if (currentMediaInfoLocal != null) {
+            activeIndex = records.indexOf(currentMediaInfoLocal);
+            if (activeIndex < 0) {
+              activeIndex = records.indexWhere((e) {
+                return e is FileInfo &&
+                    e.fileId == currentMediaInfoLocal.fileId;
               });
             }
           }
-          if (selectedIndex > 0 && selectedIndex < records.length) {
+          if (activeIndex > 0 && activeIndex < records.length) {
             if (constraints.maxHeight != double.infinity) {
-              int onPageItemCount =
-                  constraints.maxHeight ~/ (cellHeight + separatorHeight);
-              int positionIndex = min(
-                selectedIndex,
-                records.length - onPageItemCount,
+              int onPageItemCountLocal =
+                  constraints.maxHeight ~/
+                  (cellHeightLocal + separatorHeightValueLocal);
+              int positionIndexLocal = min(
+                activeIndex,
+                records.length - onPageItemCountLocal,
               );
               Future.delayed(Duration(milliseconds: 300), () {
-                scrollController.animateTo(
-                  positionIndex * (cellHeight + separatorHeight),
+                scrollControllerLocal.animateTo(
+                  positionIndexLocal *
+                      (cellHeightLocal + separatorHeightValueLocal),
                   duration: Duration(milliseconds: 300),
                   curve: Curves.easeIn,
                 );
               });
             } else {
               Future.delayed(Duration(milliseconds: 100), () {
-                if (selectedKey.currentContext != null) {
-                  Scrollable.ensureVisible(selectedKey.currentContext!);
+                if (selectedKeyLocal.currentContext != null) {
+                  Scrollable.ensureVisible(selectedKeyLocal.currentContext!);
                 }
               });
             }
@@ -87,13 +90,13 @@ class AdaptiveListView extends StatelessWidget {
           shrinkWrap: shrinkWrap,
           physics: physics,
           itemCount: records.length,
-          controller: scrollController,
+          controller: scrollControllerLocal,
           padding: padding,
           separatorBuilder: (context, index) {
-            return SizedBox(height: separatorHeight);
+            return SizedBox(height: separatorHeightValueLocal);
           },
           itemBuilder: (context, index) {
-            dynamic item = records[index];
+            dynamic entry = records[index];
             return ValueListenableBuilder(
               valueListenable: PlayerPlayback.instance.player.currentMediaInfo,
               builder:
@@ -102,60 +105,62 @@ class AdaptiveListView extends StatelessWidget {
                     FileInfo? currentMediaInfo,
                     Widget? child,
                   ) {
-                    int selectedIndex = -1;
+                    int activeIndex = -1;
                     if (currentMediaInfo != null) {
-                      selectedIndex = records.indexOf(currentMediaInfo);
-                      if (selectedIndex < 0) {
-                        selectedIndex = records.indexWhere((e) {
+                      activeIndex = records.indexOf(currentMediaInfo);
+                      if (activeIndex < 0) {
+                        activeIndex = records.indexWhere((e) {
                           return e is FileInfo &&
                               e.fileId == currentMediaInfo.fileId;
                         });
                       }
                     }
 
-                    Widget child = SizedBox();
-                    if (item is FileInfo) {
-                      child = GestureDetector(
+                    Widget nestedEntry = SizedBox();
+                    if (entry is FileInfo) {
+                      nestedEntry = GestureDetector(
                         onTap: () {
                           if (onFileCellTap == null) {
                             PlaybackNavigator.toPlay(
-                              fileList: records.whereType<FileInfo>().toList(),
-                              mediaDetails: item,
+                              mediaQueue: records
+                                  .whereType<FileInfo>()
+                                  .toList(),
+                              mediaEntry: entry,
                             );
                           } else {
-                            onFileCellTap!.call(item);
+                            onFileCellTap!.call(entry);
                           }
                         },
                         behavior: HitTestBehavior.translucent,
                         child: MediaCell(
-                          mediaDetails: item,
-                          isVideo: isAllVideo,
+                          mediaDetails: entry,
+                          isVideo: isAllVideoLocal,
                         ),
                       );
-                    } else if (item is PerformerDetails) {
-                      child = PerformerListCell(
-                        performerDetails: item,
-                        action: Assets.images.common.optionsMuted
-                            .image(),
+                    } else if (entry is PerformerDetails) {
+                      nestedEntry = PerformerListCell(
+                        performerDetails: entry,
+                        action: Assets.images.common.optionsMuted.image(),
                       );
-                    } else if (item is MediaCollection) {
-                      child = CollectionListCell(
-                        mediaCollection: item,
+                    } else if (entry is MediaCollection) {
+                      nestedEntry = CollectionListCell(
+                        mediaCollection: entry,
                         showMoreAction: true,
-                        action: Assets.images.common.optionsMuted
-                            .image(width: 24),
+                        action: Assets.images.common.optionsMuted.image(
+                          width: 24,
+                        ),
                       );
                     }
 
                     return Container(
-                      height: cellHeight,
-                      key: index == selectedIndex ? selectedKey : null,
+                      height: cellHeightLocal,
+                      key: index == activeIndex ? selectedKeyLocal : null,
                       padding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
-                      color: index == selectedIndex ? Color(0xffEFF6FE) : null,
-                      child: child,
+                      color: index == activeIndex ? Color(0xffEFF6FE) : null,
+                      child: nestedEntry,
                     );
                   },
             );

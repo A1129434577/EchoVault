@@ -22,12 +22,6 @@ class _CollectionMoreScreenState extends State<CollectionMoreScreen> {
   );
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BackgroundSurface(
       child: PlaybackBar(
@@ -79,5 +73,11 @@ class _CollectionMoreScreenState extends State<CollectionMoreScreen> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

@@ -14,25 +14,25 @@ import 'package:echo_vault/core/utilities/message_overlay.dart';
 class AppendToCollectionPanel extends StatefulWidget {
   static String routeName = '$AppendToCollectionPanel';
 
-  static show({required FileInfo mediaDetails}) {
-    showModalBottomSheet(
-      context: Get.context!,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      useSafeArea: true,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return AppendToCollectionPanel(mediaDetails: mediaDetails);
-      },
-    );
-  }
-
   final FileInfo mediaDetails;
   const AppendToCollectionPanel({super.key, required this.mediaDetails});
 
   @override
   State<AppendToCollectionPanel> createState() =>
       _AppendToCollectionPanelState();
+
+  static show({required FileInfo mediaEntry}) {
+    showModalBottomSheet(
+      context: Get.context!,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      useSafeArea: true,
+      routeSettings: RouteSettings(name: routeName),
+      builder: (buildContext) {
+        return AppendToCollectionPanel(mediaDetails: mediaEntry);
+      },
+    );
+  }
 }
 
 class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
@@ -61,9 +61,7 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child: Assets.images.status.dialogDismiss.image(
-                      height: 24,
-                    ),
+                    child: Assets.images.status.dialogDismiss.image(height: 24),
                   ),
                 ],
               ),
@@ -86,10 +84,7 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                           children: [
                             AspectRatio(
                               aspectRatio: 1,
-                              child: Assets
-                                  .images
-                                  .collection
-                                  .playlistCreate
+                              child: Assets.images.collection.playlistCreate
                                   .image(),
                             ),
                             Text(
@@ -110,7 +105,7 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                               List<MediaCollection> musicGroupList,
                               Widget? child,
                             ) {
-                              List<MediaCollection> list = musicGroupList
+                              List<MediaCollection> entries = musicGroupList
                                   .where(
                                     (e) =>
                                         e.id?.startsWith(
@@ -121,20 +116,21 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                                   )
                                   .toList();
                               return ListView.separated(
-                                itemCount: list.length,
+                                itemCount: entries.length,
                                 shrinkWrap: true,
                                 separatorBuilder: (context, index) {
                                   return SizedBox(height: 24);
                                 },
                                 itemBuilder: (context, index) {
-                                  MediaCollection mediaCollection = list[index];
+                                  MediaCollection mediaCollectionLocal =
+                                      entries[index];
                                   return CollectionListCell(
-                                    mediaCollection: mediaCollection,
+                                    mediaCollection: mediaCollectionLocal,
                                     onTap: () async {
                                       await CatalogState.instance
                                           .addFileInfoToPlaylist(
                                             _fileInfo,
-                                            mediaCollection,
+                                            mediaCollectionLocal,
                                           );
                                       MessageOverlay.showSuccess(
                                         'Added.'.translate,

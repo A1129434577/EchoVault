@@ -27,37 +27,6 @@ class _LaunchScreenState extends State<LaunchScreen> {
     prepareData();
   }
 
-  Future prepareData() async {
-    _openController.queryModules();
-    int adStartTime = DateTime.now().millisecondsSinceEpoch;
-    bool success = await _openController.loadAndShowAd();
-    int adEndTime = DateTime.now().millisecondsSinceEpoch;
-    //广告只要显示成功，关闭广告后必定需要进入主页
-    //广告展示失败，并且花费时间比较少，如果cloak未请求成功可以继续用剩下的时间等待
-    if (success != true) {
-      int adSeconds = ((adEndTime - adStartTime) / 1000).toInt();
-      if (adSeconds < (AdHelper.openAppWaitSeconds * 0.5)) {
-        await Future.any([
-          _openController.modulesCompleter.future,
-          Future.delayed(
-            Duration(seconds: AdHelper.openAppWaitSeconds - adSeconds),
-          ),
-        ]);
-      }
-      _openController.isProgressFinish.value = true;
-    }
-
-    toHome();
-  }
-
-  Future toHome() async {
-    if (_openController.isModulesUsable.value == true) {
-      Get.offAll(PrimaryNavigationScreen());
-    } else {
-      Get.offAll(EchoVaultHome(service: FlutterAudioService()));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BackgroundSurface(
@@ -124,5 +93,36 @@ class _LaunchScreenState extends State<LaunchScreen> {
         ],
       ),
     );
+  }
+
+  Future prepareData() async {
+    _openController.queryModules();
+    int adStartTimeLocal = DateTime.now().millisecondsSinceEpoch;
+    bool successLocal = await _openController.loadAndShowAd();
+    int adEndTimeLocal = DateTime.now().millisecondsSinceEpoch;
+    //广告只要显示成功，关闭广告后必定需要进入主页
+    //广告展示失败，并且花费时间比较少，如果cloak未请求成功可以继续用剩下的时间等待
+    if (successLocal != true) {
+      int adSecondsLocal = ((adEndTimeLocal - adStartTimeLocal) / 1000).toInt();
+      if (adSecondsLocal < (AdHelper.openAppWaitSeconds * 0.5)) {
+        await Future.any([
+          _openController.modulesCompleter.future,
+          Future.delayed(
+            Duration(seconds: AdHelper.openAppWaitSeconds - adSecondsLocal),
+          ),
+        ]);
+      }
+      _openController.isProgressFinish.value = true;
+    }
+
+    toHome();
+  }
+
+  Future toHome() async {
+    if (_openController.isModulesUsable.value == true) {
+      Get.offAll(PrimaryNavigationScreen());
+    } else {
+      Get.offAll(EchoVaultHome(service: FlutterAudioService()));
+    }
   }
 }

@@ -4,55 +4,55 @@ import 'package:echo_vault/core/persistence/application_database.dart';
 import 'package:echo_vault/core/models/performer_details.dart';
 
 class PerformerRepository {
-  static Future<int> insertArtistInfo(PerformerDetails performerDetails) async {
-    int timestamp = DateTime.now().millisecondsSinceEpoch;
-    String content = jsonEncode(performerDetails.toJson());
-    Database database = await ApplicationDatabase.database;
-    int id = await database.insert(DatabaseTables.artist, {
-      'id': performerDetails.id,
-      'is_favorite': performerDetails.isFavorite,
-      'json_content': content,
-      'create_time': timestamp,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-    return id;
-  }
-
-  static Future<int> deleteArtistInfo(PerformerDetails performerDetails) async {
-    Database database = await ApplicationDatabase.database;
-    int deleteCount = await database.delete(
+  static Future<int> deleteArtistInfo(PerformerDetails performerProfile) async {
+    Database databaseLocal = await ApplicationDatabase.database;
+    int deleteCountLocal = await databaseLocal.delete(
       DatabaseTables.artist,
-      where: 'id = "${performerDetails.id}"',
+      where: 'id = "${performerProfile.id}"',
     );
-    return deleteCount;
+    return deleteCountLocal;
   }
 
-  static Future<PerformerDetails?> queryArtistInfoFromId(
-    String artistId,
-  ) async {
-    List<PerformerDetails> list = await queryArtistInfo(
-      where: 'id = "$artistId"',
-    );
-    return list.firstOrNull;
+  static Future<int> insertArtistInfo(PerformerDetails performerProfile) async {
+    int timestampLocal = DateTime.now().millisecondsSinceEpoch;
+    String encodedContent = jsonEncode(performerProfile.toJson());
+    Database databaseLocal = await ApplicationDatabase.database;
+    int idLocal = await databaseLocal.insert(DatabaseTables.artist, {
+      'id': performerProfile.id,
+      'is_favorite': performerProfile.isFavorite,
+      'json_content': encodedContent,
+      'create_time': timestampLocal,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    return idLocal;
   }
 
   static Future<List<PerformerDetails>> queryArtistInfo({
-    int? limit,
-    String? where,
+    int? limitInputArg,
+    String? whereArg,
   }) async {
-    Database database = await ApplicationDatabase.database;
-    List<Map<String, Object?>> records = await database.query(
+    Database databaseLocal = await ApplicationDatabase.database;
+    List<Map<String, Object?>> storedRecords = await databaseLocal.query(
       DatabaseTables.artist,
-      limit: limit,
-      where: where,
+      limit: limitInputArg,
+      where: whereArg,
       orderBy: 'create_time desc',
     );
-    List<PerformerDetails> list = [];
-    for (var data in records) {
-      String content = (data['json_content'])?.toString() ?? '';
-      Map<String, dynamic> map = jsonDecode(content);
-      PerformerDetails performerDetails = PerformerDetails.fromJson(map);
-      list.add(performerDetails);
+    List<PerformerDetails> entries = [];
+    for (var data in storedRecords) {
+      String encodedContent = (data['json_content'])?.toString() ?? '';
+      Map<String, dynamic> record = jsonDecode(encodedContent);
+      PerformerDetails performerProfile = PerformerDetails.fromJson(record);
+      entries.add(performerProfile);
     }
-    return list;
+    return entries;
+  }
+
+  static Future<PerformerDetails?> queryArtistInfoFromId(
+    String artistIdArg,
+  ) async {
+    List<PerformerDetails> entries = await queryArtistInfo(
+      whereArg: 'id = "$artistIdArg"',
+    );
+    return entries.firstOrNull;
   }
 }

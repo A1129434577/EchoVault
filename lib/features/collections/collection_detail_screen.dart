@@ -18,11 +18,11 @@ import 'package:echo_vault/shared/widgets/paged_refresh_view.dart';
 
 class CollectionDetailScreenHelper {
   static String routeName = '/$_CollectionDetailScreen';
-  static to({required MediaCollection mediaCollection}) {
+  static to({required MediaCollection mediaCollectionArg}) {
     Get.to(
-      arguments: mediaCollection,
+      arguments: mediaCollectionArg,
       preventDuplicates: false,
-      _CollectionDetailScreen(mediaCollection: mediaCollection),
+      _CollectionDetailScreen(mediaCollection: mediaCollectionArg),
     );
   }
 }
@@ -67,13 +67,6 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
     if (!_isSelfBuiltPlaylist) {
       controller.queryData();
     }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_scrollControllerListener);
-    controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -211,11 +204,22 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollControllerListener);
+    controller.dispose();
+    super.dispose();
+  }
+
   Widget _actionsView() {
     return ValueListenableBuilder(
       valueListenable: controller.resourceList,
       builder:
-          (BuildContext context, List<MediaCollection>? value, Widget? child) {
+          (
+            BuildContext buildContext,
+            List<MediaCollection>? currentValue,
+            Widget? nestedEntry,
+          ) {
             if (mediaCollection.children.isEmpty) {
               return SizedBox();
             }
@@ -230,14 +234,13 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
                       onPressed: () {
                         if (mediaCollection.children.isNotEmpty) {
                           PlaybackNavigator.toPlay(
-                            fileList: mediaCollection.children.cast(),
-                            playMode: PlayerPlayMode.loop,
+                            mediaQueue: mediaCollection.children.cast(),
+                            playModeArg: PlayerPlayMode.loop,
                           );
                         }
                       },
                       fontSize: 16,
-                      icon: Assets.images.collection.playlistPlay
-                          .image(),
+                      icon: Assets.images.collection.playlistPlay.image(),
                       title: 'Play'.translate,
                     ),
                   ),
@@ -245,20 +248,22 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
                     child: SharedButton(
                       onPressed: () {
                         if (mediaCollection.children.isNotEmpty) {
-                          List<FileInfo> list = mediaCollection.children.cast();
-                          Random random = Random();
-                          int randomIndex = random.nextInt(list.length);
+                          List<FileInfo> entries = mediaCollection.children
+                              .cast();
+                          Random randomLocal = Random();
+                          int randomIndexLocal = randomLocal.nextInt(
+                            entries.length,
+                          );
                           PlaybackNavigator.toPlay(
-                            fileList: list,
-                            playMode: PlayerPlayMode.shuffle,
-                            mediaDetails: list[randomIndex],
+                            mediaQueue: entries,
+                            playModeArg: PlayerPlayMode.shuffle,
+                            mediaEntry: entries[randomIndexLocal],
                           );
                         }
                       },
                       fontSize: 16,
                       isWhite: true,
-                      icon: Assets.images.collection.playlistShuffle
-                          .image(),
+                      icon: Assets.images.collection.playlistShuffle.image(),
                       title: 'Shuffle'.translate,
                     ),
                   ),
@@ -269,7 +274,7 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
     );
   }
 
-  Widget _fileListView(double barHeight) {
+  Widget _fileListView(double barHeightArg) {
     return PagedRefreshView(
       onRefresh: _isSelfBuiltPlaylist
           ? null
@@ -282,24 +287,29 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
       // }:null,
       isEmpty: _isSelfBuiltPlaylist && mediaCollection.children.isEmpty,
       controller: controller.refreshController,
-      childBuilder: (context, physics) {
+      childBuilder: (buildContext, physicsInputArg) {
         return ValueListenableBuilder(
           valueListenable: controller.state,
-          builder: (BuildContext context, ResourceStatus state, Widget? child) {
-            return ResourceStateView(
-              state: controller.resourceList.value?.isNotEmpty == true
-                  ? ResourceStatus.source
-                  : state,
-              action: () {
-                controller.queryData();
+          builder:
+              (
+                BuildContext buildContext,
+                ResourceStatus stateArg,
+                Widget? nestedEntry,
+              ) {
+                return ResourceStateView(
+                  state: controller.resourceList.value?.isNotEmpty == true
+                      ? ResourceStatus.source
+                      : stateArg,
+                  action: () {
+                    controller.queryData();
+                  },
+                  child: CollectionListView(
+                    physics: physicsInputArg,
+                    padding: EdgeInsets.only(bottom: barHeightArg),
+                    mediaCollections: controller.resourceList.value ?? [],
+                  ),
+                );
               },
-              child: CollectionListView(
-                physics: physics,
-                padding: EdgeInsets.only(bottom: barHeight),
-                mediaCollections: controller.resourceList.value ?? [],
-              ),
-            );
-          },
         );
       },
     );

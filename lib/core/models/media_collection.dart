@@ -90,8 +90,8 @@ class MediaCollection {
     }
   }
 
-  factory MediaCollection.fromJson(Map<String, dynamic> json) =>
-      _$MediaCollectionFromJson(json);
+  factory MediaCollection.fromJson(Map<String, dynamic> jsonArg) =>
+      _$MediaCollectionFromJson(jsonArg);
 
   Map<String, dynamic> toJson() => _$MediaCollectionToJson(this);
 }

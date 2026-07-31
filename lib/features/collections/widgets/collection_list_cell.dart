@@ -25,7 +25,7 @@ class CollectionListCell extends StatelessWidget {
         if (onTap != null) {
           onTap!.call();
         } else {
-          CollectionDetailScreenHelper.to(mediaCollection: mediaCollection);
+          CollectionDetailScreenHelper.to(mediaCollectionArg: mediaCollection);
         }
       },
       behavior: HitTestBehavior.translucent,
@@ -84,14 +84,12 @@ class CollectionListCell extends StatelessWidget {
                 CupertinoButton(
                   onPressed: () {
                     CollectionOptionsPanel.show(
-                      musicCollection: mediaCollection,
+                      musicCollectionArg: mediaCollection,
                     );
                   },
                   sizeStyle: CupertinoButtonSize.small,
                   padding: EdgeInsets.zero,
-                  child: Assets.images.collection.listOptions.image(
-                    height: 24,
-                  ),
+                  child: Assets.images.collection.listOptions.image(height: 24),
                 ),
         ],
       ),

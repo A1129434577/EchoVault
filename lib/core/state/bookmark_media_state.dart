@@ -8,39 +8,39 @@ import 'package:echo_vault/core/utilities/message_overlay.dart';
 class BookmarkMediaState with ChangeNotifier {
   static final StreamController<FileInfo> _favoriteController =
       StreamController.broadcast();
-  static Stream<FileInfo> get favoriteStream => _favoriteController.stream;
 
   ValueNotifier<FileInfo?> notifier = ValueNotifier(null);
 
   late StreamSubscription _favoriteSubscription;
-  BookmarkMediaState({FileInfo? mediaDetails}) {
-    notifier.value = mediaDetails;
-    _favoriteSubscription = favoriteStream.listen((newFileInfo) {
-      if (newFileInfo.fileId == notifier.value?.fileId) {
-        notifier.value?.isFavorite = newFileInfo.isFavorite;
+  BookmarkMediaState({FileInfo? mediaEntry}) {
+    notifier.value = mediaEntry;
+    _favoriteSubscription = favoriteStream.listen((newFileInfoInputArg) {
+      if (newFileInfoInputArg.fileId == notifier.value?.fileId) {
+        notifier.value?.isFavorite = newFileInfoInputArg.isFavorite;
         notifier.notifyListeners();
       }
     });
   }
-
-  void favoriteStateChange() async {
-    if (notifier.value != null) {
-      FileInfo mediaDetails = notifier.value!;
-      mediaDetails.isFavorite ^= 1;
-      if (mediaDetails.isFavorite == 1) {
-        MessageOverlay.showMessage('Added to Library.');
-      } else {
-        MessageOverlay.showMessage('Removed from Library.');
-      }
-      notifier.notifyListeners();
-      await MediaRepository.insertFileInfo(mediaDetails);
-      _favoriteController.add(mediaDetails);
-    }
-  }
+  static Stream<FileInfo> get favoriteStream => _favoriteController.stream;
 
   @override
   void dispose() {
     _favoriteSubscription.cancel();
     super.dispose();
+  }
+
+  void favoriteStateChange() async {
+    if (notifier.value != null) {
+      FileInfo mediaEntry = notifier.value!;
+      mediaEntry.isFavorite ^= 1;
+      if (mediaEntry.isFavorite == 1) {
+        MessageOverlay.showMessage('Added to Library.');
+      } else {
+        MessageOverlay.showMessage('Removed from Library.');
+      }
+      notifier.notifyListeners();
+      await MediaRepository.insertFileInfo(mediaEntry);
+      _favoriteController.add(mediaEntry);
+    }
   }
 }

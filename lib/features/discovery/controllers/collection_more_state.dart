@@ -6,31 +6,31 @@ import 'package:echo_vault/core/parsing/parser_helper.dart';
 
 class CollectionMoreState with ChangeNotifier {
   final MediaCollection mediaCollection;
-  CollectionMoreState({required this.mediaCollection});
 
   //有可能是主页样式的分组，有可能是单个样式的gird
   ValueNotifier<List<MediaCollection>> resourceList = ValueNotifier([]);
+  CollectionMoreState({required this.mediaCollection});
 
   Future queryData() async {
-    Map<String, dynamic>? params = {
+    Map<String, dynamic>? requestParameters = {
       'browseId': mediaCollection.id!,
       'params': mediaCollection.params,
     };
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.detail,
-      prams: params,
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.detail,
+      pramsArg: requestParameters,
     );
-    dynamic list = ParserHelper.parse<List>(
-      result,
+    dynamic entries = ParserHelper.parse<List>(
+      response,
       SectionListParserKeys.initResourceList,
     );
-    list ??=
+    entries ??=
         ParserHelper.parse<List>(
-          result,
+          response,
           SectionListParserKeys.tapMoreResourceList,
         ) ??
         [];
-    list = await SharedParser.parseContents(list);
-    resourceList.value = list;
+    entries = await SharedParser.parseContents(entries);
+    resourceList.value = entries;
   }
 }

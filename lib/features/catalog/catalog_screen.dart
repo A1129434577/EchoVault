@@ -29,13 +29,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
     _queryData();
   }
 
-  Future _queryData() async {
-    await _libraryController.querySavedList();
-    await _libraryController.queryLikedList();
-    await _libraryController.queryArtistList();
-    await _libraryController.queryMusicGroupList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BackgroundSurface(
@@ -81,8 +74,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                 child: Row(
                                   spacing: 3,
                                   children: [
-                                    Assets.images.collection.listAdd
-                                        .image(height: 12),
+                                    Assets.images.collection.listAdd.image(
+                                      height: 12,
+                                    ),
                                     Text(
                                       'New list'.translate,
                                       style: TextStyle(fontSize: 10),
@@ -124,10 +118,51 @@ class _CatalogScreenState extends State<CatalogScreen> {
     );
   }
 
+  Widget _playlistListView(double barHeightArg) {
+    return ValueListenableBuilder(
+      valueListenable: _libraryController.mediaCollections,
+      builder:
+          (
+            BuildContext buildContext,
+            List<MediaCollection> musicGroupListArg,
+            Widget? nestedEntry,
+          ) {
+            return ListView.separated(
+              shrinkWrap: true,
+              itemCount: musicGroupListArg.length,
+              physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsetsGeometry.only(bottom: barHeightArg),
+              separatorBuilder: (buildContext, itemIndex) {
+                return SizedBox(height: 24);
+              },
+              itemBuilder: (buildContext, itemIndex) {
+                MediaCollection musicCollectionLocal =
+                    musicGroupListArg[itemIndex];
+                return CollectionListCell(
+                  mediaCollection: musicCollectionLocal,
+                  showMoreAction:
+                      musicCollectionLocal.id?.startsWith(
+                        NewCollectionDialog.createPlaylistNamePrefix,
+                      ) ==
+                      true,
+                );
+              },
+            );
+          },
+    );
+  }
+
+  Future _queryData() async {
+    await _libraryController.querySavedList();
+    await _libraryController.queryLikedList();
+    await _libraryController.queryArtistList();
+    await _libraryController.queryMusicGroupList();
+  }
+
   Widget _topViews() {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        double width = constraints.maxWidth * 3 / 7;
+      builder: (BuildContext buildContext, BoxConstraints constraintsArg) {
+        double widthLocal = constraintsArg.maxWidth * 3 / 7;
         return Row(
           spacing: 12,
           children: [
@@ -135,29 +170,27 @@ class _CatalogScreenState extends State<CatalogScreen> {
               valueListenable: _libraryController.savedList,
               builder:
                   (
-                    BuildContext context,
-                    List<FileInfo> savedList,
-                    Widget? child,
+                    BuildContext buildContext,
+                    List<FileInfo> savedListArg,
+                    Widget? nestedEntry,
                   ) {
                     return SizedBox(
-                      width: width,
+                      width: widthLocal,
                       child: AspectRatio(
                         aspectRatio: 156 / 172,
                         child: GestureDetector(
                           onTap: () async {
                             _libraryController.isSavedNewly = false;
                             _libraryController.querySavedList();
-                            MediaCollection savedMusicGroup = MediaCollection(
-                              name: 'Offline Songs'.translate,
-                              thumbnail: Assets
-                                  .images
-                                  .media
-                                  .albumPlaceholder
-                                  .path,
-                              children: savedList,
-                            );
+                            MediaCollection savedMusicGroupLocal =
+                                MediaCollection(
+                                  name: 'Offline Songs'.translate,
+                                  thumbnail:
+                                      Assets.images.media.albumPlaceholder.path,
+                                  children: savedListArg,
+                                );
                             CollectionDetailScreenHelper.to(
-                              mediaCollection: savedMusicGroup,
+                              mediaCollectionArg: savedMusicGroupLocal,
                             );
                           },
                           child: Container(
@@ -190,11 +223,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   widthFactor: 0.75,
                                   child: AspectRatio(
                                     aspectRatio: 88 / 78,
-                                    child: savedList.isEmpty
-                                        ? Assets
-                                              .images
-                                              .collection
-                                              .listSaved
+                                    child: savedListArg.isEmpty
+                                        ? Assets.images.collection.listSaved
                                               .image()
                                         : Container(
                                             padding: EdgeInsets.only(right: 10),
@@ -204,7 +234,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                                   BorderRadius.circular(14),
                                             ),
                                             child: NetworkImageWidget(
-                                              url: savedList.first.thumbnail,
+                                              url: savedListArg.first.thumbnail,
                                               radius: 14,
                                             ),
                                           ),
@@ -219,7 +249,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        '${savedList.length}',
+                                        '${savedListArg.length}',
                                         textAlign: TextAlign.end,
                                         style: TextStyle(
                                           fontSize: 12,
@@ -243,7 +273,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
             ),
             Expanded(
               child: SizedBox(
-                height: width / 156 * 172,
+                height: widthLocal / 156 * 172,
                 child: Column(
                   spacing: 12,
                   children: [
@@ -252,15 +282,15 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         valueListenable: _libraryController.likedList,
                         builder:
                             (
-                              BuildContext context,
-                              List<FileInfo> likedList,
-                              Widget? child,
+                              BuildContext buildContext,
+                              List<FileInfo> likedListArg,
+                              Widget? nestedEntry,
                             ) {
                               return GestureDetector(
                                 onTap: () {
                                   _libraryController.isLikedNewly = false;
                                   _libraryController.queryLikedList();
-                                  MediaCollection lickFileGroup =
+                                  MediaCollection lickFileGroupLocal =
                                       MediaCollection(
                                         name: 'Favorite Songs'.translate,
                                         thumbnail: Assets
@@ -268,10 +298,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                             .media
                                             .albumPlaceholder
                                             .path,
-                                        children: likedList,
+                                        children: likedListArg,
                                       );
                                   CollectionDetailScreenHelper.to(
-                                    mediaCollection: lickFileGroup,
+                                    mediaCollectionArg: lickFileGroupLocal,
                                   );
                                 },
                                 child: Container(
@@ -310,7 +340,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                           children: [
                                             AspectRatio(
                                               aspectRatio: 50 / 42,
-                                              child: likedList.isEmpty
+                                              child: likedListArg.isEmpty
                                                   ? Assets
                                                         .images
                                                         .collection
@@ -330,7 +360,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                                             ),
                                                       ),
                                                       child: NetworkImageWidget(
-                                                        url: likedList
+                                                        url: likedListArg
                                                             .first
                                                             .thumbnail,
                                                         radius: 8,
@@ -344,7 +374,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                               ),
                                             ),
                                             Text(
-                                              '${likedList.length}',
+                                              '${likedListArg.length}',
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: Color(0xff141414)
@@ -369,16 +399,18 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         valueListenable: _libraryController.performers,
                         builder:
                             (
-                              BuildContext context,
-                              List<PerformerDetails> performers,
-                              Widget? child,
+                              BuildContext buildContext,
+                              List<PerformerDetails> performersArg,
+                              Widget? nestedEntry,
                             ) {
                               return GestureDetector(
                                 onTap: () {
                                   _libraryController.isArtistNewly = false;
                                   _libraryController.queryArtistList();
                                   Get.to(
-                                    PerformerListScreen(performers: performers),
+                                    PerformerListScreen(
+                                      performers: performersArg,
+                                    ),
                                   );
                                 },
                                 child: Container(
@@ -415,10 +447,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                           spacing: 10,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Assets
-                                                .images
-                                                .collection
-                                                .listArtist
+                                            Assets.images.collection.listArtist
                                                 .image(),
                                             Expanded(
                                               child: Text(
@@ -427,7 +456,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                               ),
                                             ),
                                             Text(
-                                              '${performers.length}',
+                                              '${performersArg.length}',
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: Color(0xff141414)
@@ -454,39 +483,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
           ],
         );
       },
-    );
-  }
-
-  Widget _playlistListView(double barHeight) {
-    return ValueListenableBuilder(
-      valueListenable: _libraryController.mediaCollections,
-      builder:
-          (
-            BuildContext context,
-            List<MediaCollection> musicGroupList,
-            Widget? child,
-          ) {
-            return ListView.separated(
-              shrinkWrap: true,
-              itemCount: musicGroupList.length,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsetsGeometry.only(bottom: barHeight),
-              separatorBuilder: (context, index) {
-                return SizedBox(height: 24);
-              },
-              itemBuilder: (context, index) {
-                MediaCollection musicCollection = musicGroupList[index];
-                return CollectionListCell(
-                  mediaCollection: musicCollection,
-                  showMoreAction:
-                      musicCollection.id?.startsWith(
-                        NewCollectionDialog.createPlaylistNamePrefix,
-                      ) ==
-                      true,
-                );
-              },
-            );
-          },
     );
   }
 }

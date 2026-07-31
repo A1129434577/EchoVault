@@ -6,24 +6,24 @@ part of 'performer_details.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PerformerDetails _$PerformerDetailsFromJson(Map<String, dynamic> json) =>
+PerformerDetails _$PerformerDetailsFromJson(Map<String, dynamic> jsonArg) =>
     PerformerDetails(
-      id: json['id'] as String?,
-      ytId: json['yt_id'] as String?,
-      name: json['name'] as String? ?? '',
-      desc: json['desc'] as String? ?? '',
-      thumbnail: json['thumbnail'] as String? ?? '',
-      createTime: (json['create_time'] as num?)?.toInt(),
-      isFavorite: (json['is_favorite'] as num?)?.toInt() ?? 0,
+      id: jsonArg['id'] as String?,
+      ytId: jsonArg['yt_id'] as String?,
+      name: jsonArg['name'] as String? ?? '',
+      desc: jsonArg['desc'] as String? ?? '',
+      thumbnail: jsonArg['thumbnail'] as String? ?? '',
+      createTime: (jsonArg['create_time'] as num?)?.toInt(),
+      isFavorite: (jsonArg['is_favorite'] as num?)?.toInt() ?? 0,
     );
 
-Map<String, dynamic> _$PerformerDetailsToJson(PerformerDetails instance) =>
+Map<String, dynamic> _$PerformerDetailsToJson(PerformerDetails instanceArg) =>
     <String, dynamic>{
-      'id': instance.id,
-      'yt_id': instance.ytId,
-      'name': instance.name,
-      'desc': instance.desc,
-      'thumbnail': instance.thumbnail,
-      'is_favorite': instance.isFavorite,
-      'create_time': instance.createTime,
+      'id': instanceArg.id,
+      'yt_id': instanceArg.ytId,
+      'name': instanceArg.name,
+      'desc': instanceArg.desc,
+      'thumbnail': instanceArg.thumbnail,
+      'is_favorite': instanceArg.isFavorite,
+      'create_time': instanceArg.createTime,
     };

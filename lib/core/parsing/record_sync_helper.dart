@@ -5,43 +5,45 @@ import 'package:echo_vault/core/persistence/media_repository.dart';
 import 'package:echo_vault/core/models/performer_details.dart';
 
 class RecordSyncHelper {
-  static Future<FileInfo> syncFileInfo(FileInfo mediaDetails) async {
-    FileInfo? cacheFileInfo = await MediaRepository.queryFileInfoFromId(
-      mediaDetails.fileId,
-    );
-    if (cacheFileInfo != null) {
-      mediaDetails.url = cacheFileInfo.url;
-      mediaDetails.uid = cacheFileInfo.uid;
-      mediaDetails.userName = cacheFileInfo.userName;
-      mediaDetails.downloadTaskId = cacheFileInfo.downloadTaskId;
-      mediaDetails.downloadStatus = cacheFileInfo.downloadStatus;
-      mediaDetails.isFavorite = cacheFileInfo.isFavorite;
-      mediaDetails.duration = cacheFileInfo.duration;
+  static Future<PerformerDetails> syncArtist(PerformerDetails artistArg) async {
+    PerformerDetails? cacheArtistLocal;
+    if (artistArg.id != null) {
+      cacheArtistLocal = await PerformerRepository.queryArtistInfoFromId(
+        artistArg.id!,
+      );
     }
-    return mediaDetails;
-  }
-
-  static Future<PerformerDetails> syncArtist(PerformerDetails artist) async {
-    PerformerDetails? cacheArtist;
-    if (artist.id != null) {
-      cacheArtist = await PerformerRepository.queryArtistInfoFromId(artist.id!);
+    if (cacheArtistLocal != null) {
+      artistArg.isFavorite = cacheArtistLocal.isFavorite;
     }
-    if (cacheArtist != null) {
-      artist.isFavorite = cacheArtist.isFavorite;
-    }
-    return artist;
+    return artistArg;
   }
 
   static Future<MediaCollection> syncFileGroup(
-    MediaCollection mediaCollection,
+    MediaCollection mediaCollectionArg,
   ) async {
-    MediaCollection? cacheFileGroup =
+    MediaCollection? cacheFileGroupLocal =
         await MediaCollectionRepository.queryFileGroupFromId(
-          mediaCollection.id,
+          mediaCollectionArg.id,
         );
-    if (cacheFileGroup != null) {
-      mediaCollection.isFavorite = cacheFileGroup.isFavorite;
+    if (cacheFileGroupLocal != null) {
+      mediaCollectionArg.isFavorite = cacheFileGroupLocal.isFavorite;
     }
-    return mediaCollection;
+    return mediaCollectionArg;
+  }
+
+  static Future<FileInfo> syncFileInfo(FileInfo mediaEntry) async {
+    FileInfo? cacheFileInfoLocal = await MediaRepository.queryFileInfoFromId(
+      mediaEntry.fileId,
+    );
+    if (cacheFileInfoLocal != null) {
+      mediaEntry.url = cacheFileInfoLocal.url;
+      mediaEntry.uid = cacheFileInfoLocal.uid;
+      mediaEntry.userName = cacheFileInfoLocal.userName;
+      mediaEntry.downloadTaskId = cacheFileInfoLocal.downloadTaskId;
+      mediaEntry.downloadStatus = cacheFileInfoLocal.downloadStatus;
+      mediaEntry.isFavorite = cacheFileInfoLocal.isFavorite;
+      mediaEntry.duration = cacheFileInfoLocal.duration;
+    }
+    return mediaEntry;
   }
 }

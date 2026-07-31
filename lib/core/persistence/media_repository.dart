@@ -4,53 +4,53 @@ import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/core/persistence/application_database.dart';
 
 class MediaRepository {
-  static Future<int> insertFileInfo(FileInfo mediaDetails) async {
-    int timestamp = DateTime.now().millisecondsSinceEpoch;
-    String content = jsonEncode(mediaDetails.toJson());
-    Database database = await ApplicationDatabase.database;
-    int id = await database.insert(DatabaseTables.media, {
-      'id': mediaDetails.fileId,
-      'download_status': mediaDetails.downloadStatus,
-      'download_task_id': mediaDetails.downloadTaskId,
-      'is_favorite': mediaDetails.isFavorite,
-      'json_content': content,
-      'create_time': timestamp,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-    return id;
-  }
-
-  static Future<int> deleteFileInfo(FileInfo mediaDetails) async {
-    Database database = await ApplicationDatabase.database;
-    int deleteCount = await database.delete(
+  static Future<int> deleteFileInfo(FileInfo mediaEntry) async {
+    Database databaseLocal = await ApplicationDatabase.database;
+    int deleteCountLocal = await databaseLocal.delete(
       DatabaseTables.media,
-      where: 'id = "${mediaDetails.fileId}"',
+      where: 'id = "${mediaEntry.fileId}"',
     );
-    return deleteCount;
+    return deleteCountLocal;
   }
 
-  static Future<FileInfo?> queryFileInfoFromId(String fileId) async {
-    List<FileInfo> list = await queryFileInfo(where: 'id = "$fileId"');
-    return list.firstOrNull;
+  static Future<int> insertFileInfo(FileInfo mediaEntry) async {
+    int timestampLocal = DateTime.now().millisecondsSinceEpoch;
+    String encodedContent = jsonEncode(mediaEntry.toJson());
+    Database databaseLocal = await ApplicationDatabase.database;
+    int idLocal = await databaseLocal.insert(DatabaseTables.media, {
+      'id': mediaEntry.fileId,
+      'download_status': mediaEntry.downloadStatus,
+      'download_task_id': mediaEntry.downloadTaskId,
+      'is_favorite': mediaEntry.isFavorite,
+      'json_content': encodedContent,
+      'create_time': timestampLocal,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    return idLocal;
   }
 
   static Future<List<FileInfo>> queryFileInfo({
-    int? limit,
-    String? where,
+    int? limitInputArg,
+    String? whereArg,
   }) async {
-    Database database = await ApplicationDatabase.database;
-    List<Map<String, Object?>> records = await database.query(
+    Database databaseLocal = await ApplicationDatabase.database;
+    List<Map<String, Object?>> storedRecords = await databaseLocal.query(
       DatabaseTables.media,
-      limit: limit,
-      where: where,
+      limit: limitInputArg,
+      where: whereArg,
       orderBy: 'create_time desc',
     );
-    List<FileInfo> list = [];
-    for (var data in records) {
-      String content = (data['json_content'])?.toString() ?? '';
-      Map<String, dynamic> map = jsonDecode(content);
-      FileInfo mediaDetails = FileInfo.fromJson(map);
-      list.add(mediaDetails);
+    List<FileInfo> entries = [];
+    for (var data in storedRecords) {
+      String encodedContent = (data['json_content'])?.toString() ?? '';
+      Map<String, dynamic> record = jsonDecode(encodedContent);
+      FileInfo mediaEntry = FileInfo.fromJson(record);
+      entries.add(mediaEntry);
     }
-    return list;
+    return entries;
+  }
+
+  static Future<FileInfo?> queryFileInfoFromId(String fileIdArg) async {
+    List<FileInfo> entries = await queryFileInfo(whereArg: 'id = "$fileIdArg"');
+    return entries.firstOrNull;
   }
 }

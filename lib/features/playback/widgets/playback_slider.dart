@@ -28,10 +28,10 @@ class PlaybackSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Duration newBuffered = buffered ?? Duration.zero;
-    Duration newDuration = duration ?? Duration(seconds: 1);
-    if (newBuffered.inMilliseconds > newDuration.inMilliseconds) {
-      newBuffered = newDuration;
+    Duration newBufferedLocal = buffered ?? Duration.zero;
+    Duration newDurationLocal = duration ?? Duration(seconds: 1);
+    if (newBufferedLocal.inMilliseconds > newDurationLocal.inMilliseconds) {
+      newBufferedLocal = newDurationLocal;
     }
     return SliderTheme(
       data: SliderThemeData(
@@ -44,9 +44,9 @@ class PlaybackSlider extends StatelessWidget {
         trackShape: RoundedRectSliderTrackShape(),
       ),
       child: Slider(
-        max: newDuration.inSeconds.toDouble(),
+        max: newDurationLocal.inSeconds.toDouble(),
         value: (position ?? Duration.zero).inSeconds.toDouble(),
-        secondaryTrackValue: newBuffered.inSeconds.toDouble(),
+        secondaryTrackValue: newBufferedLocal.inSeconds.toDouble(),
         onChangeStart: onChangeStart,
         onChanged: onChanged,
         onChangeEnd: onChangeEnd,
@@ -55,6 +55,98 @@ class PlaybackSlider extends StatelessWidget {
         secondaryActiveColor: Color(0xffA0BFEF),
         padding: EdgeInsets.zero,
       ),
+    );
+  }
+}
+
+class RoundedRectSliderTrackShape extends SliderTrackShape {
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final trackHeightLocal = sliderTheme.trackHeight ?? 4; // 轨道高度
+    final trackLeftLocal = offset.dx;
+    final trackTopLocal =
+        offset.dy + (parentBox.size.height - trackHeightLocal) / 2;
+    final trackWidthLocal = parentBox.size.width;
+    return Rect.fromLTWH(
+      trackLeftLocal,
+      trackTopLocal,
+      trackWidthLocal,
+      trackHeightLocal,
+    );
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset i, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required Offset thumbCenter,
+    Offset? secondaryOffset,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+    required TextDirection textDirection,
+  }) {
+    final Canvas canvasLocal = context.canvas;
+    final trackHeightLocal = sliderTheme.trackHeight ?? 4; // 轨道高度
+    final trackRadiusLocal = Radius.circular(trackHeightLocal / 2); // 圆角半径
+    final activeTrackColorLocal = sliderTheme.activeTrackColor ?? Colors.blue;
+    final inactiveTrackColorLocal =
+        sliderTheme.inactiveTrackColor ?? Colors.grey;
+    final secondaryActiveTrackColorLocal =
+        sliderTheme.secondaryActiveTrackColor ??
+        Colors.blue.withAlpha((255 * 0.4).round());
+
+    // 绘制未选中部分的轨道
+    final inactiveRectLocal = Rect.fromLTRB(
+      thumbCenter.dx,
+      i.dy + (parentBox.size.height - trackHeightLocal) / 2,
+      i.dx + parentBox.size.width,
+      i.dy + (parentBox.size.height + trackHeightLocal) / 2,
+    );
+    final inactivePaintLocal = Paint()
+      ..color = inactiveTrackColorLocal
+      ..style = PaintingStyle.fill;
+    canvasLocal.drawRRect(
+      RRect.fromRectAndRadius(inactiveRectLocal, trackRadiusLocal),
+      inactivePaintLocal,
+    );
+
+    // 绘制buffered部分的轨道
+    final secondaryRectLocal = Rect.fromLTRB(
+      i.dx,
+      i.dy + (parentBox.size.height - trackHeightLocal) / 2,
+      secondaryOffset?.dx ?? thumbCenter.dx,
+      i.dy + (parentBox.size.height + trackHeightLocal) / 2,
+    );
+    final secondaryPaintLocal = Paint()
+      ..color = secondaryActiveTrackColorLocal
+      ..style = PaintingStyle.fill;
+    canvasLocal.drawRRect(
+      RRect.fromRectAndRadius(secondaryRectLocal, trackRadiusLocal),
+      secondaryPaintLocal,
+    );
+
+    // 绘制选中部分的轨道
+    final activeRectLocal = Rect.fromLTRB(
+      i.dx,
+      i.dy + (parentBox.size.height - trackHeightLocal) / 2,
+      thumbCenter.dx,
+      i.dy + (parentBox.size.height + trackHeightLocal) / 2,
+    );
+    final activePaintLocal = Paint()
+      ..color = activeTrackColorLocal
+      ..style = PaintingStyle.fill;
+    canvasLocal.drawRRect(
+      RRect.fromRectAndRadius(activeRectLocal, trackRadiusLocal),
+      activePaintLocal,
     );
   }
 }
@@ -91,31 +183,31 @@ class _ThumbShape extends SliderComponentShape {
     required double textScaleFactor,
     required Size sizeWithOverflow,
   }) {
-    final canvas = context.canvas;
+    final canvasLocal = context.canvas;
 
     if (imageStream != null) {
       // 加载图片
-      final listener = ImageStreamListener((ImageInfo info, bool _) {
-        final image = info.image;
-        final src = Rect.fromLTWH(
+      final listenerLocal = ImageStreamListener((ImageInfo info, bool _) {
+        final imageLocal = info.image;
+        final srcLocal = Rect.fromLTWH(
           0,
           0,
-          image.width.toDouble(),
-          image.height.toDouble(),
+          imageLocal.width.toDouble(),
+          imageLocal.height.toDouble(),
         );
-        final dst = Rect.fromCenter(
+        final dstLocal = Rect.fromCenter(
           center: center,
           width: size.width,
           height: size.height,
         );
         // 绘制图片
-        canvas.drawImageRect(image, src, dst, Paint());
+        canvasLocal.drawImageRect(imageLocal, srcLocal, dstLocal, Paint());
       });
-      imageStream?.addListener(listener);
+      imageStream?.addListener(listenerLocal);
     } else {
-      Paint paint = Paint();
-      paint.color = Color(0xff2575FF);
-      canvas.drawRRect(
+      Paint paintLocal = Paint();
+      paintLocal.color = Color(0xff2575FF);
+      canvasLocal.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromCenter(
             center: center,
@@ -124,93 +216,8 @@ class _ThumbShape extends SliderComponentShape {
           ),
           Radius.circular(4),
         ),
-        paint,
+        paintLocal,
       );
     }
-  }
-}
-
-class RoundedRectSliderTrackShape extends SliderTrackShape {
-  @override
-  Rect getPreferredRect({
-    required RenderBox parentBox,
-    Offset offset = Offset.zero,
-    required SliderThemeData sliderTheme,
-    bool isEnabled = false,
-    bool isDiscrete = false,
-  }) {
-    final trackHeight = sliderTheme.trackHeight ?? 4; // 轨道高度
-    final trackLeft = offset.dx;
-    final trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
-    final trackWidth = parentBox.size.width;
-    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
-  }
-
-  @override
-  void paint(
-    PaintingContext context,
-    Offset offset, {
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required Animation<double> enableAnimation,
-    required Offset thumbCenter,
-    Offset? secondaryOffset,
-    bool isEnabled = false,
-    bool isDiscrete = false,
-    required TextDirection textDirection,
-  }) {
-    final Canvas canvas = context.canvas;
-    final trackHeight = sliderTheme.trackHeight ?? 4; // 轨道高度
-    final trackRadius = Radius.circular(trackHeight / 2); // 圆角半径
-    final activeTrackColor = sliderTheme.activeTrackColor ?? Colors.blue;
-    final inactiveTrackColor = sliderTheme.inactiveTrackColor ?? Colors.grey;
-    final secondaryActiveTrackColor =
-        sliderTheme.secondaryActiveTrackColor ??
-        Colors.blue.withAlpha((255 * 0.4).round());
-
-    // 绘制未选中部分的轨道
-    final inactiveRect = Rect.fromLTRB(
-      thumbCenter.dx,
-      offset.dy + (parentBox.size.height - trackHeight) / 2,
-      offset.dx + parentBox.size.width,
-      offset.dy + (parentBox.size.height + trackHeight) / 2,
-    );
-    final inactivePaint = Paint()
-      ..color = inactiveTrackColor
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(inactiveRect, trackRadius),
-      inactivePaint,
-    );
-
-    // 绘制buffered部分的轨道
-    final secondaryRect = Rect.fromLTRB(
-      offset.dx,
-      offset.dy + (parentBox.size.height - trackHeight) / 2,
-      secondaryOffset?.dx ?? thumbCenter.dx,
-      offset.dy + (parentBox.size.height + trackHeight) / 2,
-    );
-    final secondaryPaint = Paint()
-      ..color = secondaryActiveTrackColor
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(secondaryRect, trackRadius),
-      secondaryPaint,
-    );
-
-    // 绘制选中部分的轨道
-    final activeRect = Rect.fromLTRB(
-      offset.dx,
-      offset.dy + (parentBox.size.height - trackHeight) / 2,
-      thumbCenter.dx,
-      offset.dy + (parentBox.size.height + trackHeight) / 2,
-    );
-    final activePaint = Paint()
-      ..color = activeTrackColor
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(activeRect, trackRadius),
-      activePaint,
-    );
   }
 }

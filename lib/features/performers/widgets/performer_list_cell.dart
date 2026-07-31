@@ -18,7 +18,7 @@ class PerformerListCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        PerformerDetailScreenHelper.to(performerDetails: performerDetails);
+        PerformerDetailScreenHelper.to(performerProfile: performerDetails);
       },
       behavior: HitTestBehavior.translucent,
       child: Row(

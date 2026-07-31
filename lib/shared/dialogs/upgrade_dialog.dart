@@ -9,30 +9,15 @@ enum UpdateType { close, open, force }
 class UpgradeDialog extends StatelessWidget {
   static String routeName = '$UpgradeDialog';
   static UpdateType _updateType = UpdateType.close;
-  static set updateType(UpdateType type) {
-    _updateType = type;
-    if (AppRouteObserver.observer.currentRouteName != '/') {
-      show();
-    }
-  }
 
   static String updateLink = '';
 
   const UpgradeDialog({super.key});
-
-  static void show() {
-    if (_updateType == UpdateType.close ||
-        AppRouteObserver.observer.currentRouteName == routeName) {
-      return;
+  static set updateType(UpdateType typeArg) {
+    _updateType = typeArg;
+    if (AppRouteObserver.observer.currentRouteName != '/') {
+      show();
     }
-    showDialog(
-      context: Get.context!,
-      barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return UpgradeDialog();
-      },
-    );
   }
 
   @override
@@ -58,9 +43,7 @@ class UpgradeDialog extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Assets.images.update.updateHeading.image(
-                      height: 76,
-                    ),
+                    Assets.images.update.updateHeading.image(height: 76),
                     SizedBox(
                       width: 80,
                       height: 100,
@@ -112,12 +95,25 @@ class UpgradeDialog extends StatelessWidget {
               },
               sizeStyle: CupertinoButtonSize.small,
               padding: EdgeInsets.zero,
-              child: Assets.images.update.updateDismiss.image(
-                width: 24,
-              ),
+              child: Assets.images.update.updateDismiss.image(width: 24),
             ),
         ],
       ),
+    );
+  }
+
+  static void show() {
+    if (_updateType == UpdateType.close ||
+        AppRouteObserver.observer.currentRouteName == routeName) {
+      return;
+    }
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      routeSettings: RouteSettings(name: routeName),
+      builder: (buildContext) {
+        return UpgradeDialog();
+      },
     );
   }
 }

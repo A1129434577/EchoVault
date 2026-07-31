@@ -150,137 +150,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     );
   }
 
-  Widget _searchBar() {
-    return Container(
-      height: 48,
-      padding: EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        spacing: 15,
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                Get.to(SearchScreen(tag: SearchScreen.homeTag));
-              },
-              child: DialogTextField(
-                enabled: false,
-                borderRadius: 24,
-                hintText: 'Search for music'.translate,
-                borderSide: BorderSide(width: 1.5, color: Color(0xff337DFF)),
-                suffixIcon: Container(
-                  alignment: Alignment.center,
-                  width: 48,
-                  child: Assets.images.search.historySearch.image(
-                    width: 24,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          CupertinoButton(
-            onPressed: () {
-              Get.to(PreferencesScreen());
-            },
-            sizeStyle: CupertinoButtonSize.small,
-            padding: EdgeInsets.zero,
-            child: Assets.images.common.settings.image(width: 24),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _recommendView(List<FileInfo> recommendList) {
-    return Column(
-      spacing: 12,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: SectionHeadingView(
-            title: 'Recommend Radio'.translate,
-            onTap: () {
-              Get.to(
-                SuggestionsScreen(fileList: controller.recommendList.value),
-              );
-            },
-          ),
-        ),
-        MediaHGridView(fileList: recommendList),
-      ],
-    );
-  }
-
-  Widget _myPlaylistView(List<MediaCollection> playlistList) {
-    return Column(
-      spacing: 12,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: SectionHeadingView(title: 'My Playlist'.translate),
-        ),
-        LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            double itemWidth = (constraints.maxWidth - 10 * 3) / 7 * 2;
-            double aspectRatio = 100 / 88;
-            return SizedBox(
-              height: itemWidth / 100 * 88 + 25,
-              child: GridView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                scrollDirection: Axis.horizontal,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  mainAxisSpacing: 10,
-                  mainAxisExtent: itemWidth,
-                  crossAxisCount: 1,
-                ),
-                itemCount: playlistList.length,
-                itemBuilder: (BuildContext ctx, int index) {
-                  MediaCollection mediaCollection = playlistList[index];
-                  return GestureDetector(
-                    onTap: () {
-                      CollectionDetailScreenHelper.to(
-                        mediaCollection: mediaCollection,
-                      );
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AspectRatio(
-                          aspectRatio: aspectRatio,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Assets.images.media.albumPlaceholder
-                                  .image(),
-                              NetworkImageWidget(
-                                url: mediaCollection.thumbnail,
-                                fit: BoxFit.fill,
-                                radius: 12,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          mediaCollection.displayName,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _myArtistsView() {
     return Column(
       spacing: 12,
@@ -293,12 +162,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             valueListenable: controller.isYoutubeMusicEnable,
             builder:
                 (
-                  BuildContext context,
-                  bool isYoutubeMusicEnable,
-                  Widget? child,
+                  BuildContext buildContext,
+                  bool isYoutubeMusicEnableArg,
+                  Widget? nestedEntry,
                 ) {
                   return SectionHeadingView(
-                    onTap: isYoutubeMusicEnable
+                    onTap: isYoutubeMusicEnableArg
                         ? () {
                             Get.to(
                               PerformerListScreen(
@@ -319,22 +188,169 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           valueListenable: controller.performers,
           builder:
               (
-                BuildContext context,
-                List<PerformerDetails> performers,
-                Widget? child,
+                BuildContext buildContext,
+                List<PerformerDetails> performersArg,
+                Widget? nestedEntry,
               ) {
-                if (performers.length > 6) {
-                  performers = performers.sublist(0, 6);
+                if (performersArg.length > 6) {
+                  performersArg = performersArg.sublist(0, 6);
                 }
-                return PerformerPartGridView(performers: performers);
+                return PerformerPartGridView(performers: performersArg);
               },
         ),
       ],
     );
   }
 
+  Widget _myPlaylistView(List<MediaCollection> playlistListArg) {
+    return Column(
+      spacing: 12,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: SectionHeadingView(title: 'My Playlist'.translate),
+        ),
+        LayoutBuilder(
+          builder: (BuildContext buildContext, BoxConstraints constraintsArg) {
+            double itemWidthLocal = (constraintsArg.maxWidth - 10 * 3) / 7 * 2;
+            double aspectRatioLocal = 100 / 88;
+            return SizedBox(
+              height: itemWidthLocal / 100 * 88 + 25,
+              child: GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                scrollDirection: Axis.horizontal,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  mainAxisSpacing: 10,
+                  mainAxisExtent: itemWidthLocal,
+                  crossAxisCount: 1,
+                ),
+                itemCount: playlistListArg.length,
+                itemBuilder: (BuildContext buildContext, int itemIndex) {
+                  MediaCollection mediaCollectionLocal =
+                      playlistListArg[itemIndex];
+                  return GestureDetector(
+                    onTap: () {
+                      CollectionDetailScreenHelper.to(
+                        mediaCollectionArg: mediaCollectionLocal,
+                      );
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: aspectRatioLocal,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Assets.images.media.albumPlaceholder.image(),
+                              NetworkImageWidget(
+                                url: mediaCollectionLocal.thumbnail,
+                                fit: BoxFit.fill,
+                                radius: 12,
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          mediaCollectionLocal.displayName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _recommendView(List<FileInfo> suggestedItems) {
+    return Column(
+      spacing: 12,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: SectionHeadingView(
+            title: 'Recommend Radio'.translate,
+            onTap: () {
+              Get.to(
+                SuggestionsScreen(fileList: controller.recommendList.value),
+              );
+            },
+          ),
+        ),
+        MediaHGridView(fileList: suggestedItems),
+      ],
+    );
+  }
+
+  Widget _resourceViews() {
+    return ValueListenableBuilder(
+      valueListenable: controller.resourceFileGroupList,
+      builder:
+          (
+            BuildContext buildContext,
+            List<MediaCollection> resourceFileGroupListArg,
+            Widget? nestedEntry,
+          ) {
+            return CollectionListView(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              mediaCollections: resourceFileGroupListArg,
+            );
+          },
+    );
+  }
+
+  Widget _searchBar() {
+    return Container(
+      height: 48,
+      padding: EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        spacing: 15,
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Get.to(SearchScreen(tag: SearchScreen.homeTag));
+              },
+              child: DialogTextField(
+                enabled: false,
+                borderRadius: 24,
+                hintText: 'Search for music'.translate,
+                borderSide: BorderSide(width: 1.5, color: Color(0xff337DFF)),
+                suffixIcon: Container(
+                  alignment: Alignment.center,
+                  width: 48,
+                  child: Assets.images.search.historySearch.image(width: 24),
+                ),
+              ),
+            ),
+          ),
+          CupertinoButton(
+            onPressed: () {
+              Get.to(PreferencesScreen());
+            },
+            sizeStyle: CupertinoButtonSize.small,
+            padding: EdgeInsets.zero,
+            child: Assets.images.common.settings.image(width: 24),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _topChartsView() {
-    List<String> icons = [
+    List<String> iconsLocal = [
       Assets.images.charts.chartsGeneral.path,
       Assets.images.charts.chartsWeekly.path,
       Assets.images.charts.chartsDaily.path,
@@ -352,136 +368,138 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           valueListenable: controller.topChartsList,
           builder:
               (
-                BuildContext context,
-                List<MediaCollection> topChartsList,
-                Widget? child,
+                BuildContext buildContext,
+                List<MediaCollection> topChartsListArg,
+                Widget? nestedEntry,
               ) {
                 return LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    double itemWidth = (constraints.maxWidth - 12 * 2) / 7 * 3;
-                    double aspectRatio = 1;
-                    return SizedBox(
-                      height: itemWidth * aspectRatio,
-                      child: GridView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        scrollDirection: Axis.horizontal,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          mainAxisSpacing: 12,
-                          mainAxisExtent: itemWidth,
-                          crossAxisCount: 1,
-                        ),
-                        itemCount: topChartsList.length,
-                        itemBuilder: (BuildContext ctx, int index) {
-                          MediaCollection mediaCollection =
-                              topChartsList[index];
-                          return GestureDetector(
-                            onTap: () {
-                              CollectionDetailScreenHelper.to(
-                                mediaCollection: mediaCollection,
-                              );
-                            },
-                            child: Container(
-                              alignment: Alignment.bottomCenter,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage(icons[index]),
-                                  fit: BoxFit.fill,
+                  builder:
+                      (
+                        BuildContext buildContext,
+                        BoxConstraints constraintsArg,
+                      ) {
+                        double itemWidthLocal =
+                            (constraintsArg.maxWidth - 12 * 2) / 7 * 3;
+                        double aspectRatioLocal = 1;
+                        return SizedBox(
+                          height: itemWidthLocal * aspectRatioLocal,
+                          child: GridView.builder(
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            scrollDirection: Axis.horizontal,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  mainAxisSpacing: 12,
+                                  mainAxisExtent: itemWidthLocal,
+                                  crossAxisCount: 1,
                                 ),
-                              ),
-                              child: ClipRRect(
-                                clipBehavior: Clip.hardEdge,
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(6),
-                                  bottomRight: Radius.circular(6),
-                                ),
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                    sigmaX: 3,
-                                    sigmaY: 3,
-                                  ),
-                                  child: Container(
-                                    height: 56,
-                                    color: Colors.black.withAlpha(
-                                      (255 * 0.15).round(),
-                                    ),
-                                    padding: EdgeInsets.all(6),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            spacing: 4,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                mediaCollection.name,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              if (mediaCollection.detail !=
-                                                  null)
-                                                Text(
-                                                  mediaCollection.detail!,
-                                                  style: TextStyle(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: Colors.white
-                                                        .withAlpha(
-                                                          (255 * 0.5).round(),
+                            itemCount: topChartsListArg.length,
+                            itemBuilder:
+                                (BuildContext buildContext, int itemIndex) {
+                                  MediaCollection mediaCollectionLocal =
+                                      topChartsListArg[itemIndex];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      CollectionDetailScreenHelper.to(
+                                        mediaCollectionArg:
+                                            mediaCollectionLocal,
+                                      );
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.bottomCenter,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: AssetImage(
+                                            iconsLocal[itemIndex],
+                                          ),
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                      child: ClipRRect(
+                                        clipBehavior: Clip.hardEdge,
+                                        borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(6),
+                                          bottomRight: Radius.circular(6),
+                                        ),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                            sigmaX: 3,
+                                            sigmaY: 3,
+                                          ),
+                                          child: Container(
+                                            height: 56,
+                                            color: Colors.black.withAlpha(
+                                              (255 * 0.15).round(),
+                                            ),
+                                            padding: EdgeInsets.all(6),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    spacing: 4,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        mediaCollectionLocal
+                                                            .name,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.white,
                                                         ),
+                                                      ),
+                                                      if (mediaCollectionLocal
+                                                              .detail !=
+                                                          null)
+                                                        Text(
+                                                          mediaCollectionLocal
+                                                              .detail!,
+                                                          style: TextStyle(
+                                                            fontSize: 9,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Colors.white
+                                                                .withAlpha(
+                                                                  (255 * 0.5)
+                                                                      .round(),
+                                                                ),
+                                                          ),
+                                                        ),
+                                                    ],
                                                   ),
                                                 ),
-                                            ],
+                                                Container(
+                                                  alignment:
+                                                      Alignment.bottomCenter,
+                                                  child: Assets
+                                                      .images
+                                                      .media
+                                                      .overlayPlay
+                                                      .image(width: 20),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                        Container(
-                                          alignment: Alignment.bottomCenter,
-                                          child: Assets
-                                              .images
-                                              .media
-                                              .overlayPlay
-                                              .image(width: 20),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+                                  );
+                                },
+                          ),
+                        );
+                      },
                 );
               },
         ),
       ],
-    );
-  }
-
-  Widget _resourceViews() {
-    return ValueListenableBuilder(
-      valueListenable: controller.resourceFileGroupList,
-      builder:
-          (
-            BuildContext context,
-            List<MediaCollection> resourceFileGroupList,
-            Widget? child,
-          ) {
-            return CollectionListView(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              mediaCollections: resourceFileGroupList,
-            );
-          },
     );
   }
 }

@@ -22,16 +22,16 @@ class _ProgressViewState extends State<ProgressView>
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: _controller,
       child: Assets.images.common.loader.image(),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

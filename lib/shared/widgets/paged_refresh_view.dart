@@ -39,7 +39,7 @@ class PagedRefreshView extends StatelessWidget {
         refreshOnStart: refreshOnStart,
         canRefreshAfterNoMore: true,
         header: _header(),
-        footer: _footer(padding: footerPadding),
+        footer: _footer(paddingArg: footerPadding),
         childBuilder: (context, physics) {
           return isEmpty == true
               ? EmptyStateView()
@@ -59,27 +59,35 @@ class PagedRefreshView extends StatelessWidget {
     );
   }
 
+  Footer _footer({EdgeInsetsGeometry paddingArg = EdgeInsets.zero}) {
+    return ClassicFooter(
+      showText: false,
+      showMessage: false,
+      triggerOffset: 30 + paddingArg.vertical,
+      pullIconBuilder:
+          (
+            BuildContext buildContext,
+            IndicatorState stateArg,
+            double animationArg,
+          ) {
+            return stateArg.result == IndicatorResult.noMore
+                ? SizedBox()
+                : Padding(padding: paddingArg, child: ProgressView());
+          },
+    );
+  }
+
   Header _header() {
     return ClassicHeader(
       showText: false,
       showMessage: false,
       pullIconBuilder:
-          (BuildContext context, IndicatorState state, double animation) {
+          (
+            BuildContext buildContext,
+            IndicatorState stateArg,
+            double animationArg,
+          ) {
             return ProgressView();
-          },
-    );
-  }
-
-  Footer _footer({EdgeInsetsGeometry padding = EdgeInsets.zero}) {
-    return ClassicFooter(
-      showText: false,
-      showMessage: false,
-      triggerOffset: 30 + padding.vertical,
-      pullIconBuilder:
-          (BuildContext context, IndicatorState state, double animation) {
-            return state.result == IndicatorResult.noMore
-                ? SizedBox()
-                : Padding(padding: padding, child: ProgressView());
           },
     );
   }

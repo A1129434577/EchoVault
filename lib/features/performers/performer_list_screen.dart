@@ -27,18 +27,12 @@ class _PerformerListScreenState extends State<PerformerListScreen> {
   late final List<PerformerDetails> performers = widget.performers;
   late final PerformerListState controller = PerformerListState(
     mediaCollection: widget.mediaCollection,
-    performers: performers,
+    performersArg: performers,
   );
 
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -82,11 +76,12 @@ class _PerformerListScreenState extends State<PerformerListScreen> {
                                   return SizedBox(height: 18);
                                 },
                                 itemBuilder: (context, index) {
-                                  PerformerDetails artist = performers[index];
+                                  PerformerDetails artistLocal =
+                                      performers[index];
                                   return SizedBox(
                                     height: 68,
                                     child: PerformerListCell(
-                                      performerDetails: artist,
+                                      performerDetails: artistLocal,
                                     ),
                                   );
                                 },
@@ -100,5 +95,11 @@ class _PerformerListScreenState extends State<PerformerListScreen> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

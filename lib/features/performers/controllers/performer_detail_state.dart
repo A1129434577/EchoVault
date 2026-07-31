@@ -12,13 +12,13 @@ import 'package:echo_vault/shared/widgets/resource_state_view.dart';
 
 class PerformerDetailState with ChangeNotifier {
   final PerformerDetails performerDetails;
-  PerformerDetailState({required this.performerDetails});
   ValueNotifier<ResourceStatus> state = ValueNotifier(ResourceStatus.idl);
   EasyRefreshController refreshController = EasyRefreshController();
   late ValueNotifier<String> hdThumbnail = ValueNotifier(
     performerDetails.thumbnail,
   );
   ValueNotifier<List<MediaCollection>?> resourceList = ValueNotifier(null);
+  PerformerDetailState({required this.performerDetails});
 
   Future queryData() async {
     state.value = ResourceStatus.loading;
@@ -37,182 +37,210 @@ class PerformerDetailState with ChangeNotifier {
   }
 
   Future _queryData() async {
-    Map<String, dynamic>? params = {'browseId': performerDetails.id};
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.artistDetail,
-      prams: params,
+    Map<String, dynamic>? requestParameters = {'browseId': performerDetails.id};
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.artistDetail,
+      pramsArg: requestParameters,
     );
-    if (result == null) {
+    if (response == null) {
       return;
     }
     hdThumbnail.value =
-        ParserHelper.parse<String>(result, PerformerParserKeys.cover) ??
-        ParserHelper.parse<String>(result, PerformerParserKeys.coverBackup) ??
+        ParserHelper.parse<String>(response, PerformerParserKeys.cover) ??
+        ParserHelper.parse<String>(response, PerformerParserKeys.coverBackup) ??
         '';
-    result =
+    response =
         ParserHelper.parse<List>(
-          result,
+          response,
           SectionListParserKeys.initResourceList,
         ) ??
         [];
-    final newResult = await SharedParser.parseContents(
-      result,
-      source: MediaOrigin.artistHome,
+    final newResultLocal = await SharedParser.parseContents(
+      response,
+      mediaOrigin: MediaOrigin.artistHome,
     );
-    resourceList.value = newResult;
+    resourceList.value = newResultLocal;
   }
 
   Future _queryYTData() async {
-    String? browseId = performerDetails.ytId ?? performerDetails.id;
-    Map<String, dynamic>? params = {'browseId': browseId};
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.ytArtistDetail,
-      prams: params,
-      isMusic: false,
+    String? browseIdLocal = performerDetails.ytId ?? performerDetails.id;
+    Map<String, dynamic>? requestParameters = {'browseId': browseIdLocal};
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.ytArtistDetail,
+      pramsArg: requestParameters,
+      isMusicArg: false,
     );
-    if (result == null) {
+    if (response == null) {
       return;
     }
     hdThumbnail.value =
-        ParserHelper.parse<String>(result, PerformerCatalogParserKeys.cover) ??
+        ParserHelper.parse<String>(
+          response,
+          PerformerCatalogParserKeys.cover,
+        ) ??
         '';
     if (hdThumbnail.value.isNotEmpty) {
       performerDetails.thumbnail = hdThumbnail.value;
     }
-    List results =
-        ParserHelper.parse<List>(result, PerformerCatalogParserKeys.tabs) ?? [];
-    List<MediaCollection> list = [];
-    for (final tab in results) {
-      String? url = ParserHelper.parse<String>(
+    List responses =
+        ParserHelper.parse<List>(response, PerformerCatalogParserKeys.tabs) ??
+        [];
+    List<MediaCollection> entries = [];
+    for (final tab in responses) {
+      String? resourceUrl = ParserHelper.parse<String>(
         tab,
         PerformerCatalogParserKeys.tabUrl,
       );
-      String title =
+      String displayTitle =
           ParserHelper.parse<String>(
             tab,
             PerformerCatalogParserKeys.tabTitle,
           ) ??
           '';
-      if (url?.contains(PerformerCatalogParserKeys.videos) == true) {
-        String? browseParams = ParserHelper.parse<String>(
+      if (resourceUrl?.contains(PerformerCatalogParserKeys.videos) == true) {
+        String? browseParamsLocal = ParserHelper.parse<String>(
           tab,
           PerformerCatalogParserKeys.params,
         );
-        Map params = {'browseId': browseId, 'params': browseParams};
-        dynamic tabResult = await MusicCatalogGateway.post(
-          url: MusicCatalogEndpoints.ytArtistDetail,
-          prams: params,
-          isMusic: false,
+        Map requestParameters = {
+          'browseId': browseIdLocal,
+          'params': browseParamsLocal,
+        };
+        dynamic tabResultLocal = await MusicCatalogGateway.post(
+          resourceUrl: MusicCatalogEndpoints.ytArtistDetail,
+          pramsArg: requestParameters,
+          isMusicArg: false,
         );
-        List tabResultList =
+        List tabResultListLocal =
             ParserHelper.parse<List>(
-              tabResult,
+              tabResultLocal,
               PerformerCatalogParserKeys.tabs,
             ) ??
             [];
-        for (final tab in tabResultList) {
-          String? url = ParserHelper.parse<String>(
+        for (final tab in tabResultListLocal) {
+          String? resourceUrl = ParserHelper.parse<String>(
             tab,
             PerformerCatalogParserKeys.tabUrl,
           );
-          if (url?.contains(PerformerCatalogParserKeys.videos) == true) {
-            MediaCollection mediaCollection = MediaCollection(name: title);
-            mediaCollection.type = MediaCollectionShowType.listMusic;
-            final videos =
+          if (resourceUrl?.contains(PerformerCatalogParserKeys.videos) ==
+              true) {
+            MediaCollection mediaCollectionLocal = MediaCollection(
+              name: displayTitle,
+            );
+            mediaCollectionLocal.type = MediaCollectionShowType.listMusic;
+            final videosLocal =
                 ParserHelper.parse<List>(
                   tab,
                   PerformerCatalogParserKeys.richItems,
                 ) ??
                 [];
-            List children = await MusicCatalogParser.parseArtistChildren(
-              videos,
+            List childEntries = await MusicCatalogParser.parseArtistChildren(
+              videosLocal,
             );
-            mediaCollection.children = children;
-            list.add(mediaCollection);
+            mediaCollectionLocal.children = childEntries;
+            entries.add(mediaCollectionLocal);
             break;
           }
         }
-      } else if (url?.contains(PerformerCatalogParserKeys.releases) == true) {
-        String? browseParams = ParserHelper.parse<String>(
+      } else if (resourceUrl?.contains(PerformerCatalogParserKeys.releases) ==
+          true) {
+        String? browseParamsLocal = ParserHelper.parse<String>(
           tab,
           PerformerCatalogParserKeys.params,
         );
-        Map params = {'browseId': browseId, 'params': browseParams};
-        dynamic tabResult = await MusicCatalogGateway.post(
-          url: MusicCatalogEndpoints.ytArtistDetail,
-          prams: params,
-          isMusic: false,
+        Map requestParameters = {
+          'browseId': browseIdLocal,
+          'params': browseParamsLocal,
+        };
+        dynamic tabResultLocal = await MusicCatalogGateway.post(
+          resourceUrl: MusicCatalogEndpoints.ytArtistDetail,
+          pramsArg: requestParameters,
+          isMusicArg: false,
         );
-        List tabResultList =
+        List tabResultListLocal =
             ParserHelper.parse<List>(
-              tabResult,
+              tabResultLocal,
               PerformerCatalogParserKeys.tabs,
             ) ??
             [];
-        for (final tab in tabResultList) {
-          String? url = ParserHelper.parse<String>(
+        for (final tab in tabResultListLocal) {
+          String? resourceUrl = ParserHelper.parse<String>(
             tab,
             PerformerCatalogParserKeys.tabUrl,
           );
-          if (url?.contains(PerformerCatalogParserKeys.releases) == true) {
-            MediaCollection mediaCollection = MediaCollection(name: title);
-            mediaCollection.type = MediaCollectionShowType.twoRowPlaylist;
-            List items =
+          if (resourceUrl?.contains(PerformerCatalogParserKeys.releases) ==
+              true) {
+            MediaCollection mediaCollectionLocal = MediaCollection(
+              name: displayTitle,
+            );
+            mediaCollectionLocal.type = MediaCollectionShowType.twoRowPlaylist;
+            List entries =
                 ParserHelper.parse<List>(
                   tab,
                   PerformerCatalogParserKeys.richItems,
                 ) ??
                 [];
-            List children = await MusicCatalogParser.parseArtistChildren(items);
-            if (children.isNotEmpty) {
-              mediaCollection.children = children;
-              list.add(mediaCollection);
+            List childEntries = await MusicCatalogParser.parseArtistChildren(
+              entries,
+            );
+            if (childEntries.isNotEmpty) {
+              mediaCollectionLocal.children = childEntries;
+              entries.add(mediaCollectionLocal);
             }
             break;
           }
         }
-      } else if (url?.contains(PerformerCatalogParserKeys.playlists) == true) {
-        String? browseParams = ParserHelper.parse<String>(
+      } else if (resourceUrl?.contains(PerformerCatalogParserKeys.playlists) ==
+          true) {
+        String? browseParamsLocal = ParserHelper.parse<String>(
           tab,
           PerformerCatalogParserKeys.params,
         );
-        Map params = {'browseId': browseId, 'params': browseParams};
-        dynamic tabResult = await MusicCatalogGateway.post(
-          url: MusicCatalogEndpoints.ytArtistDetail,
-          prams: params,
-          isMusic: false,
+        Map requestParameters = {
+          'browseId': browseIdLocal,
+          'params': browseParamsLocal,
+        };
+        dynamic tabResultLocal = await MusicCatalogGateway.post(
+          resourceUrl: MusicCatalogEndpoints.ytArtistDetail,
+          pramsArg: requestParameters,
+          isMusicArg: false,
         );
-        List tabResultList =
+        List tabResultListLocal =
             ParserHelper.parse<List>(
-              tabResult,
+              tabResultLocal,
               PerformerCatalogParserKeys.tabs,
             ) ??
             [];
-        for (final tab in tabResultList) {
-          String? url = ParserHelper.parse<String>(
+        for (final tab in tabResultListLocal) {
+          String? resourceUrl = ParserHelper.parse<String>(
             tab,
             PerformerCatalogParserKeys.tabUrl,
           );
-          if (url?.contains(PerformerCatalogParserKeys.playlists) == true) {
-            MediaCollection mediaCollection = MediaCollection(name: title);
-            mediaCollection.type = MediaCollectionShowType.twoRowPlaylist;
-            List items =
+          if (resourceUrl?.contains(PerformerCatalogParserKeys.playlists) ==
+              true) {
+            MediaCollection mediaCollectionLocal = MediaCollection(
+              name: displayTitle,
+            );
+            mediaCollectionLocal.type = MediaCollectionShowType.twoRowPlaylist;
+            List entries =
                 ParserHelper.parse<List>(
                   tab,
                   PerformerCatalogParserKeys.lockupViewModelPlaylistItems,
                 ) ??
                 [];
-            List children = await MusicCatalogParser.parseArtistChildren(items);
-            if (children.isNotEmpty) {
-              mediaCollection.children = children;
-              list.add(mediaCollection);
+            List childEntries = await MusicCatalogParser.parseArtistChildren(
+              entries,
+            );
+            if (childEntries.isNotEmpty) {
+              mediaCollectionLocal.children = childEntries;
+              entries.add(mediaCollectionLocal);
             }
             break;
           }
         }
       }
     }
-    resourceList.value = list;
+    resourceList.value = entries;
   }
 }
 

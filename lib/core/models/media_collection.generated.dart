@@ -6,38 +6,38 @@ part of 'media_collection.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MediaCollection _$MediaCollectionFromJson(Map<String, dynamic> json) =>
+MediaCollection _$MediaCollectionFromJson(Map<String, dynamic> jsonArg) =>
     MediaCollection(
-      id: json['id'] as String?,
-      params: json['params'] as String?,
-      name: json['name'] as String? ?? '',
-      displayName: json['display_name'] as String? ?? '',
-      detail: json['detail'] as String?,
-      type: $enumDecodeNullable(_$FileGroupShowTypeEnumMap, json['type']),
-      playlistType: json['playlist_type'] as String?,
-      thumbnail: json['thumbnail'] as String? ?? '',
+      id: jsonArg['id'] as String?,
+      params: jsonArg['params'] as String?,
+      name: jsonArg['name'] as String? ?? '',
+      displayName: jsonArg['display_name'] as String? ?? '',
+      detail: jsonArg['detail'] as String?,
+      type: $enumDecodeNullable(_$FileGroupShowTypeEnumMap, jsonArg['type']),
+      playlistType: jsonArg['playlist_type'] as String?,
+      thumbnail: jsonArg['thumbnail'] as String? ?? '',
       childrenIds:
-          (json['children_ids'] as List<dynamic>?)
-              ?.map((e) => e as String)
+          (jsonArg['children_ids'] as List<dynamic>?)
+              ?.map((entry) => entry as String)
               .toList() ??
           [],
-      createTime: (json['create_time'] as num?)?.toInt(),
-      isFavorite: (json['is_favorite'] as num?)?.toInt() ?? 0,
+      createTime: (jsonArg['create_time'] as num?)?.toInt(),
+      isFavorite: (jsonArg['is_favorite'] as num?)?.toInt() ?? 0,
     );
 
-Map<String, dynamic> _$MediaCollectionToJson(MediaCollection instance) =>
+Map<String, dynamic> _$MediaCollectionToJson(MediaCollection instanceArg) =>
     <String, dynamic>{
-      'id': instance.id,
-      'params': instance.params,
-      'name': instance.name,
-      'display_name': instance.displayName,
-      'detail': instance.detail,
-      'type': _$FileGroupShowTypeEnumMap[instance.type],
-      'playlist_type': instance.playlistType,
-      'thumbnail': instance.thumbnail,
-      'children_ids': instance.childrenIds,
-      'is_favorite': instance.isFavorite,
-      'create_time': instance.createTime,
+      'id': instanceArg.id,
+      'params': instanceArg.params,
+      'name': instanceArg.name,
+      'display_name': instanceArg.displayName,
+      'detail': instanceArg.detail,
+      'type': _$FileGroupShowTypeEnumMap[instanceArg.type],
+      'playlist_type': instanceArg.playlistType,
+      'thumbnail': instanceArg.thumbnail,
+      'children_ids': instanceArg.childrenIds,
+      'is_favorite': instanceArg.isFavorite,
+      'create_time': instanceArg.createTime,
     };
 
 const _$FileGroupShowTypeEnumMap = {

@@ -12,13 +12,6 @@ class LaunchState with ChangeNotifier {
   static const String isModulesUsableKey = 'isModulesUsableKey';
 
   static final LaunchState _instance = LaunchState._();
-  static LaunchState get instance => _instance;
-  factory LaunchState() {
-    return _instance;
-  }
-  LaunchState._() {
-    listenNetwork();
-  }
 
   ValueNotifier<bool?> isModulesUsable = ValueNotifier(null);
 
@@ -26,36 +19,47 @@ class LaunchState with ChangeNotifier {
   StreamSubscription? _adStatusSubscription;
 
   static bool isNetworkUsable = true;
+
+  late DateTime startTime;
+  final Completer modulesCompleter = Completer();
+  factory LaunchState() {
+    return _instance;
+  }
+  LaunchState._() {
+    listenNetwork();
+  }
+  static LaunchState get instance => _instance;
   Future listenNetwork() async {
     await Future.delayed(Duration(seconds: 5));
     //是否曾经是wifi
-    bool? isLastWifi;
-    Connectivity connectivity = Connectivity();
-    connectivity.onConnectivityChanged.listen((
-      List<ConnectivityResult> connectivityResult,
+    bool? isLastWifiValueLocal;
+    Connectivity connectivityLocal = Connectivity();
+    connectivityLocal.onConnectivityChanged.listen((
+      List<ConnectivityResult> connectivityResultArg,
     ) async {
       try {
-        if (connectivityResult.contains(ConnectivityResult.mobile) ||
-            connectivityResult.contains(ConnectivityResult.wifi) ||
-            connectivityResult.contains(ConnectivityResult.ethernet) ||
-            connectivityResult.contains(ConnectivityResult.vpn)) {
+        if (connectivityResultArg.contains(ConnectivityResult.mobile) ||
+            connectivityResultArg.contains(ConnectivityResult.wifi) ||
+            connectivityResultArg.contains(ConnectivityResult.ethernet) ||
+            connectivityResultArg.contains(ConnectivityResult.vpn)) {
           isNetworkUsable = true;
           if (isModulesUsable.value == null) {
             if (modulesCompleter.isCompleted) {
-              _queryModulesUsable(retryNum: 5);
+              _queryModulesUsable(retryNumArg: 5);
             }
           }
           //如果曾经是wifi或者第一次检测到是流量，则提示
-          if (isLastWifi != false &&
-              connectivityResult.contains(ConnectivityResult.wifi) == false) {
-            isLastWifi = false;
+          if (isLastWifiValueLocal != false &&
+              connectivityResultArg.contains(ConnectivityResult.wifi) ==
+                  false) {
+            isLastWifiValueLocal = false;
             MessageOverlay.showWarning(
               'Your Wi-Fi connection is weak. The app is now using your cellular data.'
                   .translate,
             );
           }
-          if (connectivityResult.contains(ConnectivityResult.wifi) == true) {
-            isLastWifi = true;
+          if (connectivityResultArg.contains(ConnectivityResult.wifi) == true) {
+            isLastWifiValueLocal = true;
           }
         } else {
           isNetworkUsable = false;
@@ -72,11 +76,56 @@ class LaunchState with ChangeNotifier {
     });
 
     ///开始检测网络环境
-    connectivity.checkConnectivity();
+    connectivityLocal.checkConnectivity();
   }
 
-  late DateTime startTime;
-  final Completer modulesCompleter = Completer();
+  Future<bool> loadAndShowAd() async {
+    Completer<bool> adCompleterLocal = Completer();
+    await Future.any([
+      AdHelper.requestAd(
+        scene: AdvertisingScene.open,
+        detailScene: AdvertisingDetailScene.coldOpen,
+      ),
+      Future.delayed(Duration(seconds: AdHelper.openAppWaitSeconds)),
+    ]);
+    if (await EventsInfoUtil.isFirstIn) {
+      if (!adCompleterLocal.isCompleted) {
+        adCompleterLocal.complete(false);
+      }
+    } else {
+      _adStatusSubscription = AdHelper.adShowStatusStream.listen((
+        adInfoInputArg,
+      ) {
+        if ((adInfoInputArg.realScene ?? adInfoInputArg.scene) ==
+            AdvertisingScene.open) {
+          if (adInfoInputArg.showState == AdShowStatus.showing) {
+            isProgressFinish.value = true;
+          }
+          if (adInfoInputArg.showState == AdShowStatus.dismissed) {
+            if (!adCompleterLocal.isCompleted) {
+              adCompleterLocal.complete(true);
+              _adStatusSubscription?.cancel();
+            }
+          }
+        }
+      });
+      bool? showedValueLocal = await AdvertisingDisplayCoordinator.showScene(
+        scene: AdvertisingScene.open,
+        detailScene: AdvertisingDetailScene.coldOpen,
+      );
+      Get.log(
+        "Open ad show:$showedValueLocal ${DateTime.now().difference(startTime).inSeconds}s",
+      );
+      if (showedValueLocal != true) {
+        if (!adCompleterLocal.isCompleted) {
+          adCompleterLocal.complete(false);
+          _adStatusSubscription?.cancel();
+        }
+      }
+    }
+    return adCompleterLocal.future;
+  }
+
   Future queryModules() async {
     startTime = DateTime.now();
     if (isModulesUsable.value == null) {
@@ -88,78 +137,35 @@ class LaunchState with ChangeNotifier {
     return modulesCompleter.future;
   }
 
-  Future _queryModulesUsable({int retryNum = 10}) async {
-    String openVersion = await RemoteFeatureSettings.modelCompleter.future;
-    if (openVersion.isEmpty) {
-      openVersion = '0.0.0';
+  Future _queryModulesUsable({int retryNumArg = 10}) async {
+    String openVersionLocal = await RemoteFeatureSettings.modelCompleter.future;
+    if (openVersionLocal.isEmpty) {
+      openVersionLocal = '0.0.0';
     }
-    openVersion = openVersion.replaceAll('.', '');
-    String currentVersionString = await EventsInfoUtil.packageVersion();
-    currentVersionString = currentVersionString.replaceAll('.', '');
-    int deviation = currentVersionString.length - openVersion.length;
-    if (deviation < 0) {
-      for (int i = 0; i < deviation.abs(); i++) {
-        currentVersionString += '0';
+    openVersionLocal = openVersionLocal.replaceAll('.', '');
+    String currentVersionStringLocal = await EventsInfoUtil.packageVersion();
+    currentVersionStringLocal = currentVersionStringLocal.replaceAll('.', '');
+    int deviationLocal =
+        currentVersionStringLocal.length - openVersionLocal.length;
+    if (deviationLocal < 0) {
+      for (int offset = 0; offset < deviationLocal.abs(); offset++) {
+        currentVersionStringLocal += '0';
       }
-    } else if (deviation > 0) {
-      for (int i = 0; i < deviation; i++) {
-        openVersion += '0';
+    } else if (deviationLocal > 0) {
+      for (int offset = 0; offset < deviationLocal; offset++) {
+        openVersionLocal += '0';
       }
     }
-    if (int.parse(openVersion) >= int.parse(currentVersionString)) {
+    if (int.parse(openVersionLocal) >= int.parse(currentVersionStringLocal)) {
       isModulesUsable.value = true;
-      SharedPreferences sp = await SharedPreferences.getInstance();
-      await sp.setBool(isModulesUsableKey, true);
+      SharedPreferences spLocal = await SharedPreferences.getInstance();
+      await spLocal.setBool(isModulesUsableKey, true);
     }
 
-    if (isModulesUsable.value != true && retryNum > 0) {
+    if (isModulesUsable.value != true && retryNumArg > 0) {
       await Future.delayed(Duration(milliseconds: 500));
-      retryNum--;
-      await _queryModulesUsable(retryNum: retryNum);
+      retryNumArg--;
+      await _queryModulesUsable(retryNumArg: retryNumArg);
     }
-  }
-
-  Future<bool> loadAndShowAd() async {
-    Completer<bool> adCompleter = Completer();
-    await Future.any([
-      AdHelper.requestAd(
-        scene: AdvertisingScene.open,
-        detailScene: AdvertisingDetailScene.coldOpen,
-      ),
-      Future.delayed(Duration(seconds: AdHelper.openAppWaitSeconds)),
-    ]);
-    if (await EventsInfoUtil.isFirstIn) {
-      if (!adCompleter.isCompleted) {
-        adCompleter.complete(false);
-      }
-    } else {
-      _adStatusSubscription = AdHelper.adShowStatusStream.listen((adInfo) {
-        if ((adInfo.realScene ?? adInfo.scene) == AdvertisingScene.open) {
-          if (adInfo.showState == AdShowStatus.showing) {
-            isProgressFinish.value = true;
-          }
-          if (adInfo.showState == AdShowStatus.dismissed) {
-            if (!adCompleter.isCompleted) {
-              adCompleter.complete(true);
-              _adStatusSubscription?.cancel();
-            }
-          }
-        }
-      });
-      bool? showed = await AdvertisingDisplayCoordinator.showScene(
-        scene: AdvertisingScene.open,
-        detailScene: AdvertisingDetailScene.coldOpen,
-      );
-      Get.log(
-        "Open ad show:$showed ${DateTime.now().difference(startTime).inSeconds}s",
-      );
-      if (showed != true) {
-        if (!adCompleter.isCompleted) {
-          adCompleter.complete(false);
-          _adStatusSubscription?.cancel();
-        }
-      }
-    }
-    return adCompleter.future;
   }
 }

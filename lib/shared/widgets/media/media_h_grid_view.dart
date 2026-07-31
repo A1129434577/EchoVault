@@ -28,7 +28,7 @@ class MediaHGridView extends StatelessWidget {
             ),
             itemCount: fileList.length,
             itemBuilder: (BuildContext ctx, int index) {
-              FileInfo mediaDetails = fileList[index];
+              FileInfo mediaEntry = fileList[index];
               return ValueListenableBuilder(
                 valueListenable:
                     PlayerPlayback.instance.player.currentMediaInfo,
@@ -38,36 +38,34 @@ class MediaHGridView extends StatelessWidget {
                       FileInfo? currentMediaInfo,
                       Widget? child,
                     ) {
-                      int selectedIndex = -1;
-                      if (currentMediaInfo?.fileId == mediaDetails.fileId) {
-                        selectedIndex = index;
+                      int activeIndex = -1;
+                      if (currentMediaInfo?.fileId == mediaEntry.fileId) {
+                        activeIndex = index;
                       }
                       if (currentMediaInfo != null &&
                           fileList.contains(currentMediaInfo)) {
-                        selectedIndex = fileList.indexOf(currentMediaInfo);
+                        activeIndex = fileList.indexOf(currentMediaInfo);
                       }
                       return Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
                         ),
-                        color: index == selectedIndex
-                            ? Color(0xffEFF6FE)
-                            : null,
+                        color: index == activeIndex ? Color(0xffEFF6FE) : null,
                         child: GestureDetector(
                           onTap: () {
                             if (onCellTap == null) {
                               PlaybackNavigator.toPlay(
-                                fileList: fileList,
-                                mediaDetails: mediaDetails,
+                                mediaQueue: fileList,
+                                mediaEntry: mediaEntry,
                               );
                             } else {
-                              onCellTap!.call(mediaDetails);
+                              onCellTap!.call(mediaEntry);
                             }
                           },
                           behavior: HitTestBehavior.translucent,
                           child: MediaCell(
-                            mediaDetails: mediaDetails,
+                            mediaDetails: mediaEntry,
                             isGrid: true,
                           ),
                         ),

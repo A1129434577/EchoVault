@@ -6,6 +6,53 @@ import 'package:echo_vault/shared/widgets/dialog_text_field.dart';
 import 'package:echo_vault/shared/widgets/navigation_bar_views.dart';
 import 'package:echo_vault/shared/widgets/background_surface.dart';
 
+class TitleTextInputView extends StatelessWidget {
+  final String title;
+  final String placeholder;
+  final FormFieldValidator<String>? validator;
+  final TextEditingController? controller;
+
+  const TitleTextInputView({
+    super.key,
+    required this.title,
+    required this.placeholder,
+    this.validator,
+    this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontSize: 16)),
+        SizedBox(height: 12),
+        DialogTextField(
+          controller: controller,
+          style: TextStyle(fontSize: 12),
+          fillColor: Colors.white,
+          hintText: placeholder,
+          maxLines: 5,
+          maxLength: 200,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              width: 1,
+              color: Color(0xff1F1F1F).withAlpha((255 * 0.08).round()),
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(width: 1, color: Color(0xffFF0E0E)),
+          ),
+          validator: validator,
+        ),
+      ],
+    );
+  }
+}
+
 class UserFeedbackScreen extends StatefulWidget {
   const UserFeedbackScreen({super.key});
 
@@ -91,10 +138,10 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
                     if (content == null || content.isEmpty) {
                       return 'Please input Email Address.'.translate;
                     } else if (!content.isEmail) {
-                      String message =
+                      String messageLocal =
                           'Please fill in a valid email address.'.translate;
-                      MessageOverlay.showError(message);
-                      return message;
+                      MessageOverlay.showError(messageLocal);
+                      return messageLocal;
                     }
                     return null;
                   },
@@ -104,53 +151,6 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class TitleTextInputView extends StatelessWidget {
-  final String title;
-  final String placeholder;
-  final FormFieldValidator<String>? validator;
-  final TextEditingController? controller;
-
-  const TitleTextInputView({
-    super.key,
-    required this.title,
-    required this.placeholder,
-    this.validator,
-    this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: TextStyle(fontSize: 16)),
-        SizedBox(height: 12),
-        DialogTextField(
-          controller: controller,
-          style: TextStyle(fontSize: 12),
-          fillColor: Colors.white,
-          hintText: placeholder,
-          maxLines: 5,
-          maxLength: 200,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              width: 1,
-              color: Color(0xff1F1F1F).withAlpha((255 * 0.08).round()),
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(width: 1, color: Color(0xffFF0E0E)),
-          ),
-          validator: validator,
-        ),
-      ],
     );
   }
 }

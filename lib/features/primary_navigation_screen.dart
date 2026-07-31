@@ -37,7 +37,7 @@ class _PrimaryNavigationScreenState extends State<PrimaryNavigationScreen> {
               if (currentTabIndex == 0 && index == 0) {
                 _debounce(Duration(milliseconds: 1500), () {
                   DiscoveryState.instance.refreshResource(
-                    source: 'click_bottomtab',
+                    mediaOrigin: 'click_bottomtab',
                   );
                   DiscoveryState.instance.refreshController.callRefresh();
                 });
@@ -48,17 +48,14 @@ class _PrimaryNavigationScreenState extends State<PrimaryNavigationScreen> {
               BottomNavigationBarItem(
                 label: 'Home'.translate,
                 icon: Assets.images.shell.tabHome.image(height: 24),
-                activeIcon: Assets.images.shell.tabHomeActive.image(
-                  height: 24,
-                ),
+                activeIcon: Assets.images.shell.tabHomeActive.image(height: 24),
               ),
               BottomNavigationBarItem(
                 label: 'Library'.translate,
-                icon: Assets.images.shell.tabCollection.image(
+                icon: Assets.images.shell.tabCollection.image(height: 24),
+                activeIcon: Assets.images.shell.tabCollectionActive.image(
                   height: 24,
                 ),
-                activeIcon: Assets.images.shell.tabCollectionActive
-                    .image(height: 24),
               ),
               BottomNavigationBarItem(
                 label: 'Search'.translate,

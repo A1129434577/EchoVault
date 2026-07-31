@@ -9,38 +9,42 @@ class PerformerListState with ChangeNotifier {
   final MediaCollection? mediaCollection;
   final ValueNotifier<List<PerformerDetails>> artistListNotifier =
       ValueNotifier([]);
-  PerformerListState({
-    this.mediaCollection,
-    List<PerformerDetails> performers = const [],
-  }) {
-    artistListNotifier.value = performers;
-    _initArtistList = performers;
-  }
 
   List<PerformerDetails> _initArtistList = [];
+  PerformerListState({
+    this.mediaCollection,
+    List<PerformerDetails> performersArg = const [],
+  }) {
+    artistListNotifier.value = performersArg;
+    _initArtistList = performersArg;
+  }
 
   Future queryData() async {
-    Map<String, dynamic>? params = {'browseId': mediaCollection!.id!};
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.detail,
-      prams: params,
+    Map<String, dynamic>? requestParameters = {
+      'browseId': mediaCollection!.id!,
+    };
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.detail,
+      pramsArg: requestParameters,
     );
-    result =
+    response =
         ParserHelper.parse<List>(
-          result,
+          response,
           SectionListParserKeys.initResourceList,
         ) ??
         [];
-    List<MediaCollection> list = await SharedParser.parseContents(result);
+    List<MediaCollection> entries = await SharedParser.parseContents(response);
 
-    for (final mediaCollection in list) {
+    for (final mediaCollection in entries) {
       if (mediaCollection.type == MediaCollectionShowType.twoRowArtist) {
-        List<PerformerDetails> list = mediaCollection.children
+        List<PerformerDetails> entries = mediaCollection.children
             .cast<PerformerDetails>();
-        list.removeWhere((e) {
-          return _initArtistList.where((e1) => e1.id == e.id).isNotEmpty;
+        entries.removeWhere((entry) {
+          return _initArtistList
+              .where((e1InputArg) => e1InputArg.id == entry.id)
+              .isNotEmpty;
         });
-        artistListNotifier.value = [..._initArtistList, ...list];
+        artistListNotifier.value = [..._initArtistList, ...entries];
       }
     }
   }

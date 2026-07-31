@@ -9,102 +9,108 @@ class AudioTrackingTransport {
   //videoId: {playbackUrl:,watchTimeUrl:, end:}
   static Map<String, Map> playTrackingInfo = {};
 
-  static Future post({required FileInfo mediaDetails}) async {
-    String videoId = mediaDetails.fileId;
-    Map info = playTrackingInfo[videoId] ?? {};
-    String? playbackUrl, watchTimeUrl;
-    if (info.length < 2) {
-      String cpn = watchCpn;
-      Map params = {'videoId': videoId, 'cpn': cpn};
-      dynamic result = await MusicCatalogGateway.post(
-        url: MusicCatalogEndpoints.player,
-        prams: params,
-        isApp: true,
+  static String get watchCpn {
+    const charsLocal =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const separatorsLocal = ['-', '_'];
+    final randLocal = Random.secure();
+    final bufferLocal = StringBuffer();
+    final rLocal = Random().nextInt(10) + 3;
+    for (int offset = 0; offset < 16; offset++) {
+      if (offset == rLocal && randLocal.nextBool()) {
+        bufferLocal.write(
+          separatorsLocal[randLocal.nextInt(separatorsLocal.length)],
+        );
+      } else {
+        bufferLocal.write(charsLocal[randLocal.nextInt(charsLocal.length)]);
+      }
+    }
+    return bufferLocal.toString();
+  }
+
+  static Future post({required FileInfo mediaEntry}) async {
+    String mediaId = mediaEntry.fileId;
+    Map details = playTrackingInfo[mediaId] ?? {};
+    String? playbackUrlLocal, watchTimeUrlValueLocal;
+    if (details.length < 2) {
+      String cpnLocal = watchCpn;
+      Map requestParameters = {'videoId': mediaId, 'cpn': cpnLocal};
+      dynamic response = await MusicCatalogGateway.post(
+        resourceUrl: MusicCatalogEndpoints.player,
+        pramsArg: requestParameters,
+        isAppArg: true,
       );
-      playbackUrl = ParserHelper.parse<String>(
-        result,
+      playbackUrlLocal = ParserHelper.parse<String>(
+        response,
         PlaybackTrackingParserKeys.playbackUrl,
       );
-      watchTimeUrl = ParserHelper.parse<String>(
-        result,
+      watchTimeUrlValueLocal = ParserHelper.parse<String>(
+        response,
         PlaybackTrackingParserKeys.watchTimeUrl,
       );
 
-      if (playbackUrl != null && playbackUrl.startsWith('http')) {
-        playbackUrl = playbackUrl.replaceFirst('s.', 'music.');
-        info['playbackUrl'] = playbackUrl;
+      if (playbackUrlLocal != null && playbackUrlLocal.startsWith('http')) {
+        playbackUrlLocal = playbackUrlLocal.replaceFirst('s.', 'music.');
+        details['playbackUrl'] = playbackUrlLocal;
       }
-      if (watchTimeUrl != null && watchTimeUrl.startsWith('http')) {
-        watchTimeUrl = watchTimeUrl.replaceFirst('s.', 'music.');
-        info['watchTimeUrl'] = watchTimeUrl;
+      if (watchTimeUrlValueLocal != null &&
+          watchTimeUrlValueLocal.startsWith('http')) {
+        watchTimeUrlValueLocal = watchTimeUrlValueLocal.replaceFirst(
+          's.',
+          'music.',
+        );
+        details['watchTimeUrl'] = watchTimeUrlValueLocal;
       }
-      info['cpn'] = cpn;
-      playTrackingInfo[videoId] = info;
+      details['cpn'] = cpnLocal;
+      playTrackingInfo[mediaId] = details;
     } else {
-      playbackUrl = info['playbackUrl'];
-      watchTimeUrl = info['watchTimeUrl'];
+      playbackUrlLocal = details['playbackUrl'];
+      watchTimeUrlValueLocal = details['watchTimeUrl'];
     }
-    double end = mediaDetails.position?.toDouble() ?? 0;
-    double start = info['end'] ?? 0;
-    if (start > end) {
-      start = 0;
+    double endLocal = mediaEntry.position?.toDouble() ?? 0;
+    double startLocal = details['end'] ?? 0;
+    if (startLocal > endLocal) {
+      startLocal = 0;
     }
-    info['end'] = end;
+    details['end'] = endLocal;
 
     //headers的X-Goog-Visitor-Id对应的是visitorData
     //是做根据播放记录刷新首页猜你喜欢的关键
-    Map<String, String>? headers;
-    String? vd = await MusicCatalogGateway.visitorData;
-    if (vd != null) {
-      headers = {"X-Goog-Visitor-Id": vd};
+    Map<String, String>? headersLocal;
+    String? vdLocal = await MusicCatalogGateway.visitorData;
+    if (vdLocal != null) {
+      headersLocal = {"X-Goog-Visitor-Id": vdLocal};
     }
-    String path =
-        "&cpn=${info['cpn']}"
+    String pathLocal =
+        "&cpn=${details['cpn']}"
         "&ver=2"
         "&volume=100"
         "&muted=0"
-        "&cmt=${mediaDetails.position}"
+        "&cmt=${mediaEntry.position}"
         "&hl=${MusicCatalogGateway.languageCode}"
         "&cr=${MusicCatalogGateway.countryCode}"
         "&c=${MusicCatalogGateway.webPrams['context']?['client']?['clientName']}"
         "&cver=${MusicCatalogGateway.webPrams['context']?['client']?['clientVersion']}";
-    if (playbackUrl != null) {
-      playbackUrl += path;
+    if (playbackUrlLocal != null) {
+      playbackUrlLocal += pathLocal;
       await NetworkManager.instance.requestMethod(
-        url: playbackUrl,
+        url: playbackUrlLocal,
         method: 'get',
-        headers: headers,
+        headers: headersLocal,
       );
     }
-    if (watchTimeUrl != null) {
-      watchTimeUrl +=
-          "$path"
+    if (watchTimeUrlValueLocal != null) {
+      watchTimeUrlValueLocal +=
+          "$pathLocal"
           "&state='playing'"
-          "&st=$start"
-          "&et=$end";
+          "&st=$startLocal"
+          "&et=$endLocal";
       await NetworkManager.instance.requestMethod(
-        url: watchTimeUrl,
+        url: watchTimeUrlValueLocal,
         method: 'get',
-        headers: headers,
+        headers: headersLocal,
       );
     }
-  }
-
-  static String get watchCpn {
-    const chars =
-        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const separators = ['-', '_'];
-    final rand = Random.secure();
-    final buffer = StringBuffer();
-    final r = Random().nextInt(10) + 3;
-    for (int i = 0; i < 16; i++) {
-      if (i == r && rand.nextBool()) {
-        buffer.write(separators[rand.nextInt(separators.length)]);
-      } else {
-        buffer.write(chars[rand.nextInt(chars.length)]);
-      }
-    }
-    return buffer.toString();
   }
 }
 

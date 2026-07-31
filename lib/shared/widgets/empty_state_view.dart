@@ -24,8 +24,7 @@ class EmptyStateView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            icon ??
-                Assets.images.status.emptyStateBox.image(height: 140),
+            icon ?? Assets.images.status.emptyStateBox.image(height: 140),
           ],
         ),
         FractionallySizedBox(

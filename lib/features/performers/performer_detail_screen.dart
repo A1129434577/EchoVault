@@ -18,11 +18,11 @@ import 'package:echo_vault/shared/widgets/paged_refresh_view.dart';
 
 class PerformerDetailScreenHelper {
   static String routeName = '/$_PerformerDetailScreen';
-  static to({required PerformerDetails performerDetails}) {
+  static to({required PerformerDetails performerProfile}) {
     Get.to(
-      arguments: performerDetails,
+      arguments: performerProfile,
       preventDuplicates: false,
-      _PerformerDetailScreen(performerDetails: performerDetails),
+      _PerformerDetailScreen(performerDetails: performerProfile),
     );
   }
 }
@@ -57,22 +57,15 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
   }
 
   @override
-  void dispose() {
-    _scrollController.removeListener(_scrollControllerListener);
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    double topHeight = 90;
+    double topHeightLocal = 90;
     return Stack(
       children: [
         FractionallySizedBox(
           widthFactor: 1,
           child: SizedBox(
             height:
-                topHeight +
+                topHeightLocal +
                 kToolbarHeight +
                 MediaQuery.of(context).padding.top +
                 20,
@@ -82,8 +75,9 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
                   (BuildContext context, String hdThumbnail, Widget? child) {
                     return NetworkImageWidget(
                       url: hdThumbnail,
-                      defaultView: Assets.images.artist.artistBackdrop
-                          .image(fit: BoxFit.fill),
+                      defaultView: Assets.images.artist.artistBackdrop.image(
+                        fit: BoxFit.fill,
+                      ),
                     );
                   },
             ),
@@ -125,8 +119,7 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
                     width: 24,
                     child: BookmarkPerformerView(
                       artist: performerDetails,
-                      icon:
-                          Assets.images.collection.favoriteLight.path,
+                      icon: Assets.images.collection.favoriteLight.path,
                     ),
                   ),
                 ],
@@ -137,7 +130,7 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
                     (BuildContext context, bool innerBoxIsScrolled) {
                       return [
                         SliverAppBar(
-                          expandedHeight: topHeight,
+                          expandedHeight: topHeightLocal,
                           leading: Container(),
                           flexibleSpace: FlexibleSpaceBar(
                             background: Container(
@@ -155,10 +148,7 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: [
-                                        Assets
-                                            .images
-                                            .artist
-                                            .profileAvatar
+                                        Assets.images.artist.profileAvatar
                                             .image(),
                                         Container(
                                           clipBehavior: Clip.hardEdge,
@@ -289,6 +279,13 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollControllerListener);
+    controller.dispose();
+    super.dispose();
+  }
+
   Widget _actionsView() {
     return Container(
       height: 42,
@@ -299,17 +296,19 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
           Expanded(
             child: SharedButton(
               onPressed: () {
-                MediaCollection? mediaCollection = controller.resourceList.value
+                MediaCollection? mediaCollectionLocal = controller
+                    .resourceList
+                    .value
                     ?.where(
-                      (mediaCollection) =>
-                          mediaCollection.type ==
+                      (mediaCollectionArg) =>
+                          mediaCollectionArg.type ==
                           MediaCollectionShowType.listMusic,
                     )
                     .firstOrNull;
-                if (mediaCollection?.children.isNotEmpty == true) {
+                if (mediaCollectionLocal?.children.isNotEmpty == true) {
                   PlaybackNavigator.toPlay(
-                    fileList: mediaCollection!.children.cast(),
-                    playMode: PlayerPlayMode.loop,
+                    mediaQueue: mediaCollectionLocal!.children.cast(),
+                    playModeArg: PlayerPlayMode.loop,
                   );
                 }
               },
@@ -321,21 +320,24 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
           Expanded(
             child: SharedButton(
               onPressed: () {
-                MediaCollection? mediaCollection = controller.resourceList.value
+                MediaCollection? mediaCollectionLocal = controller
+                    .resourceList
+                    .value
                     ?.where(
-                      (mediaCollection) =>
-                          mediaCollection.type ==
+                      (mediaCollectionArg) =>
+                          mediaCollectionArg.type ==
                           MediaCollectionShowType.listMusic,
                     )
                     .firstOrNull;
-                if (mediaCollection?.children.isNotEmpty == true) {
-                  List<FileInfo> list = mediaCollection!.children.cast();
-                  Random random = Random();
-                  int randomIndex = random.nextInt(list.length);
+                if (mediaCollectionLocal?.children.isNotEmpty == true) {
+                  List<FileInfo> entries = mediaCollectionLocal!.children
+                      .cast();
+                  Random randomLocal = Random();
+                  int randomIndexLocal = randomLocal.nextInt(entries.length);
                   PlaybackNavigator.toPlay(
-                    fileList: list,
-                    playMode: PlayerPlayMode.shuffle,
-                    mediaDetails: list[randomIndex],
+                    mediaQueue: entries,
+                    playModeArg: PlayerPlayMode.shuffle,
+                    mediaEntry: entries[randomIndexLocal],
                   );
                 }
               },

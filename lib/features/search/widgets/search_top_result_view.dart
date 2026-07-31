@@ -39,7 +39,7 @@ class SearchTopResultView extends StatelessWidget {
               List<MediaCollection>? resourceList,
               Widget? child,
             ) {
-              List<MediaCollection> topResultList =
+              List<MediaCollection> topResultListLocal =
                   resourceList
                       ?.where((mediaCollection) {
                         return mediaCollection.params == null;
@@ -49,14 +49,14 @@ class SearchTopResultView extends StatelessWidget {
                       .cast() ??
                   [];
 
-              MediaCollection? topCardGroup = topResultList.where((
+              MediaCollection? topCardGroupLocal = topResultListLocal.where((
                 mediaCollection,
               ) {
                 return mediaCollection.type == null;
               }).firstOrNull;
 
-              List children =
-                  topResultList
+              List childEntries =
+                  topResultListLocal
                       .where((mediaCollection) {
                         return mediaCollection.type != null;
                       })
@@ -66,18 +66,18 @@ class SearchTopResultView extends StatelessWidget {
 
               return ListView.separated(
                 itemCount:
-                    (topCardGroup != null ? 1 : 0) +
-                    (children.isNotEmpty ? 1 : 0),
+                    (topCardGroupLocal != null ? 1 : 0) +
+                    (childEntries.isNotEmpty ? 1 : 0),
                 separatorBuilder: (context, index) {
                   return SizedBox(height: 20);
                 },
                 itemBuilder: (context, index) {
-                  if (topCardGroup != null && index == 0) {
-                    return _topPartCell(topCardGroup);
+                  if (topCardGroupLocal != null && index == 0) {
+                    return _topPartCell(topCardGroupLocal);
                   }
 
                   return AdaptiveListView(
-                    records: children,
+                    records: childEntries,
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                   );
@@ -88,7 +88,46 @@ class SearchTopResultView extends StatelessWidget {
     );
   }
 
-  Widget _topPartCell(MediaCollection topGroup) {
+  Widget _getTopCell(dynamic entry) {
+    if (entry is FileInfo) {
+      return GestureDetector(
+        onTap: () {
+          List<MediaCollection> topResultListLocal =
+              controller.resourceList.value
+                  ?.where((mediaCollectionArg) {
+                    return mediaCollectionArg.params == null;
+                  })
+                  .firstOrNull
+                  ?.children
+                  .cast() ??
+              [];
+
+          List<FileInfo>? mediaQueue = topResultListLocal.firstOrNull?.children
+              .whereType<FileInfo>()
+              .toList();
+          if (mediaQueue != null) {
+            PlaybackNavigator.toPlay(mediaQueue: mediaQueue, mediaEntry: entry);
+          }
+        },
+        behavior: HitTestBehavior.translucent,
+        child: MediaCell(mediaDetails: entry),
+      );
+    } else if (entry is PerformerDetails) {
+      return PerformerListCell(
+        performerDetails: entry,
+        action: Assets.images.common.optionsMuted.image(),
+      );
+    } else if (entry is MediaCollection) {
+      return CollectionListCell(
+        mediaCollection: entry,
+        showMoreAction: true,
+        action: Assets.images.common.optionsMuted.image(width: 24),
+      );
+    }
+    return SizedBox();
+  }
+
+  Widget _topPartCell(MediaCollection topGroupArg) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -99,68 +138,68 @@ class SearchTopResultView extends StatelessWidget {
       child: ListView.separated(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        itemCount: topGroup.children.length,
-        separatorBuilder: (context, index) {
+        itemCount: topGroupArg.children.length,
+        separatorBuilder: (buildContext, itemIndex) {
           return SizedBox(height: 20);
         },
-        itemBuilder: (context, index) {
-          final item = topGroup.children[index];
-          Widget? actionButton;
-          if (item is FileInfo) {
-            final TransferMediaState downloadFileController =
+        itemBuilder: (buildContext, itemIndex) {
+          final entry = topGroupArg.children[itemIndex];
+          Widget? actionButtonLocal;
+          if (entry is FileInfo) {
+            final TransferMediaState downloadFileControllerLocal =
                 TransferMediaState();
-            actionButton = SharedButton(
+            actionButtonLocal = SharedButton(
               onPressed: () {
-                downloadFileController.saveStateChange();
+                downloadFileControllerLocal.saveStateChange();
               },
               fontSize: 16,
               isWhite: true,
               icon: SaveMediaView(
-                mediaDetails: item,
+                mediaDetails: entry,
                 icon: Assets.images.collection.saveAccent.path,
-                controller: downloadFileController,
+                controller: downloadFileControllerLocal,
               ),
               title: 'Offline'.translate,
             );
-          } else if (item is PerformerDetails) {
-            final BookmarkPerformerState artistController =
-                BookmarkPerformerState(artist: item);
-            actionButton = SharedButton(
+          } else if (entry is PerformerDetails) {
+            final BookmarkPerformerState artistControllerLocal =
+                BookmarkPerformerState(artistArg: entry);
+            actionButtonLocal = SharedButton(
               onPressed: () {
-                artistController.favoriteStateChange();
+                artistControllerLocal.favoriteStateChange();
               },
               fontSize: 16,
               isWhite: true,
               icon: BookmarkPerformerView(
-                artist: item,
+                artist: entry,
                 icon: Assets.images.collection.favoriteAccent.path,
-                controller: artistController,
+                controller: artistControllerLocal,
               ),
               title: 'Like'.translate,
             );
-          } else if (item is MediaCollection) {
-            final BookmarkCollectionState groupController =
-                BookmarkCollectionState(mediaCollection: item);
-            actionButton = SharedButton(
+          } else if (entry is MediaCollection) {
+            final BookmarkCollectionState groupControllerLocal =
+                BookmarkCollectionState(mediaCollectionArg: entry);
+            actionButtonLocal = SharedButton(
               onPressed: () {
-                groupController.infoChange();
+                groupControllerLocal.infoChange();
               },
               fontSize: 16,
               isWhite: true,
               icon: BookmarkCollectionView(
-                mediaCollection: item,
+                mediaCollection: entry,
                 icon: Assets.images.collection.favoriteAccent.path,
-                controller: groupController,
+                controller: groupControllerLocal,
               ),
               title: 'Like'.translate,
             );
           }
 
-          if (index == 0) {
+          if (itemIndex == 0) {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 56, child: _getTopCell(item)),
+                SizedBox(height: 56, child: _getTopCell(entry)),
                 SizedBox(height: 18),
                 SizedBox(
                   height: 42,
@@ -170,30 +209,30 @@ class SearchTopResultView extends StatelessWidget {
                       Expanded(
                         child: SharedButton(
                           onPressed: () {
-                            List<MediaCollection> topResultList =
+                            List<MediaCollection> topResultListLocal =
                                 controller.resourceList.value
-                                    ?.where((mediaCollection) {
-                                      return mediaCollection.params == null;
+                                    ?.where((mediaCollectionArg) {
+                                      return mediaCollectionArg.params == null;
                                     })
                                     .firstOrNull
                                     ?.children
                                     .cast() ??
                                 [];
-                            List<FileInfo> fileList = [];
-                            for (final mediaCollection in topResultList) {
-                              fileList.addAll(
+                            List<FileInfo> mediaQueue = [];
+                            for (final mediaCollection in topResultListLocal) {
+                              mediaQueue.addAll(
                                 mediaCollection.children.whereType<FileInfo>(),
                               );
                             }
-                            PlaybackNavigator.toPlay(fileList: fileList);
+                            PlaybackNavigator.toPlay(mediaQueue: mediaQueue);
                           },
                           fontSize: 16,
-                          icon: Assets.images.collection.playlistPlay
-                              .image(),
+                          icon: Assets.images.collection.playlistPlay.image(),
                           title: 'Play'.translate,
                         ),
                       ),
-                      if (actionButton != null) Expanded(child: actionButton),
+                      if (actionButtonLocal != null)
+                        Expanded(child: actionButtonLocal),
                     ],
                   ),
                 ),
@@ -202,48 +241,9 @@ class SearchTopResultView extends StatelessWidget {
             );
           }
 
-          return SizedBox(height: 56, child: _getTopCell(item));
+          return SizedBox(height: 56, child: _getTopCell(entry));
         },
       ),
     );
-  }
-
-  Widget _getTopCell(dynamic item) {
-    if (item is FileInfo) {
-      return GestureDetector(
-        onTap: () {
-          List<MediaCollection> topResultList =
-              controller.resourceList.value
-                  ?.where((mediaCollection) {
-                    return mediaCollection.params == null;
-                  })
-                  .firstOrNull
-                  ?.children
-                  .cast() ??
-              [];
-
-          List<FileInfo>? fileList = topResultList.firstOrNull?.children
-              .whereType<FileInfo>()
-              .toList();
-          if (fileList != null) {
-            PlaybackNavigator.toPlay(fileList: fileList, mediaDetails: item);
-          }
-        },
-        behavior: HitTestBehavior.translucent,
-        child: MediaCell(mediaDetails: item),
-      );
-    } else if (item is PerformerDetails) {
-      return PerformerListCell(
-        performerDetails: item,
-        action: Assets.images.common.optionsMuted.image(),
-      );
-    } else if (item is MediaCollection) {
-      return CollectionListCell(
-        mediaCollection: item,
-        showMoreAction: true,
-        action: Assets.images.common.optionsMuted.image(width: 24),
-      );
-    }
-    return SizedBox();
   }
 }

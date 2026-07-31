@@ -12,22 +12,22 @@ class PerformerPartGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double itemWidth = (constraints.maxWidth - 12 * 4) / 9 * 2;
-        double aspectRatio = 1;
+        double itemWidthLocal = (constraints.maxWidth - 12 * 4) / 9 * 2;
+        double aspectRatioLocal = 1;
         return SizedBox(
-          height: itemWidth * aspectRatio + 35,
+          height: itemWidthLocal * aspectRatioLocal + 35,
           child: GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 12),
             scrollDirection: Axis.horizontal,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisSpacing: 12,
-              mainAxisExtent: itemWidth,
+              mainAxisExtent: itemWidthLocal,
               crossAxisCount: 1,
             ),
             itemCount: performers.length,
             itemBuilder: (BuildContext ctx, int index) {
-              PerformerDetails performerDetails = performers[index];
-              return _PerformerGridCell(performerDetails: performerDetails);
+              PerformerDetails performerProfile = performers[index];
+              return _PerformerGridCell(performerDetails: performerProfile);
             },
           ),
         );
@@ -44,7 +44,7 @@ class _PerformerGridCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        PerformerDetailScreenHelper.to(performerDetails: performerDetails);
+        PerformerDetailScreenHelper.to(performerProfile: performerDetails);
       },
       behavior: HitTestBehavior.translucent,
       child: Column(

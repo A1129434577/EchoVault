@@ -1,5 +1,28 @@
 import 'package:flutter/material.dart';
 
+class CustomIndicator extends Decoration {
+  final double width;
+  final double height;
+  final double radius;
+  final Color? color;
+  const CustomIndicator({
+    this.width = 6,
+    this.height = 6,
+    this.radius = 3,
+    this.color,
+  });
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
+    return _CustomBoxPainter(
+      width: width,
+      height: height,
+      color: color,
+      radius: radius,
+    );
+  }
+}
+
 class TabNavigationView extends StatelessWidget {
   final List<String> titles;
   final TabController controller;
@@ -13,24 +36,26 @@ class TabNavigationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ValueNotifier<int> currentIndexNotifier = ValueNotifier(controller.index);
+    ValueNotifier<int> currentIndexNotifierLocal = ValueNotifier(
+      controller.index,
+    );
     controller.addListener(() {
-      currentIndexNotifier.value = controller.index;
+      currentIndexNotifierLocal.value = controller.index;
     });
     return ValueListenableBuilder(
-      valueListenable: currentIndexNotifier,
+      valueListenable: currentIndexNotifierLocal,
       builder: (BuildContext context, int currentIndex, Widget? child) {
         return TabBar(
           tabs: titles.map((e) {
-            int index = titles.indexOf(e);
+            int itemIndex = titles.indexOf(e);
             return Container(
               margin: EdgeInsets.only(bottom: 8),
               padding: EdgeInsets.symmetric(
-                horizontal: index == currentIndex ? 20 : 16,
+                horizontal: itemIndex == currentIndex ? 20 : 16,
                 vertical: 8,
               ),
               decoration: BoxDecoration(
-                color: index == currentIndex
+                color: itemIndex == currentIndex
                     ? Color(0xff337DFF).withAlpha((255 * 0.3).round())
                     : null,
                 borderRadius: BorderRadius.circular(24),
@@ -64,29 +89,6 @@ class TabNavigationView extends StatelessWidget {
   }
 }
 
-class CustomIndicator extends Decoration {
-  final double width;
-  final double height;
-  final double radius;
-  final Color? color;
-  const CustomIndicator({
-    this.width = 6,
-    this.height = 6,
-    this.radius = 3,
-    this.color,
-  });
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _CustomBoxPainter(
-      width: width,
-      height: height,
-      color: color,
-      radius: radius,
-    );
-  }
-}
-
 class _CustomBoxPainter extends BoxPainter {
   final double width;
   final double height;
@@ -100,19 +102,19 @@ class _CustomBoxPainter extends BoxPainter {
   });
 
   @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final size = configuration.size!;
-    final newOffset = Offset(
-      offset.dx + (size.width - width) / 2,
-      size.height - height,
+  void paint(Canvas canvas, Offset i, ImageConfiguration configuration) {
+    final sizeLocal = configuration.size!;
+    final newOffsetLocal = Offset(
+      i.dx + (sizeLocal.width - width) / 2,
+      sizeLocal.height - height,
     );
-    final Rect rect = newOffset & Size(width, height);
-    final Paint paint = Paint();
-    paint.color = color ?? Color(0xFF1D75FF);
-    paint.style = PaintingStyle.fill;
+    final Rect rectLocal = newOffsetLocal & Size(width, height);
+    final Paint paintLocal = Paint();
+    paintLocal.color = color ?? Color(0xFF1D75FF);
+    paintLocal.style = PaintingStyle.fill;
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, Radius.circular(radius)), // 圆角半径
-      paint,
+      RRect.fromRectAndRadius(rectLocal, Radius.circular(radius)), // 圆角半径
+      paintLocal,
     );
   }
 }

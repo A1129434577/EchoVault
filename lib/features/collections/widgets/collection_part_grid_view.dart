@@ -12,22 +12,22 @@ class CollectionPartGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double itemWidth = (constraints.maxWidth - 12 * 2) / 7 * 3;
-        double aspectRatio = 1;
+        double itemWidthLocal = (constraints.maxWidth - 12 * 2) / 7 * 3;
+        double aspectRatioLocal = 1;
         return SizedBox(
-          height: itemWidth * aspectRatio + 35,
+          height: itemWidthLocal * aspectRatioLocal + 35,
           child: GridView.builder(
             padding: EdgeInsets.symmetric(horizontal: 12),
             scrollDirection: Axis.horizontal,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisSpacing: 12,
-              mainAxisExtent: itemWidth,
+              mainAxisExtent: itemWidthLocal,
               crossAxisCount: 1,
             ),
             itemCount: playlistList.length,
             itemBuilder: (BuildContext ctx, int index) {
-              MediaCollection mediaCollection = playlistList[index];
-              return _CollectionGridCell(mediaCollection: mediaCollection);
+              MediaCollection mediaCollectionLocal = playlistList[index];
+              return _CollectionGridCell(mediaCollection: mediaCollectionLocal);
             },
           ),
         );
@@ -44,7 +44,7 @@ class _CollectionGridCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        CollectionDetailScreenHelper.to(mediaCollection: mediaCollection);
+        CollectionDetailScreenHelper.to(mediaCollectionArg: mediaCollection);
       },
       behavior: HitTestBehavior.translucent,
       child: Column(
@@ -56,8 +56,7 @@ class _CollectionGridCell extends StatelessWidget {
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: Assets.images.media.albumPlaceholder
-                      .provider(),
+                  image: Assets.images.media.albumPlaceholder.provider(),
                 ),
                 borderRadius: BorderRadius.circular(6),
               ),

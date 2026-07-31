@@ -20,18 +20,19 @@ class BookmarkCollectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BookmarkCollectionState favoriteController =
-        controller ?? BookmarkCollectionState(mediaCollection: mediaCollection);
+    BookmarkCollectionState favoriteControllerLocal =
+        controller ??
+        BookmarkCollectionState(mediaCollectionArg: mediaCollection);
 
     return ValueListenableBuilder(
-      valueListenable: favoriteController.notifier,
+      valueListenable: favoriteControllerLocal.notifier,
       builder:
           (
             BuildContext context,
             MediaCollection musicCollection,
             Widget? child,
           ) {
-            Widget child = Image.asset(
+            Widget nestedEntry = Image.asset(
               musicCollection.isFavorite == 1
                   ? (selectedIcon ??
                         Assets.images.collection.favoriteActive.path)
@@ -40,14 +41,14 @@ class BookmarkCollectionView extends StatelessWidget {
             if (controller == null) {
               return CupertinoButton(
                 onPressed: () {
-                  favoriteController.infoChange();
+                  favoriteControllerLocal.infoChange();
                 },
                 sizeStyle: CupertinoButtonSize.small,
                 padding: EdgeInsets.zero,
-                child: child,
+                child: nestedEntry,
               );
             }
-            return child;
+            return nestedEntry;
           },
     );
   }

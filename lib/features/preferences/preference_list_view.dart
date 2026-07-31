@@ -8,43 +8,6 @@ import 'package:echo_vault/shared/dialogs/confirmation_dialog.dart';
 import 'package:echo_vault/generated/assets.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-class PreferenceState with ChangeNotifier {
-  ValueNotifier<int> cacheSize = ValueNotifier(0);
-  ValueNotifier<String> version = ValueNotifier('');
-
-  Future getCache() async {
-    int imageCacheSize = await DefaultCacheManager().store.getCacheSize();
-    Directory cacheFileDirectory = Directory(
-      await FileInfo.filesCacheDirectoryPath,
-    );
-    int fileCacheSize = 0;
-    if (cacheFileDirectory.existsSync()) {
-      List<FileSystemEntity> list = cacheFileDirectory.listSync(
-        recursive: true,
-        followLinks: false,
-      );
-      for (FileSystemEntity entity in list) {
-        fileCacheSize += (await entity.stat()).size;
-      }
-    }
-    cacheSize.value = fileCacheSize + imageCacheSize;
-  }
-
-  Future cleanCache() async {
-    await DefaultCacheManager().emptyCache();
-    String fileCachePath = await FileInfo.filesCacheDirectoryPath;
-    Directory fileCacheDirectory = Directory(fileCachePath);
-    if (fileCacheDirectory.existsSync()) {
-      fileCacheDirectory.deleteSync(recursive: true);
-    }
-  }
-
-  Future getAppVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    version.value = packageInfo.version;
-  }
-}
-
 class PreferenceListView extends StatelessWidget {
   final PreferenceState controller;
   final ScrollPhysics? physics;
@@ -52,7 +15,10 @@ class PreferenceListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> titleList = ['Feedback'.translate, 'Clean cache'.translate];
+    List<String> titleListLocal = [
+      'Feedback'.translate,
+      'Clean cache'.translate,
+    ];
     return VisibilityDetector(
       key: Key('$PreferenceListView'),
       onVisibilityChanged: (VisibilityInfo info) {
@@ -62,24 +28,24 @@ class PreferenceListView extends StatelessWidget {
       },
       child: ListView.separated(
         shrinkWrap: true,
-        itemCount: titleList.length,
+        itemCount: titleListLocal.length,
         physics: physics,
         separatorBuilder: (context, index) {
           return SizedBox(height: 15);
         },
         itemBuilder: (context, index) {
-          String title = titleList[index];
+          String displayTitle = titleListLocal[index];
           return GestureDetector(
             onTap: () async {
-              if (title == 'Feedback'.translate) {
+              if (displayTitle == 'Feedback'.translate) {
                 Get.to(UserFeedbackScreen());
-              } else if (title == 'Clean cache'.translate) {
+              } else if (displayTitle == 'Clean cache'.translate) {
                 ConfirmationDialog.show(
-                  title: 'Cache clean'.translate,
-                  message:
+                  displayTitle: 'Cache clean'.translate,
+                  messageArg:
                       'This will delete temporary data and cannot be undone. This will not affect your personal files or settings.'
                           .translate,
-                  onConfirm: () async {
+                  onConfirmArg: () async {
                     await controller.cleanCache();
                     controller.getCache();
                   },
@@ -92,8 +58,8 @@ class PreferenceListView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(title, style: TextStyle(fontSize: 14)),
-                  title == 'Clean cache'.translate
+                  Text(displayTitle, style: TextStyle(fontSize: 14)),
+                  displayTitle == 'Clean cache'.translate
                       ? ValueListenableBuilder(
                           valueListenable: controller.cacheSize,
                           builder:
@@ -108,9 +74,7 @@ class PreferenceListView extends StatelessWidget {
                                 );
                               },
                         )
-                      : Assets.images.shell.optionsIcon.image(
-                          width: 20,
-                        ),
+                      : Assets.images.shell.optionsIcon.image(width: 20),
                 ],
               ),
             ),
@@ -118,5 +82,42 @@ class PreferenceListView extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class PreferenceState with ChangeNotifier {
+  ValueNotifier<int> cacheSize = ValueNotifier(0);
+  ValueNotifier<String> version = ValueNotifier('');
+
+  Future cleanCache() async {
+    await DefaultCacheManager().emptyCache();
+    String fileCachePathLocal = await FileInfo.filesCacheDirectoryPath;
+    Directory fileCacheDirectoryLocal = Directory(fileCachePathLocal);
+    if (fileCacheDirectoryLocal.existsSync()) {
+      fileCacheDirectoryLocal.deleteSync(recursive: true);
+    }
+  }
+
+  Future getAppVersion() async {
+    PackageInfo packageInfoLocal = await PackageInfo.fromPlatform();
+    version.value = packageInfoLocal.version;
+  }
+
+  Future getCache() async {
+    int imageCacheSizeLocal = await DefaultCacheManager().store.getCacheSize();
+    Directory cacheFileDirectoryLocal = Directory(
+      await FileInfo.filesCacheDirectoryPath,
+    );
+    int fileCacheSizeLocal = 0;
+    if (cacheFileDirectoryLocal.existsSync()) {
+      List<FileSystemEntity> entries = cacheFileDirectoryLocal.listSync(
+        recursive: true,
+        followLinks: false,
+      );
+      for (FileSystemEntity entity in entries) {
+        fileCacheSizeLocal += (await entity.stat()).size;
+      }
+    }
+    cacheSize.value = fileCacheSizeLocal + imageCacheSizeLocal;
   }
 }

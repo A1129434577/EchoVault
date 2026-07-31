@@ -9,98 +9,6 @@ import 'package:echo_vault/core/parsing/shared_parser.dart';
 import 'package:echo_vault/core/parsing/music_catalog_parser.dart';
 import 'package:echo_vault/core/parsing/parser_helper.dart';
 
-class PlaybackScreenState with ChangeNotifier {
-  final Player player = PlayerPlayback.instance.player;
-  final ValueNotifier<AdInfo?> playNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[AdvertisingScene.playNative],
-  );
-
-  StreamSubscription? _adLoadSubscription;
-
-  final FileInfo? mediaDetails;
-  PlaybackScreenState({this.mediaDetails}) {
-    AdHelper.loadSceneAdIfNull(
-      scene: AdvertisingScene.playNative,
-      detailScene: AdvertisingDetailScene.play,
-    );
-    _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfo) {
-      if (adInfo.scene == AdvertisingScene.playNative) {
-        if (adInfo.loadState == AdLoadStatus.loaded) {
-          playNatoAd.value = adInfo;
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _adLoadSubscription?.cancel();
-    super.dispose();
-  }
-
-  Future queryRecommendList() async {
-    if (DiscoveryState.instance.isYoutubeMusicEnable.value) {
-      await _queryRecommendList();
-    } else {
-      await _queryYTRecommendList();
-    }
-  }
-
-  String? playlistId;
-  Future _queryRecommendList() async {
-    if (mediaDetails == null) {
-      return;
-    }
-    Map<String, dynamic>? params = {'videoId': mediaDetails?.fileId};
-    if (playlistId != null) {
-      params['playlistId'] = playlistId;
-    }
-    //请求接下来播放列表需要用到playlistId,所以如果没有playlistId的话要先通过next接口拿到playlistId
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.playRecommend,
-      prams: params,
-    );
-    if (playlistId == null) {
-      playlistId = ParserHelper.parse<String>(
-        result,
-        PlaybackParserKeys.nextPlayListId,
-      );
-      queryRecommendList();
-    } else {
-      List results =
-          ParserHelper.parse<List>(
-            result,
-            PlaybackParserKeys.nextPlaylistResourceList,
-          ) ??
-          [];
-      final recommendList = await SharedParser.parseChildren(results);
-      PlayerPlayback.instance.insertPlayList(recommendList.cast<FileInfo>());
-    }
-  }
-
-  Future _queryYTRecommendList() async {
-    if (mediaDetails == null) {
-      return;
-    }
-    Map<String, dynamic>? params = {'videoId': mediaDetails?.fileId};
-    dynamic result = await MusicCatalogGateway.post(
-      url: MusicCatalogEndpoints.ytPlayRecommend,
-      prams: params,
-      isMusic: false,
-    );
-    List results =
-        ParserHelper.parse<List>(
-          result,
-          PlaybackSuggestionParserKeys.resourceList,
-        ) ??
-        [];
-    final recommendList = await MusicCatalogParser.parsePlayRecommendChildren(
-      results,
-    );
-    PlayerPlayback.instance.insertPlayList(recommendList.cast<FileInfo>());
-  }
-}
-
 class PlaybackParserKeys {
   ///接下来播放的playlistId
   static List nextPlayListId = [
@@ -140,4 +48,97 @@ class PlaybackParserKeys {
     'playlistPanelRenderer',
     'contents',
   ];
+}
+
+class PlaybackScreenState with ChangeNotifier {
+  final Player player = PlayerPlayback.instance.player;
+  final ValueNotifier<AdInfo?> playNatoAd = ValueNotifier(
+    AdHelper.adSceneCacheInfo[AdvertisingScene.playNative],
+  );
+
+  StreamSubscription? _adLoadSubscription;
+
+  final FileInfo? mediaDetails;
+
+  String? playlistId;
+  PlaybackScreenState({this.mediaDetails}) {
+    AdHelper.loadSceneAdIfNull(
+      scene: AdvertisingScene.playNative,
+      detailScene: AdvertisingDetailScene.play,
+    );
+    _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
+      if (adInfoInputArg.scene == AdvertisingScene.playNative) {
+        if (adInfoInputArg.loadState == AdLoadStatus.loaded) {
+          playNatoAd.value = adInfoInputArg;
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _adLoadSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future queryRecommendList() async {
+    if (DiscoveryState.instance.isYoutubeMusicEnable.value) {
+      await _queryRecommendList();
+    } else {
+      await _queryYTRecommendList();
+    }
+  }
+
+  Future _queryRecommendList() async {
+    if (mediaDetails == null) {
+      return;
+    }
+    Map<String, dynamic>? requestParameters = {'videoId': mediaDetails?.fileId};
+    if (playlistId != null) {
+      requestParameters['playlistId'] = playlistId;
+    }
+    //请求接下来播放列表需要用到playlistId,所以如果没有playlistId的话要先通过next接口拿到playlistId
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.playRecommend,
+      pramsArg: requestParameters,
+    );
+    if (playlistId == null) {
+      playlistId = ParserHelper.parse<String>(
+        response,
+        PlaybackParserKeys.nextPlayListId,
+      );
+      queryRecommendList();
+    } else {
+      List responses =
+          ParserHelper.parse<List>(
+            response,
+            PlaybackParserKeys.nextPlaylistResourceList,
+          ) ??
+          [];
+      final suggestedItems = await SharedParser.parseChildren(responses);
+      PlayerPlayback.instance.insertPlayList(suggestedItems.cast<FileInfo>());
+    }
+  }
+
+  Future _queryYTRecommendList() async {
+    if (mediaDetails == null) {
+      return;
+    }
+    Map<String, dynamic>? requestParameters = {'videoId': mediaDetails?.fileId};
+    dynamic response = await MusicCatalogGateway.post(
+      resourceUrl: MusicCatalogEndpoints.ytPlayRecommend,
+      pramsArg: requestParameters,
+      isMusicArg: false,
+    );
+    List responses =
+        ParserHelper.parse<List>(
+          response,
+          PlaybackSuggestionParserKeys.resourceList,
+        ) ??
+        [];
+    final suggestedItems = await MusicCatalogParser.parsePlayRecommendChildren(
+      responses,
+    );
+    PlayerPlayback.instance.insertPlayList(suggestedItems.cast<FileInfo>());
+  }
 }

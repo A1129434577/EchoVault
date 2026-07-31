@@ -9,71 +9,71 @@ import 'package:echo_vault/core/models/media_collection.dart';
 export 'package:echo_vault/core/models/media_collection.dart';
 
 class MediaCollectionRepository {
-  static Future<int> insertFileGroup(MediaCollection mediaCollection) async {
-    mediaCollection.createTime ??= DateTime.now().millisecondsSinceEpoch;
-    String content = jsonEncode(mediaCollection.toJson());
-    Database database = await ApplicationDatabase.database;
-    int id = await database.insert(DatabaseTables.mediaGroup, {
-      'id': mediaCollection.id,
-      'json_content': content,
-      'create_time': mediaCollection.createTime,
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
-    return id;
-  }
-
-  static Future<int> deleteFileGroup(MediaCollection musicCollection) async {
-    Database database = await ApplicationDatabase.database;
-    int deleteCount = await database.delete(
+  static Future<int> deleteFileGroup(MediaCollection musicCollectionArg) async {
+    Database databaseLocal = await ApplicationDatabase.database;
+    int deleteCountLocal = await databaseLocal.delete(
       DatabaseTables.mediaGroup,
-      where: 'id = "${musicCollection.id}"',
+      where: 'id = "${musicCollectionArg.id}"',
     );
 
-    return deleteCount;
+    return deleteCountLocal;
   }
 
-  static Future<MediaCollection?> queryFileGroupFromId(String? id) async {
-    List<MediaCollection> list = await queryFileGroup(
-      where: id != null ? 'id = "$id"' : 'id IS null',
-    );
-    return list.firstOrNull;
+  static Future<int> insertFileGroup(MediaCollection mediaCollectionArg) async {
+    mediaCollectionArg.createTime ??= DateTime.now().millisecondsSinceEpoch;
+    String encodedContent = jsonEncode(mediaCollectionArg.toJson());
+    Database databaseLocal = await ApplicationDatabase.database;
+    int idLocal = await databaseLocal.insert(DatabaseTables.mediaGroup, {
+      'id': mediaCollectionArg.id,
+      'json_content': encodedContent,
+      'create_time': mediaCollectionArg.createTime,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    return idLocal;
   }
 
   static Future<List<MediaCollection>> queryFileGroup({
-    int? limit,
-    String? where,
+    int? limitInputArg,
+    String? whereArg,
   }) async {
-    Database database = await ApplicationDatabase.database;
-    List<Map<String, Object?>> records = await database.query(
+    Database databaseLocal = await ApplicationDatabase.database;
+    List<Map<String, Object?>> storedRecords = await databaseLocal.query(
       DatabaseTables.mediaGroup,
-      limit: limit,
-      where: where,
+      limit: limitInputArg,
+      where: whereArg,
       orderBy: 'create_time desc',
     );
-    List<MediaCollection> list = [];
-    for (var data in records) {
-      String content = (data['json_content'])?.toString() ?? '';
-      Map<String, dynamic> map = jsonDecode(content);
-      MediaCollection musicCollection = MediaCollection.fromJson(map);
-      String idsString = musicCollection.childrenIds
-          .map((e) {
-            return '"$e"';
+    List<MediaCollection> entries = [];
+    for (var data in storedRecords) {
+      String encodedContent = (data['json_content'])?.toString() ?? '';
+      Map<String, dynamic> record = jsonDecode(encodedContent);
+      MediaCollection musicCollectionLocal = MediaCollection.fromJson(record);
+      String idsStringLocal = musicCollectionLocal.childrenIds
+          .map((entry) {
+            return '"$entry"';
           })
           .toList()
           .join(',');
-      musicCollection.children = await MediaRepository.queryFileInfo(
-        where: 'id IN ($idsString)',
+      musicCollectionLocal.children = await MediaRepository.queryFileInfo(
+        whereArg: 'id IN ($idsStringLocal)',
       );
-      if (musicCollection.id?.startsWith(
+      if (musicCollectionLocal.id?.startsWith(
             NewCollectionDialog.createPlaylistNamePrefix,
           ) ==
           true) {
-        if (musicCollection.children.isNotEmpty) {
-          musicCollection.thumbnail =
-              (musicCollection.children.first as FileInfo).thumbnail;
+        if (musicCollectionLocal.children.isNotEmpty) {
+          musicCollectionLocal.thumbnail =
+              (musicCollectionLocal.children.first as FileInfo).thumbnail;
         }
       }
-      list.add(musicCollection);
+      entries.add(musicCollectionLocal);
     }
-    return list;
+    return entries;
+  }
+
+  static Future<MediaCollection?> queryFileGroupFromId(String? idArg) async {
+    List<MediaCollection> entries = await queryFileGroup(
+      whereArg: idArg != null ? 'id = "$idArg"' : 'id IS null',
+    );
+    return entries.firstOrNull;
   }
 }

@@ -32,10 +32,10 @@ class SearchHistoryState with ChangeNotifier {
       scene: scene,
       detailScene: AdvertisingDetailScene.search,
     );
-    _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfo) {
-      if (adInfo.scene == scene) {
-        if (adInfo.loadState == AdLoadStatus.loaded) {
-          searchNatoAd.value = adInfo;
+    _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
+      if (adInfoInputArg.scene == scene) {
+        if (adInfoInputArg.loadState == AdLoadStatus.loaded) {
+          searchNatoAd.value = adInfoInputArg;
           searchNatoAd.notifyListeners();
         }
       }
@@ -52,37 +52,6 @@ class SearchHistoryState with ChangeNotifier {
     PrimaryNavigationScreen.currentTabIndex.addListener(_mainTabIndexListener);
   }
 
-  Future<List<String>> queryHistoryKeywords() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    String? listJsonString = sp.getString(historyKeywordKey);
-    List<dynamic> storedKeywords = [];
-    if (listJsonString != null) {
-      storedKeywords = jsonDecode(listJsonString);
-    }
-    keywordList.value = storedKeywords.cast();
-    return keywordList.value;
-  }
-
-  Future saveHistoryKeyword(String keyword) async {
-    List<String> historyEntries = await queryHistoryKeywords();
-    if (historyEntries.contains(keyword)) {
-      historyEntries.remove(keyword);
-    }
-    historyEntries.insert(0, keyword);
-    if (historyEntries.length > 10) {
-      historyEntries.sublist(0, 10);
-    }
-    keywordList.value = historyEntries;
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    await sp.setString(historyKeywordKey, jsonEncode(historyEntries));
-  }
-
-  Future clearHistoryKeywords() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    await sp.remove(historyKeywordKey);
-    queryHistoryKeywords();
-  }
-
   @override
   void dispose() {
     _adLoadSubscription?.cancel();
@@ -90,6 +59,37 @@ class SearchHistoryState with ChangeNotifier {
       _mainTabIndexListener,
     );
     super.dispose();
+  }
+
+  Future clearHistoryKeywords() async {
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    await spLocal.remove(historyKeywordKey);
+    queryHistoryKeywords();
+  }
+
+  Future<List<String>> queryHistoryKeywords() async {
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    String? listJsonStringLocal = spLocal.getString(historyKeywordKey);
+    List<dynamic> storedKeywordsLocal = [];
+    if (listJsonStringLocal != null) {
+      storedKeywordsLocal = jsonDecode(listJsonStringLocal);
+    }
+    keywordList.value = storedKeywordsLocal.cast();
+    return keywordList.value;
+  }
+
+  Future saveHistoryKeyword(String keywordArg) async {
+    List<String> historyEntriesLocal = await queryHistoryKeywords();
+    if (historyEntriesLocal.contains(keywordArg)) {
+      historyEntriesLocal.remove(keywordArg);
+    }
+    historyEntriesLocal.insert(0, keywordArg);
+    if (historyEntriesLocal.length > 10) {
+      historyEntriesLocal.sublist(0, 10);
+    }
+    keywordList.value = historyEntriesLocal;
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    await spLocal.setString(historyKeywordKey, jsonEncode(historyEntriesLocal));
   }
 }
 
@@ -114,11 +114,6 @@ class _SearchHistoryViewState extends State<SearchHistoryView> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -128,24 +123,22 @@ class _SearchHistoryViewState extends State<SearchHistoryView> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'History record'.translate,
+              'History map'.translate,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             CupertinoButton(
               onPressed: () {
                 ConfirmationDialog.show(
-                  title: 'Delete',
-                  message: 'Confirm delete the history?',
-                  onConfirm: () {
+                  displayTitle: 'Delete',
+                  messageArg: 'Confirm delete the history?',
+                  onConfirmArg: () {
                     controller.clearHistoryKeywords();
                   },
                 );
               },
               sizeStyle: CupertinoButtonSize.small,
               padding: EdgeInsets.zero,
-              child: Assets.images.search.historyDelete.image(
-                width: 24,
-              ),
+              child: Assets.images.search.historyDelete.image(width: 24),
             ),
           ],
         ),
@@ -219,5 +212,10 @@ class _SearchHistoryViewState extends State<SearchHistoryView> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

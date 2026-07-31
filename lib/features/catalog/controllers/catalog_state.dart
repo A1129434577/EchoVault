@@ -15,7 +15,18 @@ import 'package:echo_vault/features/primary_navigation_screen.dart';
 
 class CatalogState with ChangeNotifier {
   static final CatalogState _instance = CatalogState._();
-  static CatalogState get instance => _instance;
+
+  final ValueNotifier<AdInfo?> libraryNatoAd = ValueNotifier(
+    AdHelper.adSceneCacheInfo[AdvertisingScene.libraryNative],
+  );
+
+  ValueNotifier<List<FileInfo>> savedList = ValueNotifier([]);
+  ValueNotifier<List<FileInfo>> likedList = ValueNotifier([]);
+  ValueNotifier<List<PerformerDetails>> performers = ValueNotifier([]);
+  ValueNotifier<List<MediaCollection>> mediaCollections = ValueNotifier([]);
+  bool isSavedNewly = false;
+  bool isLikedNewly = false;
+  bool isArtistNewly = false;
   factory CatalogState() {
     return _instance;
   }
@@ -24,8 +35,8 @@ class CatalogState with ChangeNotifier {
       scene: AdvertisingScene.libraryNative,
       detailScene: AdvertisingDetailScene.library,
     );
-    TransferMediaState.downloadFinishAndRemoveStream.listen((mediaDetails) {
-      if (DownloadTaskStatus.fromInt(mediaDetails.downloadStatus) ==
+    TransferMediaState.downloadFinishAndRemoveStream.listen((mediaEntry) {
+      if (DownloadTaskStatus.fromInt(mediaEntry.downloadStatus) ==
           DownloadTaskStatus.complete) {
         isSavedNewly = true;
       }
@@ -33,31 +44,31 @@ class CatalogState with ChangeNotifier {
       //收藏里面也有下载状态，所以要更新下载状态
       queryLikedList();
     });
-    BookmarkMediaState.favoriteStream.listen((mediaDetails) async {
+    BookmarkMediaState.favoriteStream.listen((mediaEntry) async {
       await queryLikedList();
       //下载里面也有收藏状态，所以要更新收藏状态
       await querySavedList();
-      if (mediaDetails.isFavorite == 1 && likedList.value.isNotEmpty) {
+      if (mediaEntry.isFavorite == 1 && likedList.value.isNotEmpty) {
         isLikedNewly = true;
       } else {
         isLikedNewly = false;
       }
     });
-    BookmarkCollectionState.favoriteStream.listen((mediaDetails) {
+    BookmarkCollectionState.favoriteStream.listen((mediaEntry) {
       queryMusicGroupList();
     });
-    BookmarkPerformerState.favoriteStream.listen((performerDetails) async {
+    BookmarkPerformerState.favoriteStream.listen((performerProfile) async {
       await queryArtistList();
-      if (performerDetails.isFavorite == 1 && performers.value.isNotEmpty) {
+      if (performerProfile.isFavorite == 1 && performers.value.isNotEmpty) {
         isArtistNewly = true;
       } else {
         isArtistNewly = false;
       }
     });
-    AdHelper.adLoadStatusStream.listen((adInfo) {
-      if (adInfo.scene == AdvertisingScene.libraryNative) {
-        if (adInfo.loadState == AdLoadStatus.loaded) {
-          libraryNatoAd.value = adInfo;
+    AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
+      if (adInfoInputArg.scene == AdvertisingScene.libraryNative) {
+        if (adInfoInputArg.loadState == AdLoadStatus.loaded) {
+          libraryNatoAd.value = adInfoInputArg;
           libraryNatoAd.notifyListeners();
         }
       }
@@ -71,38 +82,30 @@ class CatalogState with ChangeNotifier {
       }
     });
   }
+  static CatalogState get instance => _instance;
 
-  final ValueNotifier<AdInfo?> libraryNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[AdvertisingScene.libraryNative],
-  );
-
-  ValueNotifier<List<FileInfo>> savedList = ValueNotifier([]);
-  ValueNotifier<List<FileInfo>> likedList = ValueNotifier([]);
-  ValueNotifier<List<PerformerDetails>> performers = ValueNotifier([]);
-  ValueNotifier<List<MediaCollection>> mediaCollections = ValueNotifier([]);
-  bool isSavedNewly = false;
-  bool isLikedNewly = false;
-  bool isArtistNewly = false;
-
-  Future<List<FileInfo>> querySavedList() async {
-    savedList.value = await MediaRepository.queryFileInfo(
-      where: 'download_status = 3',
-    );
-    return savedList.value;
-  }
-
-  Future<List<FileInfo>> queryLikedList() async {
-    likedList.value = await MediaRepository.queryFileInfo(
-      where: 'is_favorite = 1',
-    );
-    return likedList.value;
+  Future addFileInfoToPlaylist(
+    FileInfo mediaEntry,
+    MediaCollection mediaCollectionArg,
+  ) async {
+    await MediaRepository.insertFileInfo(mediaEntry);
+    mediaCollectionArg.childrenIds.add(mediaEntry.fileId);
+    await MediaCollectionRepository.insertFileGroup(mediaCollectionArg);
+    await queryMusicGroupList();
   }
 
   Future<List<PerformerDetails>> queryArtistList() async {
     performers.value = await PerformerRepository.queryArtistInfo(
-      where: 'is_favorite = 1',
+      whereArg: 'is_favorite = 1',
     );
     return performers.value;
+  }
+
+  Future<List<FileInfo>> queryLikedList() async {
+    likedList.value = await MediaRepository.queryFileInfo(
+      whereArg: 'is_favorite = 1',
+    );
+    return likedList.value;
   }
 
   Future<List<MediaCollection>> queryMusicGroupList() async {
@@ -110,13 +113,10 @@ class CatalogState with ChangeNotifier {
     return mediaCollections.value;
   }
 
-  Future addFileInfoToPlaylist(
-    FileInfo mediaDetails,
-    MediaCollection mediaCollection,
-  ) async {
-    await MediaRepository.insertFileInfo(mediaDetails);
-    mediaCollection.childrenIds.add(mediaDetails.fileId);
-    await MediaCollectionRepository.insertFileGroup(mediaCollection);
-    await queryMusicGroupList();
+  Future<List<FileInfo>> querySavedList() async {
+    savedList.value = await MediaRepository.queryFileInfo(
+      whereArg: 'download_status = 3',
+    );
+    return savedList.value;
   }
 }

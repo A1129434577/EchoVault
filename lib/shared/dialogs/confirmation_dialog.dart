@@ -18,28 +18,6 @@ class ConfirmationDialog extends StatelessWidget {
     this.textAlign,
   });
 
-  static show({
-    String? title,
-    String? message,
-    VoidCallback? onConfirm,
-    String? routeName,
-    TextAlign? textAlign,
-  }) {
-    showDialog(
-      context: Get.context!,
-      barrierDismissible: false,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return ConfirmationDialog(
-          title: title,
-          message: message,
-          onConfirm: onConfirm,
-          textAlign: textAlign,
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -146,6 +124,28 @@ class ConfirmationDialog extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  static show({
+    String? displayTitle,
+    String? messageArg,
+    VoidCallback? onConfirmArg,
+    String? routeNameArg,
+    TextAlign? textAlignArg,
+  }) {
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      routeSettings: RouteSettings(name: routeNameArg),
+      builder: (buildContext) {
+        return ConfirmationDialog(
+          title: displayTitle,
+          message: messageArg,
+          onConfirm: onConfirmArg,
+          textAlign: textAlignArg,
+        );
+      },
     );
   }
 }

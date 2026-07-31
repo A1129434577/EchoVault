@@ -61,17 +61,6 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   @override
-  void dispose() {
-    controller.needShowSuggestions.removeListener(editingListener);
-    suggestionsAnimationC.dispose();
-    searchHistoryState.dispose();
-    controller.dispose();
-    Get.delete<SearchHistoryState>(tag: widget.tag);
-    Get.delete<SearchState>(tag: widget.tag);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BackgroundSurface(
       bg: Assets.images.search.searchBackdrop.path,
@@ -140,7 +129,8 @@ class _SearchScreenState extends State<SearchScreen>
                                                       onTap: (keyword) {
                                                         controller.queryData(
                                                           keyword,
-                                                          source: 'history',
+                                                          mediaOrigin:
+                                                              'history',
                                                         );
                                                       },
                                                     ),
@@ -172,83 +162,158 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
+  @override
+  void dispose() {
+    controller.needShowSuggestions.removeListener(editingListener);
+    suggestionsAnimationC.dispose();
+    searchHistoryState.dispose();
+    controller.dispose();
+    Get.delete<SearchHistoryState>(tag: widget.tag);
+    Get.delete<SearchState>(tag: widget.tag);
+    super.dispose();
+  }
+
+  Widget _contentWidget() {
+    List<MediaCollection> resourceListLocal =
+        controller.resourceList.value ?? [];
+    if (tabController?.length != resourceListLocal.length) {
+      tabController?.dispose();
+      tabController = TabController(
+        length: resourceListLocal.length,
+        vsync: this,
+      );
+      tabController!.addListener(() {
+        SearchScreen.currentTabIndex.value = tabController!.index;
+      });
+    }
+    return Column(
+      spacing: 16,
+      children: [
+        if (resourceListLocal.length > 1)
+          TabNavigationView(
+            controller: tabController!,
+            titles: resourceListLocal.map((mediaCollectionArg) {
+              return mediaCollectionArg.name;
+            }).toList(),
+          ),
+        Expanded(
+          child: ValueListenableBuilder(
+            valueListenable: SearchScreen.currentTabIndex,
+            builder:
+                (
+                  BuildContext buildContext,
+                  int currentTabIndexArg,
+                  Widget? nestedEntry,
+                ) {
+                  return IndexedStack(
+                    index: currentTabIndexArg,
+                    children: resourceListLocal.map((mediaCollectionArg) {
+                      if (mediaCollectionArg.params == null) {
+                        return SearchTopResultView(controller: controller);
+                      }
+                      return SearchTabResultView(
+                        keyword: editingController.text,
+                        mediaCollection: mediaCollectionArg,
+                        index: resourceListLocal.indexOf(mediaCollectionArg),
+                      );
+                    }).toList(),
+                  );
+                },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _searchBar() {
     return ValueListenableBuilder(
       valueListenable: controller.isSearchBarEmpty,
-      builder: (BuildContext context, bool isSearchBarEmpty, Widget? child) {
-        return ValueListenableBuilder(
-          valueListenable: controller.isEditing,
-          builder: (BuildContext context, bool isEditing, Widget? child) {
-            return Container(
-              height: 48,
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                spacing: 15,
-                children: [
-                  Expanded(
-                    child: DialogTextField(
-                      autofocus: true,
-                      borderRadius: 24,
-                      maxLines: 1,
-                      focusNode: focusNode,
-                      controller: editingController,
-                      hintText: 'Search for music'.translate,
-                      borderSide: BorderSide(
-                        width: 1.5,
-                        color: Color(0xff337DFF),
-                      ),
-                      prefixIconConstraints: BoxConstraints(minWidth: 12),
-                      prefixIcon: SizedBox(width: 12),
-                      suffixIcon: CupertinoButton(
-                        onPressed: isSearchBarEmpty
-                            ? null
-                            : () {
-                                editingController.text = '';
-                                controller.focusNode.requestFocus();
-                              },
-                        sizeStyle: CupertinoButtonSize.small,
-                        padding: EdgeInsets.zero,
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: 48,
-                          child: isSearchBarEmpty
-                              ? Assets.images.search.historySearch
-                                    .image(width: 24)
-                              : Assets.images.search.searchClear.image(
-                                  width: 16,
+      builder:
+          (
+            BuildContext buildContext,
+            bool isSearchBarEmptyArg,
+            Widget? nestedEntry,
+          ) {
+            return ValueListenableBuilder(
+              valueListenable: controller.isEditing,
+              builder:
+                  (
+                    BuildContext buildContext,
+                    bool isEditingArg,
+                    Widget? nestedEntry,
+                  ) {
+                    return Container(
+                      height: 48,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        spacing: 15,
+                        children: [
+                          Expanded(
+                            child: DialogTextField(
+                              autofocus: true,
+                              borderRadius: 24,
+                              maxLines: 1,
+                              focusNode: focusNode,
+                              controller: editingController,
+                              hintText: 'Search for music'.translate,
+                              borderSide: BorderSide(
+                                width: 1.5,
+                                color: Color(0xff337DFF),
+                              ),
+                              prefixIconConstraints: BoxConstraints(
+                                minWidth: 12,
+                              ),
+                              prefixIcon: SizedBox(width: 12),
+                              suffixIcon: CupertinoButton(
+                                onPressed: isSearchBarEmptyArg
+                                    ? null
+                                    : () {
+                                        editingController.text = '';
+                                        controller.focusNode.requestFocus();
+                                      },
+                                sizeStyle: CupertinoButtonSize.small,
+                                padding: EdgeInsets.zero,
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: 48,
+                                  child: isSearchBarEmptyArg
+                                      ? Assets.images.search.historySearch
+                                            .image(width: 24)
+                                      : Assets.images.search.searchClear.image(
+                                          width: 16,
+                                        ),
                                 ),
-                        ),
+                              ),
+                              onFieldSubmitted: (textInputArg) {
+                                controller.queryData(textInputArg);
+                              },
+                            ),
+                          ),
+                          if (!isSearchBarEmptyArg ||
+                              isEditingArg ||
+                              AppRouteObserver.observer.currentRouteName !=
+                                  '/$PrimaryNavigationScreen')
+                            CupertinoButton(
+                              onPressed: () {
+                                controller.cancelSearch();
+                              },
+                              sizeStyle: CupertinoButtonSize.small,
+                              padding: EdgeInsets.zero,
+                              child: Text(
+                                'Cancel'.translate,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff141414),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      onFieldSubmitted: (text) {
-                        controller.queryData(text);
-                      },
-                    ),
-                  ),
-                  if (!isSearchBarEmpty ||
-                      isEditing ||
-                      AppRouteObserver.observer.currentRouteName !=
-                          '/$PrimaryNavigationScreen')
-                    CupertinoButton(
-                      onPressed: () {
-                        controller.cancelSearch();
-                      },
-                      sizeStyle: CupertinoButtonSize.small,
-                      padding: EdgeInsets.zero,
-                      child: Text(
-                        'Cancel'.translate,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xff141414),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                    );
+                  },
             );
           },
-        );
-      },
     );
   }
 
@@ -260,42 +325,46 @@ class _SearchScreenState extends State<SearchScreen>
         valueListenable: controller.suggestionsList,
         builder:
             (
-              BuildContext context,
-              List<String> suggestionsList,
-              Widget? child,
+              BuildContext buildContext,
+              List<String> suggestionsListArg,
+              Widget? nestedEntry,
             ) {
               return Container(
                 decoration: BoxDecoration(color: Color(0xffF7F7F7)),
                 child: ListView.separated(
                   key: Key(editingController.text),
                   padding: EdgeInsets.all(12),
-                  itemCount: suggestionsList.length,
-                  itemBuilder: (context, index) {
-                    String searchKeyword = editingController.text;
-                    String suggestionsKeyword = suggestionsList[index];
+                  itemCount: suggestionsListArg.length,
+                  itemBuilder: (buildContext, itemIndex) {
+                    String searchKeywordLocal = editingController.text;
+                    String suggestionsKeywordLocal =
+                        suggestionsListArg[itemIndex];
                     //前面的
-                    String frontString = '';
+                    String frontStringLocal = '';
                     //中间的
-                    String string = searchKeyword;
+                    String stringLocal = searchKeywordLocal;
                     //后面的
-                    String behindString = '';
-                    if (suggestionsKeyword.contains(searchKeyword)) {
-                      int startIndex = suggestionsKeyword.indexOf(
-                        searchKeyword,
+                    String behindStringLocal = '';
+                    if (suggestionsKeywordLocal.contains(searchKeywordLocal)) {
+                      int startIndexLocal = suggestionsKeywordLocal.indexOf(
+                        searchKeywordLocal,
                       );
-                      frontString = suggestionsKeyword.substring(0, startIndex);
-                      behindString = suggestionsKeyword.substring(
-                        startIndex + searchKeyword.length,
-                        suggestionsKeyword.length,
+                      frontStringLocal = suggestionsKeywordLocal.substring(
+                        0,
+                        startIndexLocal,
+                      );
+                      behindStringLocal = suggestionsKeywordLocal.substring(
+                        startIndexLocal + searchKeywordLocal.length,
+                        suggestionsKeywordLocal.length,
                       );
                     } else {
-                      string = suggestionsKeyword;
+                      stringLocal = suggestionsKeywordLocal;
                     }
                     return GestureDetector(
                       onTap: () {
                         controller.queryData(
-                          suggestionsKeyword,
-                          source: 'association',
+                          suggestionsKeywordLocal,
+                          mediaOrigin: 'association',
                         );
                       },
                       child: Container(
@@ -305,25 +374,23 @@ class _SearchScreenState extends State<SearchScreen>
                           alignment: Alignment.centerLeft,
                           child: Row(
                             children: [
-                              Assets.images.search.searchRow.image(
-                                width: 20,
-                              ),
+                              Assets.images.search.searchRow.image(width: 20),
                               SizedBox(width: 10),
-                              if (frontString.isNotEmpty)
+                              if (frontStringLocal.isNotEmpty)
                                 Text(
-                                  frontString,
+                                  frontStringLocal,
                                   style: TextStyle(fontSize: 14),
                                 ),
                               Text(
-                                string,
+                                stringLocal,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Color(0xFF1D75FF),
                                 ),
                               ),
-                              if (behindString.isNotEmpty)
+                              if (behindStringLocal.isNotEmpty)
                                 Text(
-                                  behindString,
+                                  behindStringLocal,
                                   style: TextStyle(fontSize: 14),
                                 ),
                             ],
@@ -332,57 +399,13 @@ class _SearchScreenState extends State<SearchScreen>
                       ),
                     );
                   },
-                  separatorBuilder: (BuildContext context, int index) {
+                  separatorBuilder: (BuildContext buildContext, int itemIndex) {
                     return SizedBox(height: 16);
                   },
                 ),
               );
             },
       ),
-    );
-  }
-
-  Widget _contentWidget() {
-    List<MediaCollection> resourceList = controller.resourceList.value ?? [];
-    if (tabController?.length != resourceList.length) {
-      tabController?.dispose();
-      tabController = TabController(length: resourceList.length, vsync: this);
-      tabController!.addListener(() {
-        SearchScreen.currentTabIndex.value = tabController!.index;
-      });
-    }
-    return Column(
-      spacing: 16,
-      children: [
-        if (resourceList.length > 1)
-          TabNavigationView(
-            controller: tabController!,
-            titles: resourceList.map((mediaCollection) {
-              return mediaCollection.name;
-            }).toList(),
-          ),
-        Expanded(
-          child: ValueListenableBuilder(
-            valueListenable: SearchScreen.currentTabIndex,
-            builder:
-                (BuildContext context, int currentTabIndex, Widget? child) {
-                  return IndexedStack(
-                    index: currentTabIndex,
-                    children: resourceList.map((mediaCollection) {
-                      if (mediaCollection.params == null) {
-                        return SearchTopResultView(controller: controller);
-                      }
-                      return SearchTabResultView(
-                        keyword: editingController.text,
-                        mediaCollection: mediaCollection,
-                        index: resourceList.indexOf(mediaCollection),
-                      );
-                    }).toList(),
-                  );
-                },
-          ),
-        ),
-      ],
     );
   }
 }

@@ -20,29 +20,29 @@ class BookmarkMediaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BookmarkMediaState favoriteController = controller ?? BookmarkMediaState();
-    favoriteController.notifier.value = mediaDetails;
+    BookmarkMediaState favoriteControllerLocal =
+        controller ?? BookmarkMediaState();
+    favoriteControllerLocal.notifier.value = mediaDetails;
 
     return ValueListenableBuilder(
-      valueListenable: favoriteController.notifier,
+      valueListenable: favoriteControllerLocal.notifier,
       builder: (BuildContext context, FileInfo? mediaDetails, Widget? child) {
-        Widget child = Image.asset(
+        Widget nestedEntry = Image.asset(
           mediaDetails?.isFavorite == 1
-              ? (selectedIcon ??
-                    Assets.images.collection.favoriteActive.path)
+              ? (selectedIcon ?? Assets.images.collection.favoriteActive.path)
               : (icon ?? Assets.images.collection.favorite.path),
         );
         if (controller == null) {
           return CupertinoButton(
             onPressed: () {
-              favoriteController.favoriteStateChange();
+              favoriteControllerLocal.favoriteStateChange();
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: child,
+            child: nestedEntry,
           );
         }
-        return child;
+        return nestedEntry;
       },
     );
   }

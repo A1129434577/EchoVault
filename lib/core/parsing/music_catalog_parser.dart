@@ -5,808 +5,34 @@ import 'package:echo_vault/core/parsing/shared_parser.dart';
 import 'package:echo_vault/core/parsing/record_sync_helper.dart';
 import 'package:echo_vault/core/parsing/parser_helper.dart';
 
-///解析Youtube
-class MusicCatalogParser {
-  static Future<List<MediaCollection>> parseHomeContents(
-    List groupMapList, {
-    MediaSourceInterface? source,
-  }) async {
-    List<MediaCollection> list = [];
-    for (Map groupMap in groupMapList) {
-      if (groupMap.containsKey(DiscoveryCatalogParserKeys.sectionParent)) {
-        groupMap =
-            ParserHelper.parse<Map>(
-              groupMap,
-              DiscoveryCatalogParserKeys.sectionItem,
-            ) ??
-            {};
-        MediaCollection mediaCollection =
-            await MusicCatalogParser.parseHomeFileGroup(
-              groupMap,
-              source: source,
-            );
-        list.add(mediaCollection);
-      }
-    }
-    return list;
-  }
+class CollectionCatalogParserKeys {
+  static String panel = 'playlistPanelVideoRenderer';
 
-  ///解析Youtube(非Youtube Music)首页数据
-  static Future<MediaCollection> parseHomeFileGroup(
-    Map fileGroupMap, {
-    MediaSourceInterface? source,
-  }) async {
-    MediaCollection mediaCollection = MediaCollection();
-    mediaCollection.id = ParserHelper.parse<String>(
-      fileGroupMap,
-      DiscoveryCatalogParserKeys.groupId,
-    );
-    mediaCollection.name =
-        ParserHelper.parse<String>(
-          fileGroupMap,
-          DiscoveryCatalogParserKeys.groupName,
-        ) ??
-        '';
-    List childrenMapList = fileGroupMap[SharedParserKeys.children] ?? [];
-    List children = await parseHomeChildren(
-      childrenMapList,
-      mediaCollection: mediaCollection,
-      source: source,
-    );
+  static List resourceList = [
+    'contents',
+    'twoColumnWatchNextResults',
+    'playlist',
+    'playlist',
+    'contents',
+  ];
 
-    if (mediaCollection.type == null) {
-      //剔除itemList中的的另类(比如大多是是视频里出现了一个playlist)
-      List<FileInfo> fileList = children.whereType<FileInfo>().toList();
-      List<MediaCollection> playlistList = children
-          .whereType<MediaCollection>()
-          .toList();
-      List<PerformerDetails> performers = children
-          .whereType<PerformerDetails>()
-          .toList();
-      if (fileList.length >= playlistList.length &&
-          fileList.length >= performers.length) {
-        mediaCollection.type = MediaCollectionShowType.twoRowVideo;
-        children = fileList;
-      } else if (playlistList.length >= fileList.length &&
-          playlistList.length >= performers.length) {
-        mediaCollection.type = MediaCollectionShowType.twoRowPlaylist;
-        children = playlistList;
-      } else {
-        mediaCollection.type = MediaCollectionShowType.twoRowArtist;
-        children = performers;
-      }
-    }
-    mediaCollection.children = children;
-    return mediaCollection;
-  }
+  static List videoId = ['videoId'];
 
-  static Future<List> parseHomeChildren(
-    List childrenMapList, {
-    MediaCollection? mediaCollection,
-    MediaSourceInterface? source,
-  }) async {
-    List children = [];
-    for (final childrenMap in childrenMapList) {
-      if (childrenMap.containsKey(DiscoveryCatalogParserKeys.richItem)) {
-        Map childMap = childrenMap[DiscoveryCatalogParserKeys.richItem];
-        String? playlistType = ParserHelper.parse<String>(
-          childMap,
-          DiscoveryCatalogParserKeys.playlistType,
-        );
-        String? videoId = ParserHelper.parse<String>(
-          childMap,
-          DiscoveryCatalogParserKeys.videoId,
-        );
-        if (playlistType == CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name ||
-            playlistType == CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name) {
-          MediaCollection playlist = await parseHomePlaylist(
-            childMap,
-            source: source,
-          );
-          playlist.playlistType = playlistType;
-          children.add(playlist);
-        } else if (playlistType == MediaType.LOCKUP_CONTENT_TYPE_VIDEO.name) {
-          FileInfo mediaDetails = await parseHomePlaylistVideo(
-            childMap,
-            source: source,
-          );
-          //B面parentId只用于埋点，无其他实际逻辑
-          mediaDetails.parentId = mediaCollection?.name;
-          children.add(mediaDetails);
-        } else if (videoId != null) {
-          FileInfo mediaDetails = await parseHomeVideo(
-            childMap,
-            source: source,
-          );
-          //B面parentId只用于埋点，无其他实际逻辑
-          mediaDetails.parentId = mediaCollection?.name;
-          children.add(mediaDetails);
-        }
-      }
-    }
-    return children;
-  }
+  static List title = ['title', 'simpleText'];
 
-  static Future<FileInfo> parseHomeVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          DiscoveryCatalogParserKeys.videoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          DiscoveryCatalogParserKeys.videoCover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          DiscoveryCatalogParserKeys.videoTitle,
-        ) ??
-        '';
-    mediaDetails.artist = ParserHelper.parse<String>(
-      fileInfoMap,
-      DiscoveryCatalogParserKeys.videoSubtitle,
-    );
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
+  static List subtitle = [
+    'shortBylineText',
+    'runs',
+    {ParserHelper.indexKey: 0},
+    'text',
+  ];
 
-  static Future<FileInfo> parseHomePlaylistVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          DiscoveryCatalogParserKeys.playlistVideoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          DiscoveryCatalogParserKeys.playlistVideoCover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          DiscoveryCatalogParserKeys.playlistVideoTitle,
-        ) ??
-        '';
-    mediaDetails.artist = ParserHelper.parse<String>(
-      fileInfoMap,
-      DiscoveryCatalogParserKeys.playlistVideoSubtitle,
-    );
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<MediaCollection> parseHomePlaylist(
-    Map playlistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    MediaCollection mediaCollection = MediaCollection();
-    mediaCollection.id = ParserHelper.parse<String>(
-      playlistMap,
-      DiscoveryCatalogParserKeys.playlistId,
-    );
-    mediaCollection.thumbnail =
-        ParserHelper.parse<String>(
-          playlistMap,
-          DiscoveryCatalogParserKeys.playlistCover,
-        ) ??
-        '';
-    mediaCollection.name =
-        ParserHelper.parse<String>(
-          playlistMap,
-          DiscoveryCatalogParserKeys.playlistTitle,
-        ) ??
-        '';
-    mediaCollection.displayName = mediaCollection.name;
-    mediaCollection.detail = ParserHelper.parse<String>(
-      playlistMap,
-      DiscoveryCatalogParserKeys.playlistSubtitle,
-    );
-    await RecordSyncHelper.syncFileGroup(mediaCollection);
-    return mediaCollection;
-  }
-
-  static Future<List> parsePlaylistChildren(
-    List childrenMapList, {
-    MediaCollection? mediaCollection,
-    MediaSourceInterface? source,
-  }) async {
-    List children = [];
-    for (final childrenMap in childrenMapList) {
-      if (childrenMap.containsKey(CollectionCatalogParserKeys.panel)) {
-        Map childMap = childrenMap[CollectionCatalogParserKeys.panel];
-        String? videoId = ParserHelper.parse<String>(
-          childMap,
-          CollectionCatalogParserKeys.videoId,
-        );
-        if (videoId != null) {
-          FileInfo mediaDetails = await parsePlaylistVideo(
-            childMap,
-            source: source,
-          );
-          mediaDetails.fileId = videoId;
-          //B面parentId只用于埋点，无其他实际逻辑
-          mediaDetails.parentId = mediaCollection?.name;
-          children.add(mediaDetails);
-        }
-      }
-    }
-    return children;
-  }
-
-  static Future<FileInfo> parsePlaylistVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          CollectionCatalogParserKeys.videoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          CollectionCatalogParserKeys.cover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          CollectionCatalogParserKeys.title,
-        ) ??
-        '';
-    mediaDetails.artist = ParserHelper.parse<String>(
-      fileInfoMap,
-      CollectionCatalogParserKeys.subtitle,
-    );
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<List> parsePlayRecommendChildren(
-    List childrenMapList, {
-    MediaCollection? mediaCollection,
-    MediaSourceInterface? source,
-  }) async {
-    List children = [];
-    for (final childrenMap in childrenMapList) {
-      if (childrenMap.containsKey(
-        PlaybackSuggestionParserKeys.lockupViewModel,
-      )) {
-        Map childMap =
-            childrenMap[PlaybackSuggestionParserKeys.lockupViewModel];
-        String? videoId = ParserHelper.parse<String>(
-          childMap,
-          PlaybackSuggestionParserKeys.videoId,
-        );
-        if (videoId != null) {
-          FileInfo mediaDetails = await parsePlayRecommendVideo(
-            childMap,
-            source: source,
-          );
-          mediaDetails.fileId = videoId;
-          //B面parentId只用于埋点，无其他实际逻辑
-          mediaDetails.parentId = mediaCollection?.name;
-          children.add(mediaDetails);
-        }
-      }
-    }
-    return children;
-  }
-
-  static Future<FileInfo> parsePlayRecommendVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PlaybackSuggestionParserKeys.videoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PlaybackSuggestionParserKeys.cover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PlaybackSuggestionParserKeys.title,
-        ) ??
-        '';
-    mediaDetails.artist = ParserHelper.parse<String>(
-      fileInfoMap,
-      PlaybackSuggestionParserKeys.subtitle,
-    );
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<List> parseArtistChildren(
-    List childrenMapList, {
-    MediaCollection? mediaCollection,
-    MediaSourceInterface? source,
-  }) async {
-    List children = [];
-    for (final childrenMap in childrenMapList) {
-      if (childrenMap.containsKey(PerformerCatalogParserKeys.richItem)) {
-        Map childMap = childrenMap[PerformerCatalogParserKeys.richItem];
-        String? playlistId = ParserHelper.parse<String>(
-          childMap,
-          PerformerCatalogParserKeys.albumId,
-        );
-        String? videoRendererVideoId = ParserHelper.parse<String>(
-          childMap,
-          PerformerCatalogParserKeys.videoRendererVideoId,
-        );
-        Map? lockupViewModel = ParserHelper.parse<Map>(
-          childMap,
-          PerformerCatalogParserKeys.lockupViewModelVideoItem,
-        );
-        if (videoRendererVideoId != null) {
-          FileInfo mediaDetails = await parseArtistVideoRendererVideo(
-            childMap,
-            source: source,
-          );
-          //B面parentId只用于埋点，无其他实际逻辑
-          mediaDetails.parentId = mediaCollection?.name;
-          children.add(mediaDetails);
-        } else if (lockupViewModel != null) {
-          FileInfo mediaDetails = await parseArtistLockupViewModelVideo(
-            lockupViewModel,
-            source: source,
-          );
-          //B面parentId只用于埋点，无其他实际逻辑
-          mediaDetails.parentId = mediaCollection?.name;
-          children.add(mediaDetails);
-        } else if (playlistId != null) {
-          MediaCollection playlist = await parseArtistAlbum(
-            childMap,
-            source: source,
-          );
-          playlist.playlistType = CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name;
-          playlist.id = playlistId;
-          children.add(playlist);
-        }
-      } else if (childrenMap.containsKey(
-        PerformerCatalogParserKeys.lockupViewModelPlaylistItem,
-      )) {
-        Map childMap =
-            childrenMap[PerformerCatalogParserKeys.lockupViewModelPlaylistItem];
-        String? playlistId = ParserHelper.parse<String>(
-          childMap,
-          PerformerCatalogParserKeys.lockupViewModelId,
-        );
-        if (playlistId != null) {
-          MediaCollection playlist = await parseArtistPlaylist(
-            childMap,
-            source: source,
-          );
-          playlist.id = playlistId;
-          children.add(playlist);
-        }
-      }
-    }
-    return children;
-  }
-
-  static Future<FileInfo> parseArtistVideoRendererVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.videoRendererVideoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.videoRendererVideoCover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.videoRendererVideoTitle,
-        ) ??
-        '';
-    String? viewCountText = ParserHelper.parse<String>(
-      fileInfoMap,
-      PerformerCatalogParserKeys.videoRendererViewCountText,
-    );
-    String? lengthText = ParserHelper.parse<String>(
-      fileInfoMap,
-      PerformerCatalogParserKeys.videoRendererLengthText,
-    );
-    String? publishedTimeText = ParserHelper.parse<String>(
-      fileInfoMap,
-      PerformerCatalogParserKeys.videoRendererPublishedTimeText,
-    );
-    mediaDetails.artist = [
-      viewCountText,
-      lengthText,
-      publishedTimeText,
-    ].join(' • ');
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<FileInfo> parseArtistLockupViewModelVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.lockupViewModelId,
-        ) ??
-        '';
-    mediaDetails.type = ParserHelper.parse<String>(
-      fileInfoMap,
-      PerformerCatalogParserKeys.lockupViewModelType,
-    );
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.lockupViewModelVideoCover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.lockupViewModelTitle,
-        ) ??
-        '';
-    mediaDetails.artist =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          PerformerCatalogParserKeys.lockupViewModelSubtitle,
-        ) ??
-        '';
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<MediaCollection> parseArtistAlbum(
-    Map playlistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    MediaCollection mediaCollection = MediaCollection();
-    mediaCollection.thumbnail =
-        ParserHelper.parse<String>(
-          playlistMap,
-          PerformerCatalogParserKeys.albumCover,
-        ) ??
-        '';
-    mediaCollection.name =
-        ParserHelper.parse<String>(
-          playlistMap,
-          PerformerCatalogParserKeys.albumTitle,
-        ) ??
-        '';
-    mediaCollection.displayName = mediaCollection.name;
-    String subtitle = '';
-    for (Map textRun
-        in ParserHelper.parse<List?>(
-              playlistMap,
-              PerformerCatalogParserKeys.albumSubtitleRuns,
-            ) ??
-            []) {
-      subtitle += textRun['text'];
-    }
-    mediaCollection.detail = subtitle;
-    await RecordSyncHelper.syncFileGroup(mediaCollection);
-    return mediaCollection;
-  }
-
-  static Future<MediaCollection> parseArtistPlaylist(
-    Map playlistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    MediaCollection mediaCollection = MediaCollection();
-    mediaCollection.playlistType = ParserHelper.parse<String>(
-      playlistMap,
-      PerformerCatalogParserKeys.lockupViewModelType,
-    );
-    mediaCollection.thumbnail =
-        ParserHelper.parse<String>(
-          playlistMap,
-          PerformerCatalogParserKeys.lockupViewModelPlaylistCover,
-        ) ??
-        '';
-    mediaCollection.name =
-        ParserHelper.parse<String>(
-          playlistMap,
-          PerformerCatalogParserKeys.lockupViewModelTitle,
-        ) ??
-        '';
-    mediaCollection.displayName = mediaCollection.name;
-    await RecordSyncHelper.syncFileGroup(mediaCollection);
-    return mediaCollection;
-  }
-
-  static Future<List> parseSearchTopChildren(
-    List childrenMapList, {
-    MediaCollection? mediaCollection,
-    MediaSourceInterface? source,
-  }) async {
-    List children = [];
-    for (final childrenMap in childrenMapList) {
-      if (childrenMap.containsKey(SearchCatalogParserKeys.topVideoItem)) {
-        Map childMap = childrenMap[SearchCatalogParserKeys.topVideoItem];
-        FileInfo mediaDetails = await parseSearchTopVideo(
-          childMap,
-          source: source,
-        );
-        //B面parentId只用于埋点，无其他实际逻辑
-        mediaDetails.parentId = mediaCollection?.name;
-        children.add(mediaDetails);
-      } else if (childrenMap.containsKey(SearchCatalogParserKeys.topCardItem)) {
-        Map childMap = childrenMap[SearchCatalogParserKeys.topCardItem];
-        String? pageType = ParserHelper.parse<String>(
-          childMap,
-          SearchCatalogParserKeys.topCardPageType,
-        );
-        if (pageType == PerformerDetails.ytSearchTypeName) {
-          PerformerDetails artist = await parseSearchTopCardArtist(childMap);
-          children.add(artist);
-        } else if (pageType == CollectionType.WEB_PAGE_TYPE_PLAYLIST.name) {
-          MediaCollection mediaCollection = await parseSearchTopCardPlaylist(
-            childMap,
-          );
-          mediaCollection.playlistType = pageType;
-          children.add(mediaCollection);
-        }
-      }
-    }
-    return children;
-  }
-
-  static Future<FileInfo> parseSearchTopVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.topVideoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.topVideoTitle,
-        ) ??
-        '';
-    mediaDetails.artist =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.topVideoSubtitle,
-        ) ??
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.topVideoSubtitle1,
-        );
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<PerformerDetails> parseSearchTopCardArtist(
-    Map artistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    PerformerDetails artist = PerformerDetails();
-    artist.ytId = ParserHelper.parse<String>(
-      artistMap,
-      SearchCatalogParserKeys.topCardBrowseId,
-    );
-    artist.thumbnail =
-        ParserHelper.parse<String>(
-          artistMap,
-          SearchCatalogParserKeys.topCardArtistCover,
-        ) ??
-        '';
-    artist.name =
-        ParserHelper.parse<String>(
-          artistMap,
-          SearchCatalogParserKeys.topCardTitle,
-        ) ??
-        '';
-    artist.desc =
-        ParserHelper.parse<String>(
-          artistMap,
-          SearchCatalogParserKeys.topCardSubtitle,
-        ) ??
-        '';
-    await RecordSyncHelper.syncArtist(artist);
-    return artist;
-  }
-
-  static Future<MediaCollection> parseSearchTopCardPlaylist(
-    Map playlistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    MediaCollection mediaCollection = MediaCollection();
-    mediaCollection.id = ParserHelper.parse<String>(
-      playlistMap,
-      SearchCatalogParserKeys.topCardBrowseId,
-    );
-    mediaCollection.name =
-        ParserHelper.parse<String>(
-          playlistMap,
-          SearchCatalogParserKeys.topCardTitle,
-        ) ??
-        '';
-    mediaCollection.detail = ParserHelper.parse<String>(
-      playlistMap,
-      SearchCatalogParserKeys.topCardSubtitle,
-    );
-    mediaCollection.displayName = mediaCollection.name;
-    await RecordSyncHelper.syncFileGroup(mediaCollection);
-    return mediaCollection;
-  }
-
-  static Future<List> parseSearchChildren(
-    List childrenMapList, {
-    MediaCollection? mediaCollection,
-    MediaSourceInterface? source,
-  }) async {
-    List children = [];
-    for (final childrenMap in childrenMapList) {
-      if (childrenMap.containsKey(SearchCatalogParserKeys.channelRenderer)) {
-        Map childMap = childrenMap[SearchCatalogParserKeys.channelRenderer];
-        PerformerDetails artist = await parseSearchArtist(childMap);
-        children.add(artist);
-      } else if (childrenMap.containsKey(
-        SearchCatalogParserKeys.playlistItem,
-      )) {
-        Map childMap = childrenMap[SearchCatalogParserKeys.playlistItem];
-        MediaCollection playlist = await parseSearchPlaylist(
-          childMap,
-          source: source,
-        );
-        children.add(playlist);
-      } else if (childrenMap.containsKey(
-        SearchCatalogParserKeys.videoRenderer,
-      )) {
-        Map childMap = childrenMap[SearchCatalogParserKeys.videoRenderer];
-        FileInfo mediaDetails = await parseSearchVideo(
-          childMap,
-          source: source,
-        );
-        children.add(mediaDetails);
-      }
-    }
-    return children;
-  }
-
-  static Future<FileInfo> parseSearchVideo(
-    Map fileInfoMap, {
-    MediaSourceInterface? source,
-  }) async {
-    FileInfo mediaDetails = FileInfo(extension: 'mp4', source: source);
-    mediaDetails.fileId =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.videoId,
-        ) ??
-        '';
-    mediaDetails.thumbnail =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.videoCover,
-        ) ??
-        'https://i.ytimg.com/vi/${mediaDetails.fileId}/default.jpg';
-    mediaDetails.name =
-        ParserHelper.parse<String>(
-          fileInfoMap,
-          SearchCatalogParserKeys.videoTitle,
-        ) ??
-        '';
-    mediaDetails.artist = ParserHelper.parse<String>(
-      fileInfoMap,
-      SearchCatalogParserKeys.videoSubtitle,
-    );
-    mediaDetails.uid = ParserHelper.parse<String>(
-      fileInfoMap,
-      SearchCatalogParserKeys.videoUid,
-    );
-    await RecordSyncHelper.syncFileInfo(mediaDetails);
-    return mediaDetails;
-  }
-
-  static Future<PerformerDetails> parseSearchArtist(
-    Map artistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    PerformerDetails artist = PerformerDetails();
-    artist.ytId = ParserHelper.parse<String>(
-      artistMap,
-      SearchCatalogParserKeys.artistBrowseId,
-    );
-    artist.thumbnail =
-        ParserHelper.parse<String>(
-          artistMap,
-          SearchCatalogParserKeys.artistCover,
-        ) ??
-        '';
-    if (artist.thumbnail.startsWith('http') == false) {
-      artist.thumbnail = 'https:${artist.thumbnail}';
-    }
-    artist.name =
-        ParserHelper.parse<String>(
-          artistMap,
-          SearchCatalogParserKeys.artistTitle,
-        ) ??
-        '';
-    artist.desc =
-        ParserHelper.parse<String>(
-          artistMap,
-          SearchCatalogParserKeys.artistSubtitle,
-        ) ??
-        '';
-    await RecordSyncHelper.syncArtist(artist);
-    return artist;
-  }
-
-  static Future<MediaCollection> parseSearchPlaylist(
-    Map playlistMap, {
-    MediaSourceInterface? source,
-  }) async {
-    MediaCollection mediaCollection = MediaCollection();
-    mediaCollection.id = ParserHelper.parse<String>(
-      playlistMap,
-      SearchCatalogParserKeys.playlistId,
-    );
-    mediaCollection.playlistType = ParserHelper.parse<String>(
-      playlistMap,
-      SearchCatalogParserKeys.playlistType,
-    );
-    mediaCollection.thumbnail =
-        ParserHelper.parse<String>(
-          playlistMap,
-          SearchCatalogParserKeys.playlistCover,
-        ) ??
-        '';
-    mediaCollection.name =
-        ParserHelper.parse<String>(
-          playlistMap,
-          SearchCatalogParserKeys.playlistTitle,
-        ) ??
-        '';
-    mediaCollection.displayName = mediaCollection.name;
-    mediaCollection.detail = ParserHelper.parse<String>(
-      playlistMap,
-      SearchCatalogParserKeys.playlistSubtitle,
-    );
-    await RecordSyncHelper.syncFileGroup(mediaCollection);
-    return mediaCollection;
-  }
+  static List cover = [
+    'thumbnail',
+    'thumbnails',
+    {ParserHelper.indexKey: 0},
+    'url',
+  ];
 }
 
 class DiscoveryCatalogParserKeys {
@@ -948,78 +174,814 @@ class DiscoveryCatalogParserKeys {
   ];
 }
 
-class CollectionCatalogParserKeys {
-  static String panel = 'playlistPanelVideoRenderer';
+///解析Youtube
+class MusicCatalogParser {
+  static Future<MediaCollection> parseArtistAlbum(
+    Map collectionRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    MediaCollection mediaCollectionLocal = MediaCollection();
+    mediaCollectionLocal.thumbnail =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          PerformerCatalogParserKeys.albumCover,
+        ) ??
+        '';
+    mediaCollectionLocal.name =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          PerformerCatalogParserKeys.albumTitle,
+        ) ??
+        '';
+    mediaCollectionLocal.displayName = mediaCollectionLocal.name;
+    String secondaryText = '';
+    for (Map textRun
+        in ParserHelper.parse<List?>(
+              collectionRecord,
+              PerformerCatalogParserKeys.albumSubtitleRuns,
+            ) ??
+            []) {
+      secondaryText += textRun['text'];
+    }
+    mediaCollectionLocal.detail = secondaryText;
+    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    return mediaCollectionLocal;
+  }
 
-  static List resourceList = [
-    'contents',
-    'twoColumnWatchNextResults',
-    'playlist',
-    'playlist',
-    'contents',
-  ];
+  static Future<List> parseArtistChildren(
+    List childRecords, {
+    MediaCollection? mediaCollectionArg,
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List childEntries = [];
+    for (final childrenMap in childRecords) {
+      if (childrenMap.containsKey(PerformerCatalogParserKeys.richItem)) {
+        Map nestedRecord = childrenMap[PerformerCatalogParserKeys.richItem];
+        String? playlistIdLocal = ParserHelper.parse<String>(
+          nestedRecord,
+          PerformerCatalogParserKeys.albumId,
+        );
+        String? videoRendererVideoIdLocal = ParserHelper.parse<String>(
+          nestedRecord,
+          PerformerCatalogParserKeys.videoRendererVideoId,
+        );
+        Map? lockupViewModelLocal = ParserHelper.parse<Map>(
+          nestedRecord,
+          PerformerCatalogParserKeys.lockupViewModelVideoItem,
+        );
+        if (videoRendererVideoIdLocal != null) {
+          FileInfo mediaEntry = await parseArtistVideoRendererVideo(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          //B面parentId只用于埋点，无其他实际逻辑
+          mediaEntry.parentId = mediaCollectionArg?.name;
+          childEntries.add(mediaEntry);
+        } else if (lockupViewModelLocal != null) {
+          FileInfo mediaEntry = await parseArtistLockupViewModelVideo(
+            lockupViewModelLocal,
+            mediaOrigin: mediaOrigin,
+          );
+          //B面parentId只用于埋点，无其他实际逻辑
+          mediaEntry.parentId = mediaCollectionArg?.name;
+          childEntries.add(mediaEntry);
+        } else if (playlistIdLocal != null) {
+          MediaCollection playlistLocal = await parseArtistAlbum(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          playlistLocal.playlistType =
+              CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name;
+          playlistLocal.id = playlistIdLocal;
+          childEntries.add(playlistLocal);
+        }
+      } else if (childrenMap.containsKey(
+        PerformerCatalogParserKeys.lockupViewModelPlaylistItem,
+      )) {
+        Map nestedRecord =
+            childrenMap[PerformerCatalogParserKeys.lockupViewModelPlaylistItem];
+        String? playlistIdLocal = ParserHelper.parse<String>(
+          nestedRecord,
+          PerformerCatalogParserKeys.lockupViewModelId,
+        );
+        if (playlistIdLocal != null) {
+          MediaCollection playlistLocal = await parseArtistPlaylist(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          playlistLocal.id = playlistIdLocal;
+          childEntries.add(playlistLocal);
+        }
+      }
+    }
+    return childEntries;
+  }
 
-  static List videoId = ['videoId'];
+  static Future<FileInfo> parseArtistLockupViewModelVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.lockupViewModelId,
+        ) ??
+        '';
+    mediaEntry.type = ParserHelper.parse<String>(
+      mediaRecord,
+      PerformerCatalogParserKeys.lockupViewModelType,
+    );
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.lockupViewModelVideoCover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.lockupViewModelTitle,
+        ) ??
+        '';
+    mediaEntry.artist =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.lockupViewModelSubtitle,
+        ) ??
+        '';
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
 
-  static List title = ['title', 'simpleText'];
+  static Future<MediaCollection> parseArtistPlaylist(
+    Map collectionRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    MediaCollection mediaCollectionLocal = MediaCollection();
+    mediaCollectionLocal.playlistType = ParserHelper.parse<String>(
+      collectionRecord,
+      PerformerCatalogParserKeys.lockupViewModelType,
+    );
+    mediaCollectionLocal.thumbnail =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          PerformerCatalogParserKeys.lockupViewModelPlaylistCover,
+        ) ??
+        '';
+    mediaCollectionLocal.name =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          PerformerCatalogParserKeys.lockupViewModelTitle,
+        ) ??
+        '';
+    mediaCollectionLocal.displayName = mediaCollectionLocal.name;
+    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    return mediaCollectionLocal;
+  }
 
-  static List subtitle = [
-    'shortBylineText',
-    'runs',
-    {ParserHelper.indexKey: 0},
-    'text',
-  ];
+  static Future<FileInfo> parseArtistVideoRendererVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.videoRendererVideoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.videoRendererVideoCover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PerformerCatalogParserKeys.videoRendererVideoTitle,
+        ) ??
+        '';
+    String? viewCountTextLocal = ParserHelper.parse<String>(
+      mediaRecord,
+      PerformerCatalogParserKeys.videoRendererViewCountText,
+    );
+    String? lengthTextLocal = ParserHelper.parse<String>(
+      mediaRecord,
+      PerformerCatalogParserKeys.videoRendererLengthText,
+    );
+    String? publishedTimeTextLocal = ParserHelper.parse<String>(
+      mediaRecord,
+      PerformerCatalogParserKeys.videoRendererPublishedTimeText,
+    );
+    mediaEntry.artist = [
+      viewCountTextLocal,
+      lengthTextLocal,
+      publishedTimeTextLocal,
+    ].join(' • ');
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
 
-  static List cover = [
-    'thumbnail',
-    'thumbnails',
-    {ParserHelper.indexKey: 0},
-    'url',
-  ];
-}
+  static Future<List> parseHomeChildren(
+    List childRecords, {
+    MediaCollection? mediaCollectionArg,
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List childEntries = [];
+    for (final childrenMap in childRecords) {
+      if (childrenMap.containsKey(DiscoveryCatalogParserKeys.richItem)) {
+        Map nestedRecord = childrenMap[DiscoveryCatalogParserKeys.richItem];
+        String? playlistTypeLocal = ParserHelper.parse<String>(
+          nestedRecord,
+          DiscoveryCatalogParserKeys.playlistType,
+        );
+        String? mediaId = ParserHelper.parse<String>(
+          nestedRecord,
+          DiscoveryCatalogParserKeys.videoId,
+        );
+        if (playlistTypeLocal ==
+                CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name ||
+            playlistTypeLocal ==
+                CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name) {
+          MediaCollection playlistLocal = await parseHomePlaylist(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          playlistLocal.playlistType = playlistTypeLocal;
+          childEntries.add(playlistLocal);
+        } else if (playlistTypeLocal ==
+            MediaType.LOCKUP_CONTENT_TYPE_VIDEO.name) {
+          FileInfo mediaEntry = await parseHomePlaylistVideo(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          //B面parentId只用于埋点，无其他实际逻辑
+          mediaEntry.parentId = mediaCollectionArg?.name;
+          childEntries.add(mediaEntry);
+        } else if (mediaId != null) {
+          FileInfo mediaEntry = await parseHomeVideo(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          //B面parentId只用于埋点，无其他实际逻辑
+          mediaEntry.parentId = mediaCollectionArg?.name;
+          childEntries.add(mediaEntry);
+        }
+      }
+    }
+    return childEntries;
+  }
 
-class PlaybackSuggestionParserKeys {
-  static String lockupViewModel = 'lockupViewModel';
+  static Future<List<MediaCollection>> parseHomeContents(
+    List groupMapListArg, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List<MediaCollection> entries = [];
+    for (Map groupMap in groupMapListArg) {
+      if (groupMap.containsKey(DiscoveryCatalogParserKeys.sectionParent)) {
+        groupMap =
+            ParserHelper.parse<Map>(
+              groupMap,
+              DiscoveryCatalogParserKeys.sectionItem,
+            ) ??
+            {};
+        MediaCollection mediaCollectionLocal =
+            await MusicCatalogParser.parseHomeFileGroup(
+              groupMap,
+              mediaOrigin: mediaOrigin,
+            );
+        entries.add(mediaCollectionLocal);
+      }
+    }
+    return entries;
+  }
 
-  static List resourceList = [
-    'contents',
-    'twoColumnWatchNextResults',
-    'secondaryResults',
-    'secondaryResults',
-    'results',
-  ];
+  ///解析Youtube(非Youtube Music)首页数据
+  static Future<MediaCollection> parseHomeFileGroup(
+    Map fileGroupMapArg, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    MediaCollection mediaCollectionLocal = MediaCollection();
+    mediaCollectionLocal.id = ParserHelper.parse<String>(
+      fileGroupMapArg,
+      DiscoveryCatalogParserKeys.groupId,
+    );
+    mediaCollectionLocal.name =
+        ParserHelper.parse<String>(
+          fileGroupMapArg,
+          DiscoveryCatalogParserKeys.groupName,
+        ) ??
+        '';
+    List childRecords = fileGroupMapArg[SharedParserKeys.children] ?? [];
+    List childEntries = await parseHomeChildren(
+      childRecords,
+      mediaCollectionArg: mediaCollectionLocal,
+      mediaOrigin: mediaOrigin,
+    );
 
-  static List videoId = ['contentId'];
-  static List videoType = ['contentType'];
+    if (mediaCollectionLocal.type == null) {
+      //剔除itemList中的的另类(比如大多是是视频里出现了一个playlist)
+      List<FileInfo> mediaQueue = childEntries.whereType<FileInfo>().toList();
+      List<MediaCollection> playlistListLocal = childEntries
+          .whereType<MediaCollection>()
+          .toList();
+      List<PerformerDetails> performersLocal = childEntries
+          .whereType<PerformerDetails>()
+          .toList();
+      if (mediaQueue.length >= playlistListLocal.length &&
+          mediaQueue.length >= performersLocal.length) {
+        mediaCollectionLocal.type = MediaCollectionShowType.twoRowVideo;
+        childEntries = mediaQueue;
+      } else if (playlistListLocal.length >= mediaQueue.length &&
+          playlistListLocal.length >= performersLocal.length) {
+        mediaCollectionLocal.type = MediaCollectionShowType.twoRowPlaylist;
+        childEntries = playlistListLocal;
+      } else {
+        mediaCollectionLocal.type = MediaCollectionShowType.twoRowArtist;
+        childEntries = performersLocal;
+      }
+    }
+    mediaCollectionLocal.children = childEntries;
+    return mediaCollectionLocal;
+  }
 
-  static List title = [
-    'metadata',
-    'lockupMetadataViewModel',
-    'title',
-    'content',
-  ];
+  static Future<MediaCollection> parseHomePlaylist(
+    Map collectionRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    MediaCollection mediaCollectionLocal = MediaCollection();
+    mediaCollectionLocal.id = ParserHelper.parse<String>(
+      collectionRecord,
+      DiscoveryCatalogParserKeys.playlistId,
+    );
+    mediaCollectionLocal.thumbnail =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          DiscoveryCatalogParserKeys.playlistCover,
+        ) ??
+        '';
+    mediaCollectionLocal.name =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          DiscoveryCatalogParserKeys.playlistTitle,
+        ) ??
+        '';
+    mediaCollectionLocal.displayName = mediaCollectionLocal.name;
+    mediaCollectionLocal.detail = ParserHelper.parse<String>(
+      collectionRecord,
+      DiscoveryCatalogParserKeys.playlistSubtitle,
+    );
+    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    return mediaCollectionLocal;
+  }
 
-  static List subtitle = [
-    'metadata',
-    'lockupMetadataViewModel',
-    'metadata',
-    'contentMetadataViewModel',
-    'metadataRows',
-    {ParserHelper.indexKey: 1},
-    'metadataParts',
-    {ParserHelper.indexKey: 0},
-    'text',
-    'content',
-  ];
+  static Future<FileInfo> parseHomePlaylistVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          DiscoveryCatalogParserKeys.playlistVideoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          DiscoveryCatalogParserKeys.playlistVideoCover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          DiscoveryCatalogParserKeys.playlistVideoTitle,
+        ) ??
+        '';
+    mediaEntry.artist = ParserHelper.parse<String>(
+      mediaRecord,
+      DiscoveryCatalogParserKeys.playlistVideoSubtitle,
+    );
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
 
-  static List cover = [
-    'contentImage',
-    'thumbnailViewModel',
-    'image',
-    'sources',
-    {ParserHelper.indexKey: 0},
-    'url',
-  ];
+  static Future<FileInfo> parseHomeVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          DiscoveryCatalogParserKeys.videoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          DiscoveryCatalogParserKeys.videoCover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          DiscoveryCatalogParserKeys.videoTitle,
+        ) ??
+        '';
+    mediaEntry.artist = ParserHelper.parse<String>(
+      mediaRecord,
+      DiscoveryCatalogParserKeys.videoSubtitle,
+    );
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
+
+  static Future<List> parsePlayRecommendChildren(
+    List childRecords, {
+    MediaCollection? mediaCollectionArg,
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List childEntries = [];
+    for (final childrenMap in childRecords) {
+      if (childrenMap.containsKey(
+        PlaybackSuggestionParserKeys.lockupViewModel,
+      )) {
+        Map nestedRecord =
+            childrenMap[PlaybackSuggestionParserKeys.lockupViewModel];
+        String? mediaId = ParserHelper.parse<String>(
+          nestedRecord,
+          PlaybackSuggestionParserKeys.videoId,
+        );
+        if (mediaId != null) {
+          FileInfo mediaEntry = await parsePlayRecommendVideo(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          mediaEntry.fileId = mediaId;
+          //B面parentId只用于埋点，无其他实际逻辑
+          mediaEntry.parentId = mediaCollectionArg?.name;
+          childEntries.add(mediaEntry);
+        }
+      }
+    }
+    return childEntries;
+  }
+
+  static Future<FileInfo> parsePlayRecommendVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PlaybackSuggestionParserKeys.videoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PlaybackSuggestionParserKeys.cover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          PlaybackSuggestionParserKeys.title,
+        ) ??
+        '';
+    mediaEntry.artist = ParserHelper.parse<String>(
+      mediaRecord,
+      PlaybackSuggestionParserKeys.subtitle,
+    );
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
+
+  static Future<List> parsePlaylistChildren(
+    List childRecords, {
+    MediaCollection? mediaCollectionArg,
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List childEntries = [];
+    for (final childrenMap in childRecords) {
+      if (childrenMap.containsKey(CollectionCatalogParserKeys.panel)) {
+        Map nestedRecord = childrenMap[CollectionCatalogParserKeys.panel];
+        String? mediaId = ParserHelper.parse<String>(
+          nestedRecord,
+          CollectionCatalogParserKeys.videoId,
+        );
+        if (mediaId != null) {
+          FileInfo mediaEntry = await parsePlaylistVideo(
+            nestedRecord,
+            mediaOrigin: mediaOrigin,
+          );
+          mediaEntry.fileId = mediaId;
+          //B面parentId只用于埋点，无其他实际逻辑
+          mediaEntry.parentId = mediaCollectionArg?.name;
+          childEntries.add(mediaEntry);
+        }
+      }
+    }
+    return childEntries;
+  }
+
+  static Future<FileInfo> parsePlaylistVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          CollectionCatalogParserKeys.videoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          CollectionCatalogParserKeys.cover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          CollectionCatalogParserKeys.title,
+        ) ??
+        '';
+    mediaEntry.artist = ParserHelper.parse<String>(
+      mediaRecord,
+      CollectionCatalogParserKeys.subtitle,
+    );
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
+
+  static Future<PerformerDetails> parseSearchArtist(
+    Map performerRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    PerformerDetails artistLocal = PerformerDetails();
+    artistLocal.ytId = ParserHelper.parse<String>(
+      performerRecord,
+      SearchCatalogParserKeys.artistBrowseId,
+    );
+    artistLocal.thumbnail =
+        ParserHelper.parse<String>(
+          performerRecord,
+          SearchCatalogParserKeys.artistCover,
+        ) ??
+        '';
+    if (artistLocal.thumbnail.startsWith('http') == false) {
+      artistLocal.thumbnail = 'https:${artistLocal.thumbnail}';
+    }
+    artistLocal.name =
+        ParserHelper.parse<String>(
+          performerRecord,
+          SearchCatalogParserKeys.artistTitle,
+        ) ??
+        '';
+    artistLocal.desc =
+        ParserHelper.parse<String>(
+          performerRecord,
+          SearchCatalogParserKeys.artistSubtitle,
+        ) ??
+        '';
+    await RecordSyncHelper.syncArtist(artistLocal);
+    return artistLocal;
+  }
+
+  static Future<List> parseSearchChildren(
+    List childRecords, {
+    MediaCollection? mediaCollectionArg,
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List childEntries = [];
+    for (final childrenMap in childRecords) {
+      if (childrenMap.containsKey(SearchCatalogParserKeys.channelRenderer)) {
+        Map nestedRecord = childrenMap[SearchCatalogParserKeys.channelRenderer];
+        PerformerDetails artistLocal = await parseSearchArtist(nestedRecord);
+        childEntries.add(artistLocal);
+      } else if (childrenMap.containsKey(
+        SearchCatalogParserKeys.playlistItem,
+      )) {
+        Map nestedRecord = childrenMap[SearchCatalogParserKeys.playlistItem];
+        MediaCollection playlistLocal = await parseSearchPlaylist(
+          nestedRecord,
+          mediaOrigin: mediaOrigin,
+        );
+        childEntries.add(playlistLocal);
+      } else if (childrenMap.containsKey(
+        SearchCatalogParserKeys.videoRenderer,
+      )) {
+        Map nestedRecord = childrenMap[SearchCatalogParserKeys.videoRenderer];
+        FileInfo mediaEntry = await parseSearchVideo(
+          nestedRecord,
+          mediaOrigin: mediaOrigin,
+        );
+        childEntries.add(mediaEntry);
+      }
+    }
+    return childEntries;
+  }
+
+  static Future<MediaCollection> parseSearchPlaylist(
+    Map collectionRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    MediaCollection mediaCollectionLocal = MediaCollection();
+    mediaCollectionLocal.id = ParserHelper.parse<String>(
+      collectionRecord,
+      SearchCatalogParserKeys.playlistId,
+    );
+    mediaCollectionLocal.playlistType = ParserHelper.parse<String>(
+      collectionRecord,
+      SearchCatalogParserKeys.playlistType,
+    );
+    mediaCollectionLocal.thumbnail =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          SearchCatalogParserKeys.playlistCover,
+        ) ??
+        '';
+    mediaCollectionLocal.name =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          SearchCatalogParserKeys.playlistTitle,
+        ) ??
+        '';
+    mediaCollectionLocal.displayName = mediaCollectionLocal.name;
+    mediaCollectionLocal.detail = ParserHelper.parse<String>(
+      collectionRecord,
+      SearchCatalogParserKeys.playlistSubtitle,
+    );
+    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    return mediaCollectionLocal;
+  }
+
+  static Future<PerformerDetails> parseSearchTopCardArtist(
+    Map performerRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    PerformerDetails artistLocal = PerformerDetails();
+    artistLocal.ytId = ParserHelper.parse<String>(
+      performerRecord,
+      SearchCatalogParserKeys.topCardBrowseId,
+    );
+    artistLocal.thumbnail =
+        ParserHelper.parse<String>(
+          performerRecord,
+          SearchCatalogParserKeys.topCardArtistCover,
+        ) ??
+        '';
+    artistLocal.name =
+        ParserHelper.parse<String>(
+          performerRecord,
+          SearchCatalogParserKeys.topCardTitle,
+        ) ??
+        '';
+    artistLocal.desc =
+        ParserHelper.parse<String>(
+          performerRecord,
+          SearchCatalogParserKeys.topCardSubtitle,
+        ) ??
+        '';
+    await RecordSyncHelper.syncArtist(artistLocal);
+    return artistLocal;
+  }
+
+  static Future<MediaCollection> parseSearchTopCardPlaylist(
+    Map collectionRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    MediaCollection mediaCollectionLocal = MediaCollection();
+    mediaCollectionLocal.id = ParserHelper.parse<String>(
+      collectionRecord,
+      SearchCatalogParserKeys.topCardBrowseId,
+    );
+    mediaCollectionLocal.name =
+        ParserHelper.parse<String>(
+          collectionRecord,
+          SearchCatalogParserKeys.topCardTitle,
+        ) ??
+        '';
+    mediaCollectionLocal.detail = ParserHelper.parse<String>(
+      collectionRecord,
+      SearchCatalogParserKeys.topCardSubtitle,
+    );
+    mediaCollectionLocal.displayName = mediaCollectionLocal.name;
+    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    return mediaCollectionLocal;
+  }
+
+  static Future<List> parseSearchTopChildren(
+    List childRecords, {
+    MediaCollection? mediaCollectionArg,
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    List childEntries = [];
+    for (final childrenMap in childRecords) {
+      if (childrenMap.containsKey(SearchCatalogParserKeys.topVideoItem)) {
+        Map nestedRecord = childrenMap[SearchCatalogParserKeys.topVideoItem];
+        FileInfo mediaEntry = await parseSearchTopVideo(
+          nestedRecord,
+          mediaOrigin: mediaOrigin,
+        );
+        //B面parentId只用于埋点，无其他实际逻辑
+        mediaEntry.parentId = mediaCollectionArg?.name;
+        childEntries.add(mediaEntry);
+      } else if (childrenMap.containsKey(SearchCatalogParserKeys.topCardItem)) {
+        Map nestedRecord = childrenMap[SearchCatalogParserKeys.topCardItem];
+        String? pageTypeLocal = ParserHelper.parse<String>(
+          nestedRecord,
+          SearchCatalogParserKeys.topCardPageType,
+        );
+        if (pageTypeLocal == PerformerDetails.ytSearchTypeName) {
+          PerformerDetails artistLocal = await parseSearchTopCardArtist(
+            nestedRecord,
+          );
+          childEntries.add(artistLocal);
+        } else if (pageTypeLocal ==
+            CollectionType.WEB_PAGE_TYPE_PLAYLIST.name) {
+          MediaCollection mediaCollectionLocal =
+              await parseSearchTopCardPlaylist(nestedRecord);
+          mediaCollectionLocal.playlistType = pageTypeLocal;
+          childEntries.add(mediaCollectionLocal);
+        }
+      }
+    }
+    return childEntries;
+  }
+
+  static Future<FileInfo> parseSearchTopVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.topVideoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.topVideoTitle,
+        ) ??
+        '';
+    mediaEntry.artist =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.topVideoSubtitle,
+        ) ??
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.topVideoSubtitle1,
+        );
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
+
+  static Future<FileInfo> parseSearchVideo(
+    Map mediaRecord, {
+    MediaSourceInterface? mediaOrigin,
+  }) async {
+    FileInfo mediaEntry = FileInfo(extension: 'mp4', source: mediaOrigin);
+    mediaEntry.fileId =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.videoId,
+        ) ??
+        '';
+    mediaEntry.thumbnail =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.videoCover,
+        ) ??
+        'https://i.ytimg.com/vi/${mediaEntry.fileId}/default.jpg';
+    mediaEntry.name =
+        ParserHelper.parse<String>(
+          mediaRecord,
+          SearchCatalogParserKeys.videoTitle,
+        ) ??
+        '';
+    mediaEntry.artist = ParserHelper.parse<String>(
+      mediaRecord,
+      SearchCatalogParserKeys.videoSubtitle,
+    );
+    mediaEntry.uid = ParserHelper.parse<String>(
+      mediaRecord,
+      SearchCatalogParserKeys.videoUid,
+    );
+    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    return mediaEntry;
+  }
 }
 
 class PerformerCatalogParserKeys {
@@ -1192,6 +1154,50 @@ class PerformerCatalogParserKeys {
     'url',
   ];
   //歌手详情里面的播放列表end-------------
+}
+
+class PlaybackSuggestionParserKeys {
+  static String lockupViewModel = 'lockupViewModel';
+
+  static List resourceList = [
+    'contents',
+    'twoColumnWatchNextResults',
+    'secondaryResults',
+    'secondaryResults',
+    'results',
+  ];
+
+  static List videoId = ['contentId'];
+  static List videoType = ['contentType'];
+
+  static List title = [
+    'metadata',
+    'lockupMetadataViewModel',
+    'title',
+    'content',
+  ];
+
+  static List subtitle = [
+    'metadata',
+    'lockupMetadataViewModel',
+    'metadata',
+    'contentMetadataViewModel',
+    'metadataRows',
+    {ParserHelper.indexKey: 1},
+    'metadataParts',
+    {ParserHelper.indexKey: 0},
+    'text',
+    'content',
+  ];
+
+  static List cover = [
+    'contentImage',
+    'thumbnailViewModel',
+    'image',
+    'sources',
+    {ParserHelper.indexKey: 0},
+    'url',
+  ];
 }
 
 class SearchCatalogParserKeys {

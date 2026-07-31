@@ -8,36 +8,22 @@ class SaveGuideView extends StatelessWidget {
 
   static final String _saveGuideShowedKey = '_saveGuideShowedKey';
 
-  static show({required GlobalKey targetKey, FileInfo? mediaDetails}) async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    bool? saveGuideShowed = sp.getBool(_saveGuideShowedKey);
-    if (saveGuideShowed == true) {
-      return;
-    }
-    sp.setBool(_saveGuideShowedKey, true);
-    showDialog(
-      context: Get.context!,
-      useSafeArea: false,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return SaveGuideView(targetKey: targetKey, mediaDetails: mediaDetails);
-      },
-    );
-  }
-
   final GlobalKey targetKey;
   final FileInfo? mediaDetails;
   const SaveGuideView({super.key, required this.targetKey, this.mediaDetails});
 
   @override
   Widget build(BuildContext context) {
-    TransferMediaState downloadController = TransferMediaState();
-    downloadController.fileInfoNotifier.value = mediaDetails;
+    TransferMediaState downloadControllerLocal = TransferMediaState();
+    downloadControllerLocal.fileInfoNotifier.value = mediaDetails;
 
-    RenderObject? targetRenderBox = targetKey.currentContext
+    RenderObject? targetRenderBoxLocal = targetKey.currentContext
         ?.findRenderObject();
-    Offset center = (targetRenderBox as RenderBox).localToGlobal(
-      Offset(targetRenderBox.size.width / 2, targetRenderBox.size.height / 2),
+    Offset centerLocal = (targetRenderBoxLocal as RenderBox).localToGlobal(
+      Offset(
+        targetRenderBoxLocal.size.width / 2,
+        targetRenderBoxLocal.size.height / 2,
+      ),
     );
     return GestureDetector(
       onTap: () {
@@ -50,8 +36,8 @@ class SaveGuideView extends StatelessWidget {
         child: Stack(
           children: [
             Positioned(
-              left: center.dx - 62 / 2,
-              top: center.dy - 62 / 2,
+              left: centerLocal.dx - 62 / 2,
+              top: centerLocal.dy - 62 / 2,
               child: Container(
                 height: 62,
                 width: 62,
@@ -63,7 +49,7 @@ class SaveGuideView extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    downloadController.saveStateChange();
+                    downloadControllerLocal.saveStateChange();
                   },
                   child: Container(
                     alignment: Alignment.center,
@@ -71,23 +57,21 @@ class SaveGuideView extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: Color(0xffB7CFFF),
                     ),
-                    child: Assets.images.collection.saveHelp.image(
-                      width: 24,
-                    ),
+                    child: Assets.images.collection.saveHelp.image(width: 24),
                   ),
                 ),
               ),
             ),
             Positioned(
-              top: center.dy - 80,
-              left: center.dx - 4,
+              top: centerLocal.dy - 80,
+              left: centerLocal.dx - 4,
               width: 8,
               height: 52,
               child: Assets.images.collection.saveGuideLine.image(),
             ),
             Positioned(
-              top: center.dy - 80 - 84,
-              left: center.dx - 230 / 2,
+              top: centerLocal.dy - 80 - 84,
+              left: centerLocal.dx - 230 / 2,
               width: 230,
               height: 78,
               child: Container(
@@ -113,6 +97,23 @@ class SaveGuideView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  static show({required GlobalKey targetKeyArg, FileInfo? mediaEntry}) async {
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    bool? saveGuideShowedValueLocal = spLocal.getBool(_saveGuideShowedKey);
+    if (saveGuideShowedValueLocal == true) {
+      return;
+    }
+    spLocal.setBool(_saveGuideShowedKey, true);
+    showDialog(
+      context: Get.context!,
+      useSafeArea: false,
+      routeSettings: RouteSettings(name: routeName),
+      builder: (buildContext) {
+        return SaveGuideView(targetKey: targetKeyArg, mediaDetails: mediaEntry);
+      },
     );
   }
 }

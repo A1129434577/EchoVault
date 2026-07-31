@@ -1,8 +1,6 @@
 import 'package:player_base/enums/media_source_Interface.dart';
 
 class MediaOrigin implements MediaSourceInterface {
-  MediaOrigin({required this.name});
-
   @override
   String name;
 
@@ -28,4 +26,5 @@ class MediaOrigin implements MediaSourceInterface {
     artistHome,
     search,
   ];
+  MediaOrigin({required this.name});
 }

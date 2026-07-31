@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:echo_vault/generated/assets.dart';
 
 class MessageOverlay {
-  static Future<T?> loading<T>({String? status}) {
+  static dismiss() {
+    SmartDialog.dismiss();
+  }
+
+  static Future<T?> loading<T>({String? currentStatus}) {
     return SmartDialog.showLoading(
-      builder: (context) {
+      builder: (buildContext) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: BoxDecoration(
@@ -24,12 +28,12 @@ class MessageOverlay {
                   backgroundColor: Color(0xffF1F6FF),
                 ),
               ),
-              if (status != null)
+              if (currentStatus != null)
                 Column(
                   children: [
                     const SizedBox(height: 15),
                     Text(
-                      status,
+                      currentStatus,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -45,50 +49,46 @@ class MessageOverlay {
     );
   }
 
-  static dismiss() {
-    SmartDialog.dismiss();
-  }
-
-  static Future showMessage(String status) {
+  static Future showError(String currentStatus) {
     return SmartDialog.showToast(
       '',
-      builder: (context) {
-        return MessageOverlayView(status: status);
-      },
-    );
-  }
-
-  static Future showSuccess(String status) {
-    return SmartDialog.showToast(
-      '',
-      builder: (context) {
-        return MessageOverlayView(
-          icon: Assets.images.status.statusSuccess.image(width: 24),
-          status: status,
-        );
-      },
-    );
-  }
-
-  static Future showError(String status) {
-    return SmartDialog.showToast(
-      '',
-      builder: (context) {
+      builder: (buildContext) {
         return MessageOverlayView(
           icon: Assets.images.status.statusError.image(width: 24),
-          status: status,
+          status: currentStatus,
         );
       },
     );
   }
 
-  static Future showWarning(String status) {
+  static Future showMessage(String currentStatus) {
     return SmartDialog.showToast(
       '',
-      builder: (context) {
+      builder: (buildContext) {
+        return MessageOverlayView(status: currentStatus);
+      },
+    );
+  }
+
+  static Future showSuccess(String currentStatus) {
+    return SmartDialog.showToast(
+      '',
+      builder: (buildContext) {
+        return MessageOverlayView(
+          icon: Assets.images.status.statusSuccess.image(width: 24),
+          status: currentStatus,
+        );
+      },
+    );
+  }
+
+  static Future showWarning(String currentStatus) {
+    return SmartDialog.showToast(
+      '',
+      builder: (buildContext) {
         return MessageOverlayView(
           icon: Assets.images.status.statusWarning.image(width: 24),
-          status: status,
+          status: currentStatus,
         );
       },
     );

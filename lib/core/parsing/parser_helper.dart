@@ -31,69 +31,69 @@ class ParserHelper {
   static const String filterChildValueKey = 'child_value';
 
   ///从原始数据当中通过树形解析key列表解析到下层数据
-  static T? parse<T>(dynamic parentData, List parseKeys) {
-    dynamic data;
-    if (parentData is Map) {
-      data = {}..addAll(parentData);
-    } else if (parentData is List) {
-      data = [...parentData];
+  static T? parse<T>(dynamic parentDataArg, List parseKeysArg) {
+    dynamic payload;
+    if (parentDataArg is Map) {
+      payload = {}..addAll(parentDataArg);
+    } else if (parentDataArg is List) {
+      payload = [...parentDataArg];
     }
-    for (var key in parseKeys) {
+    for (var key in parseKeysArg) {
       try {
-        if (data == null) {
+        if (payload == null) {
           //如果data没找到了，就没有必要再走了
           break;
         }
         if (key is String) {
           //如果是字符串key直接递归取值
-          data = data[key];
-        } else if ((key is Map) && (data is List)) {
+          payload = payload[key];
+        } else if ((key is Map) && (payload is List)) {
           //如果是filter map则从数组中筛选出符合的item
-          int? index = key[ParserHelper.indexKey];
-          String? filterKey = key[ParserHelper.filterKey];
-          String? filterValue = key[ParserHelper.filterValueKey];
-          Map? filters = key[ParserHelper.filtersKey];
-          if (index != null) {
-            while (index! > data.length - 1) {
-              index--;
+          int? itemIndex = key[ParserHelper.indexKey];
+          String? filterKeyLocal = key[ParserHelper.filterKey];
+          String? filterValueLocal = key[ParserHelper.filterValueKey];
+          Map? filtersLocal = key[ParserHelper.filtersKey];
+          if (itemIndex != null) {
+            while (itemIndex! > payload.length - 1) {
+              itemIndex--;
             }
-            if (index < data.length) {
-              if (index > -1) {
-                data = data[index];
+            if (itemIndex < payload.length) {
+              if (itemIndex > -1) {
+                payload = payload[itemIndex];
               } else {
-                data = data.firstOrNull;
+                payload = payload.firstOrNull;
               }
             }
-          } else if (filterKey != null && filterValue != null) {
-            for (var e in data) {
-              if (e[filterKey] == filterValue) {
-                data = e;
+          } else if (filterKeyLocal != null && filterValueLocal != null) {
+            for (var e in payload) {
+              if (e[filterKeyLocal] == filterValueLocal) {
+                payload = e;
               }
             }
-          } else if (filterKey != null) {
-            List filteredList = [];
-            for (var e in data) {
-              if (e is Map && e.containsKey(filterKey)) {
-                filteredList.add(e);
+          } else if (filterKeyLocal != null) {
+            List filteredListLocal = [];
+            for (var e in payload) {
+              if (e is Map && e.containsKey(filterKeyLocal)) {
+                filteredListLocal.add(e);
               }
             }
-            data = filteredList;
-          } else if (filters is Map) {
-            String? filterKey = filters[ParserHelper.filtersKey];
-            String? childKey = filters[ParserHelper.filterChildKey];
-            List filteredList = [];
-            for (var e in data) {
+            payload = filteredListLocal;
+          } else if (filtersLocal is Map) {
+            String? filterKeyLocal = filtersLocal[ParserHelper.filtersKey];
+            String? childKeyLocal = filtersLocal[ParserHelper.filterChildKey];
+            List filteredListLocal = [];
+            for (var e in payload) {
               if (e is Map) {
-                var child = e[filterKey];
-                if (child is Map) {
-                  if (child[childKey] != null) {
+                var nestedEntry = e[filterKeyLocal];
+                if (nestedEntry is Map) {
+                  if (nestedEntry[childKeyLocal] != null) {
                     // if (child[childKey] == childValue) {
-                    filteredList.add(e);
+                    filteredListLocal.add(e);
                   }
                 }
               }
             }
-            data = filteredList;
+            payload = filteredListLocal;
           }
         }
       } catch (e) {
@@ -101,10 +101,10 @@ class ParserHelper {
       }
     }
     // if(data != null &&  ((data is T) == false)){
-    if ((data is T) == false) {
+    if ((payload is T) == false) {
       // Get.log('youtube解析报错：类型${data.runtimeType}不符合预期${T.runtimeType}');
       return null;
     }
-    return data;
+    return payload;
   }
 }

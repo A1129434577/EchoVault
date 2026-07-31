@@ -27,12 +27,6 @@ class _FindTabResultViewState extends State<SearchTabResultView> {
   );
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return PagedRefreshView(
       onRefresh: () {
@@ -60,5 +54,11 @@ class _FindTabResultViewState extends State<SearchTabResultView> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

@@ -88,6 +88,19 @@ class AdvertisingCoordinator {
   }
 }
 
+class AdvertisingDetailScene {
+  static AdDetailScene coldOpen = AdDetailScene(tag: 'cold');
+  static AdDetailScene hotOpen = AdDetailScene(tag: 'hot');
+  static AdDetailScene pop = AdDetailScene(tag: 'pop');
+  static AdDetailScene playStart = AdDetailScene(tag: 'playStart');
+  static AdDetailScene play = AdDetailScene(tag: 'play');
+  static AdDetailScene detail = AdDetailScene(tag: 'detail');
+  static AdDetailScene search = AdDetailScene(tag: 'search');
+  static AdDetailScene library = AdDetailScene(tag: 'library');
+  static AdDetailScene collection = AdDetailScene(tag: 'like');
+  static AdDetailScene download = AdDetailScene(tag: 'download');
+}
+
 class AdvertisingScene {
   //开屏广告位
   static AdScene open = AdScene(name: 'open');
@@ -124,17 +137,4 @@ class AdvertisingScene {
     isFullScreen: false,
     isAddToInterval: false,
   );
-}
-
-class AdvertisingDetailScene {
-  static AdDetailScene coldOpen = AdDetailScene(tag: 'cold');
-  static AdDetailScene hotOpen = AdDetailScene(tag: 'hot');
-  static AdDetailScene pop = AdDetailScene(tag: 'pop');
-  static AdDetailScene playStart = AdDetailScene(tag: 'playStart');
-  static AdDetailScene play = AdDetailScene(tag: 'play');
-  static AdDetailScene detail = AdDetailScene(tag: 'detail');
-  static AdDetailScene search = AdDetailScene(tag: 'search');
-  static AdDetailScene library = AdDetailScene(tag: 'library');
-  static AdDetailScene collection = AdDetailScene(tag: 'like');
-  static AdDetailScene download = AdDetailScene(tag: 'download');
 }

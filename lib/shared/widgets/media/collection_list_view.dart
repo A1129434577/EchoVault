@@ -38,54 +38,61 @@ class CollectionListView extends StatelessWidget {
         return SizedBox(height: 18);
       },
       itemBuilder: (context, index) {
-        MediaCollection mediaCollection = mediaCollections[index];
+        MediaCollection mediaCollectionLocal = mediaCollections[index];
 
         return Column(
           spacing: 12,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (mediaCollection.type != null && mediaCollection.name.isNotEmpty)
+            if (mediaCollectionLocal.type != null &&
+                mediaCollectionLocal.name.isNotEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 child: SectionHeadingView(
-                  title: mediaCollection.name,
-                  onTap: mediaCollection.id != null
+                  title: mediaCollectionLocal.name,
+                  onTap: mediaCollectionLocal.id != null
                       ? () {
                           Get.to(
                             CollectionMoreScreen(
-                              mediaCollection: mediaCollection,
+                              mediaCollection: mediaCollectionLocal,
                             ),
-                            arguments: mediaCollection,
+                            arguments: mediaCollectionLocal,
                             preventDuplicates: false,
                           );
                         }
                       : null,
                 ),
               ),
-            if (mediaCollection.type == MediaCollectionShowType.listMusic ||
-                mediaCollection.type == null)
+            if (mediaCollectionLocal.type ==
+                    MediaCollectionShowType.listMusic ||
+                mediaCollectionLocal.type == null)
               AdaptiveListView(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                records: mediaCollection.children.cast<FileInfo>(),
+                records: mediaCollectionLocal.children.cast<FileInfo>(),
               ),
-            if (mediaCollection.type ==
+            if (mediaCollectionLocal.type ==
                 MediaCollectionShowType.responsiveListMusic)
               MediaHGridView(
-                fileList: mediaCollection.children.cast<FileInfo>(),
+                fileList: mediaCollectionLocal.children.cast<FileInfo>(),
               ),
-            if (mediaCollection.type == MediaCollectionShowType.twoRowVideo)
+            if (mediaCollectionLocal.type ==
+                MediaCollectionShowType.twoRowVideo)
               VideoPartGridView(
-                fileList: mediaCollection.children.cast<FileInfo>(),
+                fileList: mediaCollectionLocal.children.cast<FileInfo>(),
               ),
-            if (mediaCollection.type == MediaCollectionShowType.twoRowArtist)
+            if (mediaCollectionLocal.type ==
+                MediaCollectionShowType.twoRowArtist)
               PerformerPartGridView(
-                performers: mediaCollection.children.cast<PerformerDetails>(),
+                performers: mediaCollectionLocal.children
+                    .cast<PerformerDetails>(),
               ),
-            if (mediaCollection.type == MediaCollectionShowType.twoRowPlaylist)
+            if (mediaCollectionLocal.type ==
+                MediaCollectionShowType.twoRowPlaylist)
               CollectionPartGridView(
-                playlistList: mediaCollection.children.cast<MediaCollection>(),
+                playlistList: mediaCollectionLocal.children
+                    .cast<MediaCollection>(),
               ),
           ],
         );

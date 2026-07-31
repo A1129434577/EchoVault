@@ -12,23 +12,23 @@ import 'package:echo_vault/core/utilities/message_overlay.dart';
 class CollectionOptionsPanel extends StatefulWidget {
   static String routeName = '$CollectionOptionsPanel';
 
-  static void show({required MediaCollection musicCollection}) {
-    showModalBottomSheet(
-      context: Get.context!,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      routeSettings: RouteSettings(name: routeName),
-      builder: (context) {
-        return CollectionOptionsPanel(musicCollection: musicCollection);
-      },
-    );
-  }
-
   final MediaCollection musicCollection;
   const CollectionOptionsPanel({super.key, required this.musicCollection});
 
   @override
   State<CollectionOptionsPanel> createState() => _CollectionOptionsPanelState();
+
+  static void show({required MediaCollection musicCollectionArg}) {
+    showModalBottomSheet(
+      context: Get.context!,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      routeSettings: RouteSettings(name: routeName),
+      builder: (buildContext) {
+        return CollectionOptionsPanel(musicCollection: musicCollectionArg);
+      },
+    );
+  }
 }
 
 class _CollectionOptionsPanelState extends State<CollectionOptionsPanel> {
@@ -83,9 +83,7 @@ class _CollectionOptionsPanelState extends State<CollectionOptionsPanel> {
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child: Assets.images.common.dismiss.image(
-                      width: 20,
-                    ),
+                    child: Assets.images.common.dismiss.image(width: 20),
                   ),
                 ),
               ],
@@ -106,23 +104,23 @@ class _CollectionOptionsPanelState extends State<CollectionOptionsPanel> {
               return SizedBox(height: 32);
             },
             itemBuilder: (context, index) {
-              String title = titleList[index];
+              String displayTitle = titleList[index];
 
               return GestureDetector(
                 onTap: () {
-                  if (title == 'Rename'.translate) {
+                  if (displayTitle == 'Rename'.translate) {
                     NewCollectionDialog.show(
-                      musicCollection: musicCollection,
+                      musicCollectionArg: musicCollection,
                     ).then((e) {
                       setState(() {});
                     });
-                  } else if (title == 'Delete'.translate) {
+                  } else if (displayTitle == 'Delete'.translate) {
                     ConfirmationDialog.show(
-                      title: 'Delete',
-                      message: 'Confirm delete this playlist?',
-                      onConfirm: () {
+                      displayTitle: 'Delete',
+                      messageArg: 'Confirm delete this playlist?',
+                      onConfirmArg: () {
                         BookmarkCollectionState(
-                          mediaCollection: musicCollection,
+                          mediaCollectionArg: musicCollection,
                         ).infoChange();
                         MessageOverlay.showSuccess('Deleted.'.translate);
                         Navigator.pop(context);
@@ -140,7 +138,7 @@ class _CollectionOptionsPanelState extends State<CollectionOptionsPanel> {
                       ),
                       child: iconList[index].image(width: 24),
                     ),
-                    Text(title, style: TextStyle(fontSize: 12)),
+                    Text(displayTitle, style: TextStyle(fontSize: 12)),
                   ],
                 ),
               );

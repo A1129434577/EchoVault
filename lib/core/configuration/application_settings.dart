@@ -9,14 +9,14 @@ import 'package:echo_vault/features/launch/controllers/launch_state.dart';
 
 class ApplicationSettings {
   static Future start() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    LaunchState.instance.isModulesUsable.value = sp.getBool(
+    SharedPreferences spLocal = await SharedPreferences.getInstance();
+    LaunchState.instance.isModulesUsable.value = spLocal.getBool(
       LaunchState.isModulesUsableKey,
     );
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    AppLifecycleObserver.lifecycleStream.listen((state) {
-      if (state == AppLifecycleState.foreground) {
+    AppLifecycleObserver.lifecycleStream.listen((stateArg) {
+      if (stateArg == AppLifecycleState.foreground) {
         SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       }
     });

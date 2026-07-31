@@ -17,26 +17,14 @@ class MediaOptionsPanel extends StatelessWidget {
 
   static final StreamController<String> _actionsController =
       StreamController.broadcast();
-  static Stream<String> get actionsStream => _actionsController.stream;
-
-  static void show({required FileInfo mediaDetails}) {
-    showModalBottomSheet(
-      context: Get.context!,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      routeSettings: RouteSettings(name: routeName, arguments: mediaDetails),
-      builder: (context) {
-        return MediaOptionsPanel(mediaDetails: mediaDetails);
-      },
-    );
-  }
 
   final FileInfo mediaDetails;
   const MediaOptionsPanel({super.key, required this.mediaDetails});
+  static Stream<String> get actionsStream => _actionsController.stream;
 
   @override
   Widget build(BuildContext context) {
-    List<String> titleList = [
+    List<String> titleListLocal = [
       'Offline'.translate,
       'Add to Library'.translate,
       'Play next'.translate,
@@ -44,11 +32,11 @@ class MediaOptionsPanel extends StatelessWidget {
       'Add to playlist'.translate,
     ];
     if (mediaDetails.uid != null) {
-      titleList.add('Go to artist'.translate);
+      titleListLocal.add('Go to artist'.translate);
     }
 
-    BookmarkMediaState favoriteController = BookmarkMediaState();
-    TransferMediaState downloadController = TransferMediaState();
+    BookmarkMediaState favoriteControllerLocal = BookmarkMediaState();
+    TransferMediaState downloadControllerLocal = TransferMediaState();
 
     return PanelBackgroundView(
       child: Column(
@@ -95,9 +83,7 @@ class MediaOptionsPanel extends StatelessWidget {
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child: Assets.images.common.dismiss.image(
-                      width: 20,
-                    ),
+                    child: Assets.images.common.dismiss.image(width: 20),
                   ),
                 ),
               ],
@@ -113,17 +99,17 @@ class MediaOptionsPanel extends StatelessWidget {
             shrinkWrap: true,
             padding: EdgeInsets.symmetric(horizontal: 12),
             physics: NeverScrollableScrollPhysics(),
-            itemCount: titleList.length,
+            itemCount: titleListLocal.length,
             separatorBuilder: (context, index) {
               return SizedBox(height: 32);
             },
             itemBuilder: (context, index) {
-              String title = titleList[index];
-              if (title == 'Offline'.translate) {
+              String displayTitle = titleListLocal[index];
+              if (displayTitle == 'Offline'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(title);
-                    downloadController.saveStateChange();
+                    _actionsController.add(displayTitle);
+                    downloadControllerLocal.saveStateChange();
                   },
                   behavior: HitTestBehavior.translucent,
                   child: SizedBox(
@@ -133,24 +119,21 @@ class MediaOptionsPanel extends StatelessWidget {
                       children: [
                         SaveMediaView(
                           mediaDetails: mediaDetails,
-                          controller: downloadController,
+                          controller: downloadControllerLocal,
                           icon: Assets.images.prompts.savePrompt.path,
-                          selectedIcon: Assets
-                              .images
-                              .collection
-                              .savePromptActive
-                              .path,
+                          selectedIcon:
+                              Assets.images.collection.savePromptActive.path,
                         ),
-                        Text(title, style: TextStyle(fontSize: 12)),
+                        Text(displayTitle, style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
                 );
-              } else if (title == 'Add to Library'.translate) {
+              } else if (displayTitle == 'Add to Library'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(title);
-                    favoriteController.favoriteStateChange();
+                    _actionsController.add(displayTitle);
+                    favoriteControllerLocal.favoriteStateChange();
                   },
                   behavior: HitTestBehavior.translucent,
                   child: SizedBox(
@@ -160,27 +143,23 @@ class MediaOptionsPanel extends StatelessWidget {
                       children: [
                         BookmarkMediaView(
                           mediaDetails: mediaDetails,
-                          controller: favoriteController,
-                          icon: Assets
-                              .images
-                              .prompts
-                              .favoritePrompt
-                              .path,
+                          controller: favoriteControllerLocal,
+                          icon: Assets.images.prompts.favoritePrompt.path,
                           selectedIcon: Assets
                               .images
                               .collection
                               .favoritePromptActive
                               .path,
                         ),
-                        Text(title, style: TextStyle(fontSize: 12)),
+                        Text(displayTitle, style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
                 );
-              } else if (title == 'Play next'.translate) {
+              } else if (displayTitle == 'Play next'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(title);
+                    _actionsController.add(displayTitle);
                     PlayerPlayback.instance.insertNextPlayList([mediaDetails]);
                     MessageOverlay.showSuccess('Will play next.'.translate);
                     Navigator.pop(context);
@@ -192,15 +171,15 @@ class MediaOptionsPanel extends StatelessWidget {
                       spacing: 16,
                       children: [
                         Assets.images.prompts.playNextPrompt.image(),
-                        Text(title, style: TextStyle(fontSize: 12)),
+                        Text(displayTitle, style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
                 );
-              } else if (title == 'Add to queue'.translate) {
+              } else if (displayTitle == 'Add to queue'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(title);
+                    _actionsController.add(displayTitle);
                     PlayerPlayback.instance.insertPlayList([mediaDetails]);
                     MessageOverlay.showSuccess('Added to queue.'.translate);
                     Navigator.pop(context);
@@ -212,16 +191,16 @@ class MediaOptionsPanel extends StatelessWidget {
                       spacing: 16,
                       children: [
                         Assets.images.prompts.queueAddPrompt.image(),
-                        Text(title, style: TextStyle(fontSize: 12)),
+                        Text(displayTitle, style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
                 );
-              } else if (title == 'Add to playlist'.translate) {
+              } else if (displayTitle == 'Add to playlist'.translate) {
                 return GestureDetector(
                   onTap: () {
-                    _actionsController.add(title);
-                    AppendToCollectionPanel.show(mediaDetails: mediaDetails);
+                    _actionsController.add(displayTitle);
+                    AppendToCollectionPanel.show(mediaEntry: mediaDetails);
                   },
                   behavior: HitTestBehavior.translucent,
                   child: SizedBox(
@@ -229,23 +208,24 @@ class MediaOptionsPanel extends StatelessWidget {
                     child: Row(
                       spacing: 16,
                       children: [
-                        Assets.images.prompts.playlistAddPrompt
-                            .image(),
-                        Text(title, style: TextStyle(fontSize: 12)),
+                        Assets.images.prompts.playlistAddPrompt.image(),
+                        Text(displayTitle, style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
                 );
-              } else if (title == 'Go to artist'.translate) {
+              } else if (displayTitle == 'Go to artist'.translate) {
                 return GestureDetector(
                   onTap: () async {
-                    _actionsController.add(title);
-                    PerformerDetails artist = PerformerDetails(
+                    _actionsController.add(displayTitle);
+                    PerformerDetails artistLocal = PerformerDetails(
                       id: mediaDetails.uid,
                       name: mediaDetails.userName ?? '',
                     );
-                    await RecordSyncHelper.syncArtist(artist);
-                    PerformerDetailScreenHelper.to(performerDetails: artist);
+                    await RecordSyncHelper.syncArtist(artistLocal);
+                    PerformerDetailScreenHelper.to(
+                      performerProfile: artistLocal,
+                    );
                   },
                   behavior: HitTestBehavior.translucent,
                   child: SizedBox(
@@ -254,7 +234,7 @@ class MediaOptionsPanel extends StatelessWidget {
                       spacing: 16,
                       children: [
                         Assets.images.common.userIcon.image(),
-                        Text(title, style: TextStyle(fontSize: 12)),
+                        Text(displayTitle, style: TextStyle(fontSize: 12)),
                       ],
                     ),
                   ),
@@ -266,6 +246,18 @@ class MediaOptionsPanel extends StatelessWidget {
           SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
         ],
       ),
+    );
+  }
+
+  static void show({required FileInfo mediaEntry}) {
+    showModalBottomSheet(
+      context: Get.context!,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      routeSettings: RouteSettings(name: routeName, arguments: mediaEntry),
+      builder: (buildContext) {
+        return MediaOptionsPanel(mediaDetails: mediaEntry);
+      },
     );
   }
 }

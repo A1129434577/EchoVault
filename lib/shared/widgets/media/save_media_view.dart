@@ -23,26 +23,27 @@ class SaveMediaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TransferMediaState downloadController = controller ?? TransferMediaState();
-    downloadController.fileInfoNotifier.value = mediaDetails;
+    TransferMediaState downloadControllerLocal =
+        controller ?? TransferMediaState();
+    downloadControllerLocal.fileInfoNotifier.value = mediaDetails;
 
     return ValueListenableBuilder(
-      valueListenable: downloadController.fileInfoNotifier,
+      valueListenable: downloadControllerLocal.fileInfoNotifier,
       builder: (BuildContext context, FileInfo? mediaDetails, Widget? child) {
-        Widget child = Image.asset(
+        Widget nestedEntry = Image.asset(
           icon ?? Assets.images.collection.saveControl.path,
         );
-        DownloadTaskStatus taskStatus = DownloadTaskStatus.fromInt(
+        DownloadTaskStatus taskStatusLocal = DownloadTaskStatus.fromInt(
           mediaDetails?.downloadStatus ?? 0,
         );
-        if (taskStatus == DownloadTaskStatus.complete) {
-          child = Image.asset(
+        if (taskStatusLocal == DownloadTaskStatus.complete) {
+          nestedEntry = Image.asset(
             selectedIcon ?? Assets.images.collection.savedState.path,
           );
-        } else if (taskStatus == DownloadTaskStatus.enqueued) {
-          child = ProgressView();
-        } else if (taskStatus == DownloadTaskStatus.running) {
-          child = LayoutBuilder(
+        } else if (taskStatusLocal == DownloadTaskStatus.enqueued) {
+          nestedEntry = ProgressView();
+        } else if (taskStatusLocal == DownloadTaskStatus.running) {
+          nestedEntry = LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               return Padding(
                 padding: EdgeInsetsGeometry.all(constraints.maxHeight * 0.1),
@@ -57,8 +58,8 @@ class SaveMediaView extends StatelessWidget {
               );
             },
           );
-        } else if (taskStatus == DownloadTaskStatus.paused) {
-          child = LayoutBuilder(
+        } else if (taskStatusLocal == DownloadTaskStatus.paused) {
+          nestedEntry = LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               return Stack(
                 alignment: Alignment.center,
@@ -84,21 +85,21 @@ class SaveMediaView extends StatelessWidget {
             },
           );
         }
-        child = AspectRatio(aspectRatio: 1, child: child);
+        nestedEntry = AspectRatio(aspectRatio: 1, child: nestedEntry);
         if (controller == null) {
           return CupertinoButton(
             onPressed: () {
-              downloadController.saveStateChange();
+              downloadControllerLocal.saveStateChange();
             },
             onLongPress: () {
-              downloadController.cancel();
+              downloadControllerLocal.cancel();
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: child,
+            child: nestedEntry,
           );
         }
-        return child;
+        return nestedEntry;
       },
     );
   }
