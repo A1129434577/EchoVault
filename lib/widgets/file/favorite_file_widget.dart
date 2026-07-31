@@ -26,7 +26,9 @@ class FavoriteFileWidget extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: favoriteController.notifier,
       builder: (BuildContext context, FileInfo? fileInfo, Widget? child) {
-        Widget child = Image.asset(fileInfo?.isFavorite==1?(selectedIcon??Assets.otherLikeS):(icon??Assets.otherLike));
+        Widget child = Image.asset(fileInfo?.isFavorite == 1
+            ? (selectedIcon ?? Assets.other.favoriteActive.path)
+            : (icon ?? Assets.other.favorite.path));
         if(controller==null){
           return CupertinoButton(
             onPressed: (){
@@ -42,4 +44,3 @@ class FavoriteFileWidget extends StatelessWidget {
     );
   }
 }
-

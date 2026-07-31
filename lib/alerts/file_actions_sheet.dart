@@ -100,7 +100,7 @@ class FileActionsSheet extends StatelessWidget {
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child: Image.asset(Assets.otherClose, width: 20),
+                    child: Assets.other.dismiss.image( width: 20),
                   ),
                 )
               ],
@@ -137,8 +137,8 @@ class FileActionsSheet extends StatelessWidget {
                         SaveFileWidget(
                           fileInfo: fileInfo,
                           controller: downloadController,
-                          icon: Assets.otherAlertSave,
-                          selectedIcon: Assets.otherAlertSaveS,
+                          icon: Assets.other.savePrompt.path,
+                          selectedIcon: Assets.other.savePromptActive.path,
                         ),
                         Text(
                           title,
@@ -166,8 +166,8 @@ class FileActionsSheet extends StatelessWidget {
                         FavoriteFileWidget(
                           fileInfo: fileInfo,
                           controller: favoriteController,
-                          icon: Assets.otherAlertLike,
-                          selectedIcon: Assets.otherAlertLikeS,
+                          icon: Assets.other.favoritePrompt.path,
+                          selectedIcon: Assets.other.favoritePromptActive.path,
                         ),
                         Text(
                           title,
@@ -194,7 +194,7 @@ class FileActionsSheet extends StatelessWidget {
                     child: Row(
                       spacing: 16,
                       children: [
-                        Image.asset(Assets.otherAlertPlayNext),
+                        Assets.other.playNextPrompt.image(),
                         Text(
                           title,
                           style: TextStyle(
@@ -220,7 +220,7 @@ class FileActionsSheet extends StatelessWidget {
                     child: Row(
                       spacing: 16,
                       children: [
-                        Image.asset(Assets.otherAlertAddQueue),
+                        Assets.other.queueAddPrompt.image(),
                         Text(
                           title,
                           style: TextStyle(
@@ -244,7 +244,7 @@ class FileActionsSheet extends StatelessWidget {
                     child: Row(
                       spacing: 16,
                       children: [
-                        Image.asset(Assets.otherAlertAddplaylist),
+                        Assets.other.playlistAddPrompt.image(),
                         Text(
                           title,
                           style: TextStyle(
@@ -270,7 +270,7 @@ class FileActionsSheet extends StatelessWidget {
                     child: Row(
                       spacing: 16,
                       children: [
-                        Image.asset(Assets.otherIconUser),
+                        Assets.other.userIcon.image(),
                         Text(
                           title,
                           style: TextStyle(

@@ -63,7 +63,7 @@ class ToastUtil {
       '',
       builder: (context){
         return ToastWidget(
-          icon: Image.asset(Assets.assetsSuccess, width: 24),
+          icon: Assets.statusSuccess.image( width: 24),
           status: status,
         );
       },
@@ -75,7 +75,7 @@ class ToastUtil {
       '',
       builder: (context){
         return ToastWidget(
-          icon: Image.asset(Assets.assetsFail, width: 24),
+          icon: Assets.statusError.image( width: 24),
           status: status,
         );
       },
@@ -87,7 +87,7 @@ class ToastUtil {
       '',
       builder: (context){
         return ToastWidget(
-          icon: Image.asset(Assets.assetsWarning, width: 24),
+          icon: Assets.statusWarning.image( width: 24),
           status: status,
         );
       },

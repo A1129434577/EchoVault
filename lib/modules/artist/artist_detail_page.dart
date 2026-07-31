@@ -77,7 +77,7 @@ class _ArtistDetailPageState extends State<_ArtistDetailPage> {
               builder: (BuildContext context, String hdThumbnail, Widget? child) {
                 return NetworkImageWidget(
                   url: hdThumbnail,
-                  defaultView: Image.asset(Assets.otherArtistBg, fit: BoxFit.fill,),
+                  defaultView: Assets.other.artistBackdrop.image( fit: BoxFit.fill,),
                 );
               },
             ),
@@ -94,7 +94,7 @@ class _ArtistDetailPageState extends State<_ArtistDetailPage> {
             return
               Scaffold(
                 appBar: AppBar(
-                  leading: AppBlackBackButton(icon: Assets.otherBackWhite),
+                  leading: AppBlackBackButton(icon: Assets.other.navBackLight.path),
                   title: ValueListenableBuilder(
                     valueListenable: _isHeaderClosed,
                     builder: (BuildContext context, bool isHeaderClosed, Widget? child) {
@@ -110,7 +110,7 @@ class _ArtistDetailPageState extends State<_ArtistDetailPage> {
                       width: 24,
                       child: FavoriteArtistWidget(
                         artist: artistInfo,
-                        icon: Assets.otherLikeWhite,
+                        icon: Assets.other.favoriteLight.path,
                       ),
                     ),
                   ],
@@ -134,7 +134,7 @@ class _ArtistDetailPageState extends State<_ArtistDetailPage> {
                                   child: Stack(
                                     fit: StackFit.expand,
                                     children: [
-                                      Image.asset(Assets.otherAvatar),
+                                      Assets.other.profileAvatar.image(),
                                       Container(
                                         clipBehavior: Clip.hardEdge,
                                         decoration: BoxDecoration(
@@ -250,7 +250,7 @@ class _ArtistDetailPageState extends State<_ArtistDetailPage> {
                 }
               },
               fontSize: 16,
-              icon: Image.asset(Assets.otherPlaylPlay),
+              icon: Assets.other.playlistPlay.image(),
               title: 'Play'.translate,
             ),
           ),
@@ -271,7 +271,7 @@ class _ArtistDetailPageState extends State<_ArtistDetailPage> {
               },
               fontSize: 16,
               isWhite: true,
-              icon: Image.asset(Assets.otherPlaylShuffle),
+              icon: Assets.other.playlistShuffle.image(),
               title: 'Shuffle'.translate,
             ),
           ),

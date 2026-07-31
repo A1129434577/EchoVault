@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                 suffixIcon: Container(
                   alignment: Alignment.center,
                   width: 48,
-                  child: Image.asset(Assets.otherHSearch, width: 24,),
+                  child: Assets.other.historySearch.image( width: 24,),
                 ),
               ),
             ),
@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> {
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: Image.asset(Assets.otherSetting, width: 24,),
+            child: Assets.other.settings.image( width: 24,),
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              Image.asset(Assets.otherAlbumCover),
+                              Assets.other.albumPlaceholder.image(),
                               NetworkImageWidget(
                                 url: fileGroup.thumbnail,
                                 fit: BoxFit.fill,
@@ -294,7 +294,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _topChartsView(){
-    List<String> icons = [Assets.otherTopCommon, Assets.otherTopWeekly, Assets.otherTopDaily];
+    List<String> icons = [
+      Assets.other.chartsGeneral.path,
+      Assets.other.chartsWeekly.path,
+      Assets.other.chartsDaily.path,
+    ];
     return Column(
       spacing: 12,
       mainAxisSize: MainAxisSize.min,
@@ -378,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Container(
                                       alignment: Alignment.bottomCenter,
-                                      child: Image.asset(Assets.otherCoverPlay, width: 20),
+                                      child: Assets.other.overlayPlay.image( width: 20),
                                     ),
                                   ],
                                 ),

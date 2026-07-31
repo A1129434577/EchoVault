@@ -29,7 +29,7 @@ class _UserFeedbackPageState extends State<UserFeedbackPage> {
           ),
           actions: [
             AppBarAction(
-              iconName: Assets.assetsActionFinish,
+              iconName: Assets.completionMark.path,
               onPressed: (){
                 if(_formKey.currentState!.validate()){
                   Get.back();

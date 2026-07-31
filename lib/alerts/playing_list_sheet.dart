@@ -75,7 +75,7 @@ class _PlayingListSheetState extends State<PlayingListSheet> {
                       },
                       sizeStyle: CupertinoButtonSize.small,
                       padding: EdgeInsets.zero,
-                      child: Image.asset(Assets.assetsAlertClose, height: 24),
+                      child: Assets.dialogDismiss.image( height: 24),
                     ),
                   ],
                 ),

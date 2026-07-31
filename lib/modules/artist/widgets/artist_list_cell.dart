@@ -30,7 +30,7 @@ class ArtistListCell extends StatelessWidget {
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                image: DecorationImage(image: AssetImage(Assets.otherAvatar)),
+                image: DecorationImage(image: Assets.other.profileAvatar.provider()),
               ),
               child: NetworkImageWidget(
                 url: artistInfo.thumbnail,

@@ -105,7 +105,7 @@ class HomeController with ChangeNotifier{
     if(likedList.isNotEmpty){
       fileGroupList.add(FileGroup(
         name: 'Like songs'.translate,
-        thumbnail: Assets.otherLLike,
+        thumbnail: Assets.other.listFavorite.path,
         children: likedList,
       ));
     }
@@ -113,7 +113,7 @@ class HomeController with ChangeNotifier{
     if(savedList.isNotEmpty){
       fileGroupList.add(FileGroup(
         name: 'Local songs'.translate,
-        thumbnail: Assets.otherLSaved,
+        thumbnail: Assets.other.listSaved.path,
         children: savedList,
       ));
     }
@@ -136,7 +136,7 @@ class HomeController with ChangeNotifier{
   Future<List<ArtistInfo>> queryMyArtist() async {
     List<ArtistInfo> list = await ArtistDataOperate.queryArtistInfo();
     if(list.isEmpty){
-      String artisJsonString = await rootBundle.loadString(Assets.jsonArtist);
+      String artisJsonString = await rootBundle.loadString(Assets.json.artSeed);
       List artisMapList = jsonDecode(artisJsonString);
       for (final artistMap in artisMapList) {
         ArtistInfo artistInfo = ArtistInfo.fromJson(artistMap);
@@ -150,7 +150,7 @@ class HomeController with ChangeNotifier{
 
   Future<List<FileGroup>> queryTopCharts() async {
     List<FileGroup> fileGroupList = [];
-    String jsonString = await rootBundle.loadString(Assets.jsonTopCharts);
+    String jsonString = await rootBundle.loadString(Assets.json.topSeed);
     Map data = jsonDecode(jsonString);
     Locale sysLocale = WidgetsBinding.instance.platformDispatcher.locale;
     String countryCode = sysLocale.countryCode?.toLowerCase() ?? "us";
@@ -162,7 +162,7 @@ class HomeController with ChangeNotifier{
     }
     for(final map in jsonList) {
       FileGroup fileGroup = FileGroup.fromJson(map);
-      fileGroup.thumbnail = Assets.otherAlbumCover;
+      fileGroup.thumbnail = Assets.other.albumPlaceholder.path;
       fileGroup.playlistType = PlaylistType.LOCKUP_CONTENT_TYPE_PLAYLIST.name;
       fileGroupList.add(fileGroup);
     }

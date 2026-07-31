@@ -86,7 +86,7 @@ class PlaylistListCell extends StatelessWidget {
               },
               sizeStyle: CupertinoButtonSize.small,
               padding: EdgeInsets.zero,
-              child: Image.asset(Assets.otherLMore, height: 24,),
+              child: Assets.other.listOptions.image( height: 24,),
             ),
         ],
       ),

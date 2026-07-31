@@ -102,7 +102,7 @@ class FRemoteConfig {
 
   static Future _initRecommendList() async {
     try{
-      String recommendJson = await rootBundle.loadString(Assets.jsonMusicB);
+      String recommendJson = await rootBundle.loadString(Assets.json.fileSeed);
       List recommend = jsonDecode(recommendJson);
       List<FileInfo> recommendList = [];
       for (Map fileMap in recommend.cast<Map>()) {

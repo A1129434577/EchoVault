@@ -97,7 +97,7 @@ class FindTopResultView extends StatelessWidget {
               isWhite: true,
               icon: SaveFileWidget(
                 fileInfo: item,
-                icon: Assets.otherSaveBlue,
+                icon: Assets.other.saveAccent.path,
                 controller: downloadFileController,
               ),
               title: 'Offline'.translate,
@@ -113,7 +113,7 @@ class FindTopResultView extends StatelessWidget {
               isWhite: true,
               icon: FavoriteArtistWidget(
                 artist: item,
-                icon: Assets.otherLikeBlue,
+                icon: Assets.other.favoriteAccent.path,
                 controller: artistController,
               ),
               title: 'Like'.translate,
@@ -129,7 +129,7 @@ class FindTopResultView extends StatelessWidget {
               isWhite: true,
               icon: FavoriteGroupWidget(
                 fileGroup: item,
-                icon: Assets.otherLikeBlue,
+                icon: Assets.other.favoriteAccent.path,
                 controller: groupController,
               ),
               title: 'Like'.translate,
@@ -163,7 +163,7 @@ class FindTopResultView extends StatelessWidget {
                             PlayHelper.toPlay(fileList: fileList);
                           },
                           fontSize: 16,
-                          icon: Image.asset(Assets.otherPlaylPlay),
+                          icon: Assets.other.playlistPlay.image(),
                           title: 'Play'.translate,
                         ),
                       ),
@@ -207,14 +207,14 @@ class FindTopResultView extends StatelessWidget {
     else if(item is ArtistInfo){
       return ArtistListCell(
         artistInfo: item,
-        action: Image.asset(Assets.otherMoreGrey),
+        action: Assets.other.optionsMuted.image(),
       );
     }
     else if(item is FileGroup) {
       return PlaylistListCell(
         fileGroup: item,
         showMoreAction: true,
-        action: Image.asset(Assets.otherMoreGrey, width: 24),
+        action: Assets.other.optionsMuted.image( width: 24),
       );
     }
     return SizedBox();

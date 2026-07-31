@@ -17,7 +17,7 @@ class BgContainer extends StatelessWidget {
       decoration: BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.fill,
-          image: AssetImage(bg??Assets.assetsBg),
+          image: AssetImage(bg ?? Assets.appBackdrop.path),
         ),
       ),
       child: child,

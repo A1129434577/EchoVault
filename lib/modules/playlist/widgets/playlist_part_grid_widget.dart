@@ -62,7 +62,7 @@ class _PlaylistHGridCell extends StatelessWidget {
             child: Container(
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage(Assets.otherAlbumCover)),
+                image: DecorationImage(image: Assets.other.albumPlaceholder.provider()),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: NetworkImageWidget(

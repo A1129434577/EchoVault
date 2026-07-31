@@ -114,7 +114,7 @@ class _CommonGridCell extends StatelessWidget {
                     radius: 10,
                     url: thumbnail,
                     fit: BoxFit.fill,
-                    defaultView: Image.asset(Assets.otherAlbumCover, fit: BoxFit.fill),
+                    defaultView: Assets.other.albumPlaceholder.image( fit: BoxFit.fill),
                   ),
                 ),
               ],

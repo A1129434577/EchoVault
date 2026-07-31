@@ -73,7 +73,7 @@ class CreatePlaylistAlert extends StatelessWidget {
                         },
                         sizeStyle: CupertinoButtonSize.small,
                         padding: EdgeInsets.only(right: 5, top: 3),
-                        child: Image.asset(Assets.assetsAlertClose, width: 20),
+                        child: Assets.dialogDismiss.image( width: 20),
                       ),
                     ),
                   ],
@@ -105,7 +105,7 @@ class CreatePlaylistAlert extends StatelessWidget {
                               newMusicGroup ??= FileGroup(
                                 id: '$createPlaylistNamePrefix${DateTime.now().millisecondsSinceEpoch}',
                                 name: value.text,
-                                thumbnail: Assets.otherAlbumCover,
+                                thumbnail: Assets.other.albumPlaceholder.path,
                               );
                               FavoriteGroupController(fileGroup: newMusicGroup).infoChange(isEditName: true);
                               Navigator.pop(context);

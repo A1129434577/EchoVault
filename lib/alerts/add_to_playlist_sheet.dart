@@ -68,7 +68,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child: Image.asset(Assets.assetsAlertClose, height: 24),
+                    child: Assets.dialogDismiss.image( height: 24),
                   ),
                 ],
               ),
@@ -91,7 +91,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                           children: [
                             AspectRatio(
                               aspectRatio: 1,
-                              child: Image.asset(Assets.otherPlaylistAdd),
+                              child: Assets.other.playlistCreate.image(),
                             ),
                             Text(
                               'New playlist'.translate,

@@ -25,7 +25,9 @@ class FavoriteArtistWidget extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: favoriteController.notifier,
       builder: (BuildContext context, ArtistInfo artist, Widget? child) {
-        Widget child = Image.asset(artist.isFavorite==1?(selectedIcon??Assets.otherLikeS):(icon??Assets.otherLike));
+        Widget child = Image.asset(artist.isFavorite == 1
+            ? (selectedIcon ?? Assets.other.favoriteActive.path)
+            : (icon ?? Assets.other.favorite.path));
         if(controller==null){
           return CupertinoButton(
             onPressed: (){
@@ -41,4 +43,3 @@ class FavoriteArtistWidget extends StatelessWidget {
     );
   }
 }
-

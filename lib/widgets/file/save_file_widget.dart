@@ -30,10 +30,10 @@ class SaveFileWidget extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: downloadController.fileInfoNotifier,
       builder: (BuildContext context, FileInfo? fileInfo, Widget? child) {
-        Widget child = Image.asset(icon??Assets.otherSave);
+        Widget child = Image.asset(icon ?? Assets.other.saveControl.path);
         DownloadTaskStatus taskStatus = DownloadTaskStatus.fromInt(fileInfo?.downloadStatus??0);
         if(taskStatus == DownloadTaskStatus.complete) {
-          child = Image.asset(selectedIcon??Assets.otherSaved);
+          child = Image.asset(selectedIcon ?? Assets.other.savedState.path);
         } else if(taskStatus == DownloadTaskStatus.enqueued){
           child = LoadingWidget();
         }else if(taskStatus == DownloadTaskStatus.running){

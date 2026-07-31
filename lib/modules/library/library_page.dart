@@ -77,7 +77,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                 child: Row(
                                   spacing: 3,
                                   children: [
-                                    Image.asset(Assets.otherLAdd, height: 12),
+                                    Assets.other.listAdd.image( height: 12),
                                     Text(
                                       'New list'.translate,
                                       style: TextStyle(
@@ -138,7 +138,7 @@ class _LibraryPageState extends State<LibraryPage> {
                         _libraryController.querySavedList();
                         FileGroup savedMusicGroup = FileGroup(
                           name: 'Offline Songs'.translate,
-                          thumbnail: Assets.otherAlbumCover,
+                          thumbnail: Assets.other.albumPlaceholder.path,
                           children: savedList,
                         );
                         PlaylistDetailPageUtil.to(fileGroup: savedMusicGroup);
@@ -172,7 +172,7 @@ class _LibraryPageState extends State<LibraryPage> {
                               child: AspectRatio(
                                 aspectRatio: 88/78,
                                 child: savedList.isEmpty?
-                                Image.asset(Assets.otherLSaved):
+                                Assets.other.listSaved.image():
                                 Container(
                                   padding: EdgeInsets.only(right: 10),
                                   decoration: BoxDecoration(
@@ -233,7 +233,7 @@ class _LibraryPageState extends State<LibraryPage> {
                               _libraryController.queryLikedList();
                               FileGroup lickFileGroup = FileGroup(
                                 name: 'Favorite Songs'.translate,
-                                thumbnail: Assets.otherAlbumCover,
+                                thumbnail: Assets.other.albumPlaceholder.path,
                                 children: likedList,
                               );
                               PlaylistDetailPageUtil.to(fileGroup: lickFileGroup);
@@ -267,7 +267,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                         AspectRatio(
                                           aspectRatio: 50/42,
                                           child: likedList.isEmpty?
-                                          Image.asset(Assets.otherLLike):
+                                          Assets.other.listFavorite.image():
                                           Container(
                                             padding: EdgeInsets.only(right: 8),
                                             decoration: BoxDecoration(
@@ -342,7 +342,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                       spacing: 10,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Image.asset(Assets.otherLArtist),
+                                        Assets.other.listArtist.image(),
                                         Expanded(
                                           child: Text(
                                             'Artist'.translate,

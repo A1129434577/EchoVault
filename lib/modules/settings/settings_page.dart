@@ -44,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SizedBox(height: 24),
-              Image.asset(Assets.assetsLogo, height: 56),
+              Assets.appLogo.image( height: 56),
               SizedBox(height: 8),
               ValueListenableBuilder(
                 valueListenable: _settingController.version,

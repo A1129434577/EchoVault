@@ -30,7 +30,7 @@ class _LoadingWidgetState extends State<LoadingWidget> with SingleTickerProvider
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: _controller,
-      child: Image.asset(Assets.otherLoading),
+      child: Assets.other.loader.image(),
     );
   }
 }

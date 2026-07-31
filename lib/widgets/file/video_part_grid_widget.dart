@@ -79,7 +79,7 @@ class _VideoGridCell extends StatelessWidget {
                 ),
               ),
               Center(
-                child: Image.asset(Assets.otherCoverPlay, width: 38),
+                child: Assets.other.overlayPlay.image( width: 38),
               ),
             ],
           ),

@@ -23,7 +23,7 @@ class EmptyWidget extends StatelessWidget {
         Spacer(flex: 1),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [icon??Image.asset(Assets.assetsEmptyBox, height: 140)],
+          children: [icon??Assets.emptyStateBox.image( height: 140)],
         ),
         FractionallySizedBox(
           widthFactor: 0.5,

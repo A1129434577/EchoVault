@@ -74,7 +74,7 @@ class _PlayBarState extends State<PlayBar> {
                                     child: NetworkImageWidget(
                                       url: currentMediaInfo.thumbnail,
                                       radius: 2,
-                                      defaultView: Image.asset(Assets.assetsMusicIcon),
+                                      defaultView: Assets.audioNote.image(),
                                     ),
                                   ),
                                   SizedBox(width: 12),
@@ -102,10 +102,9 @@ class _PlayBarState extends State<PlayBar> {
                                             },
                                             sizeStyle: CupertinoButtonSize.small,
                                             padding: EdgeInsets.zero,
-                                            child: Image.asset(
-                                              isPlaying?
-                                              Assets.otherBarPause:
-                                              Assets.otherBarPlay,
+                                            child: (isPlaying
+                                              ? Assets.other.miniPause
+                                              : Assets.other.miniPlay).image(
                                               width: 32,
                                             ),
                                           );
@@ -123,10 +122,9 @@ class _PlayBarState extends State<PlayBar> {
                                       },
                                       sizeStyle: CupertinoButtonSize.small,
                                       padding: EdgeInsets.zero,
-                                      child: Image.asset(
-                                        PlayerPlayback.instance.player.hasNext()?
-                                        Assets.otherBarNext:
-                                        Assets.otherBarNextNo,
+                                      child: (PlayerPlayback.instance.player.hasNext()
+                                        ? Assets.other.miniNext
+                                        : Assets.other.miniNextDisabled).image(
                                       ),
                                     ),
                                   ),
@@ -179,4 +177,3 @@ class _PlayBarState extends State<PlayBar> {
     );
   }
 }
-
