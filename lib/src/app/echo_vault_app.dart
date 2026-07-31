@@ -1,6 +1,6 @@
 
 import 'package:ad/ad.dart';
-import 'package:echo_vault/modules/open/open_page.dart';
+import 'package:echo_vault/features/launch/launch_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:player_playback/player_playback.dart';
@@ -81,7 +81,7 @@ class EchoVaultApp extends StatelessWidget {
           );
         },
       ),
-      home: OpenPage(),
+      home: LaunchScreen(),
     );
   }
 }
