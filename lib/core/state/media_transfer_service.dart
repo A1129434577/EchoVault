@@ -16,7 +16,7 @@ import 'package:echo_vault/core/networking/playback_http_transport.dart';
 ///complete、failed、canceled、paused
 ///强杀app的话DownloadTask的状态变成了canceled
 ///下载和缓存路径都是先放入temp文件夹，防止因暂停下载等状态时文件不完整，但是却判断文件为已下载的情况
-@pragma('vm:item-point')
+@pragma('vm:entry-point')
 class MediaTransferService {
   static const String _transferPortName = 'flutter_downloader_send_port';
 
@@ -213,7 +213,7 @@ class MediaTransferService {
     return completerLocal.future;
   }
 
-  @pragma('vm:item-point')
+  @pragma('vm:entry-point')
   static void downloadCallback(
     String idArg,
     int currentStatus,
