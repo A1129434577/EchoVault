@@ -89,8 +89,8 @@ class ArtistDetailController with ChangeNotifier {
           if(url?.contains(ArtistYTParseKeys.videos)==true){
             FileGroup fileGroup = FileGroup(name: title);
             fileGroup.type = FileGroupShowType.listMusic;
-            final items = ParseUtil.parse<List>(tab, ArtistYTParseKeys.richItems)??[];
-            List children = await CommonYtParse.parseArtistChildren(items);
+            final videos = ParseUtil.parse<List>(tab, ArtistYTParseKeys.richItems)??[];
+            List children = await CommonYtParse.parseArtistChildren(videos);
             fileGroup.children = children;
             list.add(fileGroup);
             break;
