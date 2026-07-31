@@ -20,24 +20,23 @@ class $AssetsDataGen {
 class $AssetsImagesGen {
   const $AssetsImagesGen();
 
-  final $AssetsImagesArtistGen artist = const $AssetsImagesArtistGen();
-  final $AssetsImagesBrandGen brand = const $AssetsImagesBrandGen();
-  final $AssetsImagesChartsGen charts = const $AssetsImagesChartsGen();
-  final $AssetsImagesCollectionGen collection =
-      const $AssetsImagesCollectionGen();
-  final $AssetsImagesCommonGen common = const $AssetsImagesCommonGen();
-  final $AssetsImagesFeedbackGen feedback = const $AssetsImagesFeedbackGen();
-  final $AssetsImagesMediaGen media = const $AssetsImagesMediaGen();
-  final $AssetsImagesPlayerGen player = const $AssetsImagesPlayerGen();
-  final $AssetsImagesPromptsGen prompts = const $AssetsImagesPromptsGen();
-  final $AssetsImagesSearchGen search = const $AssetsImagesSearchGen();
-  final $AssetsImagesShellGen shell = const $AssetsImagesShellGen();
-  final $AssetsImagesStatusGen status = const $AssetsImagesStatusGen();
-  final $AssetsImagesUpdateGen update = const $AssetsImagesUpdateGen();
+  final $AssetsArtistGen artist = const $AssetsArtistGen();
+  final $AssetsBrandGen brand = const $AssetsBrandGen();
+  final $AssetsChartsGen charts = const $AssetsChartsGen();
+  final $AssetsCollectionGen collection = const $AssetsCollectionGen();
+  final $AssetsCommonGen common = const $AssetsCommonGen();
+  final $AssetsFeedbackGen feedback = const $AssetsFeedbackGen();
+  final $AssetsMediaGen media = const $AssetsMediaGen();
+  final $AssetsPlayerGen player = const $AssetsPlayerGen();
+  final $AssetsPromptsGen prompts = const $AssetsPromptsGen();
+  final $AssetsSearchGen search = const $AssetsSearchGen();
+  final $AssetsShellGen shell = const $AssetsShellGen();
+  final $AssetsStatusGen status = const $AssetsStatusGen();
+  final $AssetsUpdateGen update = const $AssetsUpdateGen();
 }
 
-class $AssetsImagesArtistGen {
-  const $AssetsImagesArtistGen();
+class $AssetsArtistGen {
+  const $AssetsArtistGen();
 
   final AssetGenImage artistBackdrop = const AssetGenImage(
     'assets/images/artist/artist_backdrop.png',
@@ -50,16 +49,16 @@ class $AssetsImagesArtistGen {
   );
 }
 
-class $AssetsImagesBrandGen {
-  const $AssetsImagesBrandGen();
+class $AssetsBrandGen {
+  const $AssetsBrandGen();
 
   final AssetGenImage appLogo = const AssetGenImage(
     'assets/images/brand/app_logo.png',
   );
 }
 
-class $AssetsImagesChartsGen {
-  const $AssetsImagesChartsGen();
+class $AssetsChartsGen {
+  const $AssetsChartsGen();
 
   final AssetGenImage chartsDaily = const AssetGenImage(
     'assets/images/charts/charts_daily.png',
@@ -72,8 +71,8 @@ class $AssetsImagesChartsGen {
   );
 }
 
-class $AssetsImagesCollectionGen {
-  const $AssetsImagesCollectionGen();
+class $AssetsCollectionGen {
+  const $AssetsCollectionGen();
 
   final AssetGenImage addPlaylistAction = const AssetGenImage(
     'assets/images/collection/add_playlist_action.png',
@@ -149,8 +148,8 @@ class $AssetsImagesCollectionGen {
   );
 }
 
-class $AssetsImagesCommonGen {
-  const $AssetsImagesCommonGen();
+class $AssetsCommonGen {
+  const $AssetsCommonGen();
 
   final AssetGenImage dismiss = const AssetGenImage(
     'assets/images/common/dismiss.png',
@@ -172,8 +171,8 @@ class $AssetsImagesCommonGen {
   );
 }
 
-class $AssetsImagesFeedbackGen {
-  const $AssetsImagesFeedbackGen();
+class $AssetsFeedbackGen {
+  const $AssetsFeedbackGen();
 
   final AssetGenImage ratingHand = const AssetGenImage(
     'assets/images/feedback/rating_hand.png',
@@ -189,8 +188,8 @@ class $AssetsImagesFeedbackGen {
   );
 }
 
-class $AssetsImagesMediaGen {
-  const $AssetsImagesMediaGen();
+class $AssetsMediaGen {
+  const $AssetsMediaGen();
 
   final AssetGenImage albumPlaceholder = const AssetGenImage(
     'assets/images/media/album_placeholder.png',
@@ -206,8 +205,8 @@ class $AssetsImagesMediaGen {
   );
 }
 
-class $AssetsImagesPlayerGen {
-  const $AssetsImagesPlayerGen();
+class $AssetsPlayerGen {
+  const $AssetsPlayerGen();
 
   final AssetGenImage miniNext = const AssetGenImage(
     'assets/images/player/mini_next.png',
@@ -259,8 +258,8 @@ class $AssetsImagesPlayerGen {
   );
 }
 
-class $AssetsImagesPromptsGen {
-  const $AssetsImagesPromptsGen();
+class $AssetsPromptsGen {
+  const $AssetsPromptsGen();
 
   final AssetGenImage favoritePrompt = const AssetGenImage(
     'assets/images/prompts/favorite_prompt.png',
@@ -279,8 +278,8 @@ class $AssetsImagesPromptsGen {
   );
 }
 
-class $AssetsImagesSearchGen {
-  const $AssetsImagesSearchGen();
+class $AssetsSearchGen {
+  const $AssetsSearchGen();
 
   final AssetGenImage historyDelete = const AssetGenImage(
     'assets/images/search/history_delete.png',
@@ -299,8 +298,8 @@ class $AssetsImagesSearchGen {
   );
 }
 
-class $AssetsImagesShellGen {
-  const $AssetsImagesShellGen();
+class $AssetsShellGen {
+  const $AssetsShellGen();
 
   final AssetGenImage appBackdrop = const AssetGenImage(
     'assets/images/shell/app_backdrop.png',
@@ -334,8 +333,8 @@ class $AssetsImagesShellGen {
   );
 }
 
-class $AssetsImagesStatusGen {
-  const $AssetsImagesStatusGen();
+class $AssetsStatusGen {
+  const $AssetsStatusGen();
 
   final AssetGenImage completionMark = const AssetGenImage(
     'assets/images/status/completion_mark.png',
@@ -357,8 +356,8 @@ class $AssetsImagesStatusGen {
   );
 }
 
-class $AssetsImagesUpdateGen {
-  const $AssetsImagesUpdateGen();
+class $AssetsUpdateGen {
+  const $AssetsUpdateGen();
 
   final AssetGenImage updateBackdrop = const AssetGenImage(
     'assets/images/update/update_backdrop.png',
