@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:encrypt/encrypt.dart';
 
 import 'package:echo_vault/utils/string_cipher.dart';
-import 'package:echo_vault/utils/string_cipher_key.dart';
 
 String _decryptExisting(String payload) {
   final parts = payload.trim().split(':');
