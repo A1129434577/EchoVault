@@ -12,7 +12,7 @@ class MediaCollectionRepository {
   static Future<int> deleteFileGroup(MediaCollection musicCollectionArg) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
-      DatabaseTables.mediaGroup,
+      DatabaseTables.mediaCollection,
       where: 'id = "${musicCollectionArg.id}"',
     );
 
@@ -23,7 +23,7 @@ class MediaCollectionRepository {
     mediaCollectionArg.createTime ??= DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(mediaCollectionArg.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
-    int idLocal = await databaseLocal.insert(DatabaseTables.mediaGroup, {
+    int idLocal = await databaseLocal.insert(DatabaseTables.mediaCollection, {
       'id': mediaCollectionArg.id,
       'json_content': encodedContent,
       'create_time': mediaCollectionArg.createTime,
@@ -37,7 +37,7 @@ class MediaCollectionRepository {
   }) async {
     Database databaseLocal = await ApplicationDatabase.database;
     List<Map<String, Object?>> storedRecords = await databaseLocal.query(
-      DatabaseTables.mediaGroup,
+      DatabaseTables.mediaCollection,
       limit: limitInputArg,
       where: whereArg,
       orderBy: 'create_time desc',

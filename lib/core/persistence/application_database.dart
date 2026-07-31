@@ -12,7 +12,7 @@ class ApplicationDatabase {
     return _memoizer.runOnce(() async {
       var documentsDirectoryPathLocal = await getDatabasesPath();
       String databasePathLocal =
-          '$documentsDirectoryPathLocal${Platform.pathSeparator}Database${Platform.pathSeparator}via_time.db';
+          '$documentsDirectoryPathLocal${Platform.pathSeparator}Database${Platform.pathSeparator}echo_vault.db';
       _database = await openDatabase(
         databasePathLocal,
         version: 3,
@@ -25,13 +25,13 @@ class ApplicationDatabase {
 
   static Future _onCreate(Database dbArg, int versionArg) async {
     await dbArg.execute('''
-        CREATE TABLE ${DatabaseTables.mediaGroup} (
+        CREATE TABLE ${DatabaseTables.mediaCollection} (
         id TEXT PRIMARY KEY,
         json_content TEXT,
         create_time INTEGER)
         ''');
     await dbArg.execute('''
-        CREATE TABLE ${DatabaseTables.media} (
+        CREATE TABLE ${DatabaseTables.files} (
         id TEXT PRIMARY KEY,
         download_status INTEGER,
         is_favorite INTEGER,
@@ -39,7 +39,7 @@ class ApplicationDatabase {
         create_time INTEGER)
         ''');
     await dbArg.execute('''
-        CREATE TABLE ${DatabaseTables.artist} (
+        CREATE TABLE ${DatabaseTables.performer} (
         id TEXT PRIMARY KEY,
         is_favorite INTEGER,
         json_content TEXT,
@@ -73,14 +73,14 @@ class ApplicationDatabase {
   static Future _version3Upgrade(Database dbArg) async {
     await dbArg.transaction((txnInputArg) async {
       await txnInputArg.execute(
-        'ALTER TABLE ${DatabaseTables.media} ADD COLUMN download_task_id TEXT',
+        'ALTER TABLE ${DatabaseTables.files} ADD COLUMN download_task_id TEXT',
       );
     });
   }
 }
 
 class DatabaseTables {
-  static const String mediaGroup = 'file_group';
-  static const String media = 'media';
-  static const String artist = 'artist';
+  static const String mediaCollection = 'media_collection';
+  static const String files = 'files';
+  static const String performer = 'performer';
 }
