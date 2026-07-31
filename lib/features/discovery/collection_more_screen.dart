@@ -33,7 +33,7 @@ class _CollectionMoreScreenState extends State<CollectionMoreScreen> {
             ),
             body: PagedRefreshView(
               onRefresh: () async {
-                await controller.queryData();
+                await controller.fetchData();
               },
               refreshOnStart: true,
               childBuilder: (context, physics) {

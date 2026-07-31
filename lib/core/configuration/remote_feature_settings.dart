@@ -81,7 +81,7 @@ class RemoteFeatureSettings {
 
   static Future<void> init() async {
     if (await EventsInfoUtil.isFirstIn) {
-      _initRecommendList();
+      _initializeRecommendList();
     }
     try {
       await Firebase.initializeApp(
@@ -102,19 +102,19 @@ class RemoteFeatureSettings {
           .then((currentValue) async {
             try {
               await firebaseConfigLocal.fetchAndActivate();
-              upgradeConfig();
+              applyUpgradeConfig();
             } catch (_) {}
             firebaseConfigLocal.onConfigUpdated.listen((eventInputArg) async {
               try {
                 await firebaseConfigLocal.activate();
-                upgradeConfig();
+                applyUpgradeConfig();
               } catch (_) {}
             });
           });
     } catch (_) {}
   }
 
-  static void upgradeConfig() async {
+  static void applyUpgradeConfig() async {
     ///用户模式云控
     try {
       String versionLocal = FirebaseRemoteConfig.instance.getString('version');
@@ -154,7 +154,7 @@ class RemoteFeatureSettings {
     } catch (_) {}
   }
 
-  static Future _initRecommendList() async {
+  static Future _initializeRecommendList() async {
     try {
       final encryptedJsonLocal = await rootBundle.loadString(
         Assets.data.fileSeed,
@@ -173,7 +173,7 @@ class RemoteFeatureSettings {
           artist: fileMap['artist'],
         );
         suggestedItems.insert(0, mediaEntry);
-        MediaRepository.insertFileInfo(mediaEntry);
+        MediaRepository.addFileInfo(mediaEntry);
       }
       DiscoveryState.instance.recommendList.value = suggestedItems;
     } catch (_) {}

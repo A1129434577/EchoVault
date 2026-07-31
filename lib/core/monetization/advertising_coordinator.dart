@@ -67,7 +67,7 @@ class AdvertisingCoordinator {
     ],
   };
 
-  static Future initAdSdk() async {
+  static Future initializeAdSdk() async {
     _defaultAllConfigs.addAll({
       AdvertisingScene.searchNative1:
           _defaultAllConfigs[AdvertisingScene.searchNative]!,

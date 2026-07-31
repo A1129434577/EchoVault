@@ -11,7 +11,7 @@ class CollectionMoreState with ChangeNotifier {
   ValueNotifier<List<MediaCollection>> resourceList = ValueNotifier([]);
   CollectionMoreState({required this.mediaCollection});
 
-  Future queryData() async {
+  Future fetchData() async {
     Map<String, dynamic>? requestParameters = {
       'browseId': mediaCollection.id!,
       'params': mediaCollection.params,
@@ -30,7 +30,7 @@ class CollectionMoreState with ChangeNotifier {
           SectionListParserKeys.tapMoreResourceList,
         ) ??
         [];
-    entries = await SharedParser.parseContents(entries);
+    entries = await SharedParser.decodeContents(entries);
     resourceList.value = entries;
   }
 }

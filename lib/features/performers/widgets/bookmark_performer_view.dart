@@ -34,7 +34,7 @@ class BookmarkPerformerView extends StatelessWidget {
         if (controller == null) {
           return CupertinoButton(
             onPressed: () {
-              favoriteControllerLocal.favoriteStateChange();
+              favoriteControllerLocal.toggleBookmark();
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,

@@ -49,7 +49,7 @@ class _PerformerListScreenState extends State<PerformerListScreen> {
               refreshOnStart: true,
               onRefresh: controller.mediaCollection?.id != null
                   ? () async {
-                      return await controller.queryData();
+                      return await controller.fetchData();
                     }
                   : null,
               childBuilder: (BuildContext context, ScrollPhysics physics) {

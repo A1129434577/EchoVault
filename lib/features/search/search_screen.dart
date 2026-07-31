@@ -79,7 +79,7 @@ class _SearchScreenState extends State<SearchScreen>
                 return ResourceStateView(
                   state: state,
                   action: () {
-                    controller.queryData(controller.editingController.text);
+                    controller.fetchData(controller.editingController.text);
                   },
                   child: ValueListenableBuilder(
                     valueListenable: controller.isSearchBarEmpty,
@@ -127,7 +127,7 @@ class _SearchScreenState extends State<SearchScreen>
                                                     child: SearchHistoryView(
                                                       tag: widget.tag,
                                                       onTap: (keyword) {
-                                                        controller.queryData(
+                                                        controller.fetchData(
                                                           keyword,
                                                           mediaOrigin:
                                                               'history',
@@ -285,7 +285,7 @@ class _SearchScreenState extends State<SearchScreen>
                                 ),
                               ),
                               onFieldSubmitted: (textInputArg) {
-                                controller.queryData(textInputArg);
+                                controller.fetchData(textInputArg);
                               },
                             ),
                           ),
@@ -362,7 +362,7 @@ class _SearchScreenState extends State<SearchScreen>
                     }
                     return GestureDetector(
                       onTap: () {
-                        controller.queryData(
+                        controller.fetchData(
                           suggestionsKeywordLocal,
                           mediaOrigin: 'association',
                         );

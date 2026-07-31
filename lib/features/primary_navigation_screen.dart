@@ -36,7 +36,7 @@ class _PrimaryNavigationScreenState extends State<PrimaryNavigationScreen> {
             onTap: (index) {
               if (currentTabIndex == 0 && index == 0) {
                 _debounce(Duration(milliseconds: 1500), () {
-                  DiscoveryState.instance.refreshResource(
+                  DiscoveryState.instance.reloadResource(
                     mediaOrigin: 'click_bottomtab',
                   );
                   DiscoveryState.instance.refreshController.callRefresh();

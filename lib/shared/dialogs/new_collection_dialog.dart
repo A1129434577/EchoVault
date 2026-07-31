@@ -109,7 +109,7 @@ class NewCollectionDialog extends StatelessWidget {
                                       );
                                       BookmarkCollectionState(
                                         mediaCollectionArg: newMusicGroupLocal,
-                                      ).infoChange(isEditNameArg: true);
+                                      ).updateCollection(isEditNameArg: true);
                                       Navigator.pop(context);
                                     },
                               title: 'Save'.translate,

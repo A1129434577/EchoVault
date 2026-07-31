@@ -40,14 +40,14 @@ class CatalogState with ChangeNotifier {
           DownloadTaskStatus.complete) {
         isSavedNewly = true;
       }
-      querySavedList();
+      fetchSavedList();
       //收藏里面也有下载状态，所以要更新下载状态
-      queryLikedList();
+      fetchLikedList();
     });
     BookmarkMediaState.favoriteStream.listen((mediaEntry) async {
-      await queryLikedList();
+      await fetchLikedList();
       //下载里面也有收藏状态，所以要更新收藏状态
-      await querySavedList();
+      await fetchSavedList();
       if (mediaEntry.isFavorite == 1 && likedList.value.isNotEmpty) {
         isLikedNewly = true;
       } else {
@@ -55,10 +55,10 @@ class CatalogState with ChangeNotifier {
       }
     });
     BookmarkCollectionState.favoriteStream.listen((mediaEntry) {
-      queryMusicGroupList();
+      fetchMusicGroupList();
     });
     BookmarkPerformerState.favoriteStream.listen((performerProfile) async {
-      await queryArtistList();
+      await fetchArtistList();
       if (performerProfile.isFavorite == 1 && performers.value.isNotEmpty) {
         isArtistNewly = true;
       } else {
@@ -88,33 +88,33 @@ class CatalogState with ChangeNotifier {
     FileInfo mediaEntry,
     MediaCollection mediaCollectionArg,
   ) async {
-    await MediaRepository.insertFileInfo(mediaEntry);
+    await MediaRepository.addFileInfo(mediaEntry);
     mediaCollectionArg.childrenIds.add(mediaEntry.fileId);
-    await MediaCollectionRepository.insertFileGroup(mediaCollectionArg);
-    await queryMusicGroupList();
+    await MediaCollectionRepository.addFileGroup(mediaCollectionArg);
+    await fetchMusicGroupList();
   }
 
-  Future<List<PerformerDetails>> queryArtistList() async {
-    performers.value = await PerformerRepository.queryArtistInfo(
+  Future<List<PerformerDetails>> fetchArtistList() async {
+    performers.value = await PerformerRepository.fetchArtistInfo(
       whereArg: 'is_favorite = 1',
     );
     return performers.value;
   }
 
-  Future<List<FileInfo>> queryLikedList() async {
-    likedList.value = await MediaRepository.queryFileInfo(
+  Future<List<FileInfo>> fetchLikedList() async {
+    likedList.value = await MediaRepository.fetchFileInfo(
       whereArg: 'is_favorite = 1',
     );
     return likedList.value;
   }
 
-  Future<List<MediaCollection>> queryMusicGroupList() async {
-    mediaCollections.value = await MediaCollectionRepository.queryFileGroup();
+  Future<List<MediaCollection>> fetchMusicGroupList() async {
+    mediaCollections.value = await MediaCollectionRepository.fetchFileGroup();
     return mediaCollections.value;
   }
 
-  Future<List<FileInfo>> querySavedList() async {
-    savedList.value = await MediaRepository.queryFileInfo(
+  Future<List<FileInfo>> fetchSavedList() async {
+    savedList.value = await MediaRepository.fetchFileInfo(
       whereArg: 'download_status = 3',
     );
     return savedList.value;

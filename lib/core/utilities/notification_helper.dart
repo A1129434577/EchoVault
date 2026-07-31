@@ -60,7 +60,7 @@ class NotificationHelper {
       if (_pushHourList.isEmpty) return;
 
       List<FileInfo> suggestedItems = await DiscoveryState.instance
-          .queryRecommend();
+          .fetchRecommend();
       if (suggestedItems.isEmpty) {
         suggestedItems.add(
           FileInfo(name: 'Open Via Timer and let the sound focus you'),

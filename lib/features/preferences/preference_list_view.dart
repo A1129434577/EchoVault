@@ -23,7 +23,7 @@ class PreferenceListView extends StatelessWidget {
       key: Key('$PreferenceListView'),
       onVisibilityChanged: (VisibilityInfo info) {
         if (info.visibleFraction == 1) {
-          controller.getCache();
+          controller.measureCache();
         }
       },
       child: ListView.separated(
@@ -46,8 +46,8 @@ class PreferenceListView extends StatelessWidget {
                       'This will delete temporary data and cannot be undone. This will not affect your personal files or settings.'
                           .translate,
                   onConfirmArg: () async {
-                    await controller.cleanCache();
-                    controller.getCache();
+                    await controller.clearCache();
+                    controller.measureCache();
                   },
                 );
               }
@@ -89,7 +89,7 @@ class PreferenceState with ChangeNotifier {
   ValueNotifier<int> cacheSize = ValueNotifier(0);
   ValueNotifier<String> version = ValueNotifier('');
 
-  Future cleanCache() async {
+  Future clearCache() async {
     await DefaultCacheManager().emptyCache();
     String fileCachePathLocal = await FileInfo.filesCacheDirectoryPath;
     Directory fileCacheDirectoryLocal = Directory(fileCachePathLocal);
@@ -98,12 +98,12 @@ class PreferenceState with ChangeNotifier {
     }
   }
 
-  Future getAppVersion() async {
+  Future loadAppVersion() async {
     PackageInfo packageInfoLocal = await PackageInfo.fromPlatform();
     version.value = packageInfoLocal.version;
   }
 
-  Future getCache() async {
+  Future measureCache() async {
     int imageCacheSizeLocal = await DefaultCacheManager().store.getCacheSize();
     Directory cacheFileDirectoryLocal = Directory(
       await FileInfo.filesCacheDirectoryPath,

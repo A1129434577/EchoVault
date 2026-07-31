@@ -59,49 +59,49 @@ class DiscoveryState with ChangeNotifier {
             playStateInputArg.state == PlayState.playIndex) {
           if (mediaEntry != null) {
             mediaEntry.source1 = MediaOrigin.history;
-            MediaRepository.insertFileInfo(mediaEntry);
-            queryRecommend();
+            MediaRepository.addFileInfo(mediaEntry);
+            fetchRecommend();
           }
         }
       }
     });
     TransferMediaState.downloadFinishAndRemoveStream.listen((mediaEntry) {
-      queryRecommend();
-      queryMyPlaylist();
+      fetchRecommend();
+      fetchMyPlaylist();
     });
     BookmarkMediaState.favoriteStream.listen((mediaEntry) {
-      queryRecommend();
-      queryMyPlaylist();
+      fetchRecommend();
+      fetchMyPlaylist();
     });
     //首页展示的是非空的播放列表，在歌曲被添加自某个播放列表之后首页数据会更新，
     //不仅仅是搜藏歌单，所以直接监听LibraryController.instance.mediaCollections
     CatalogState.instance.mediaCollections.addListener(() {
-      queryMyPlaylist();
+      fetchMyPlaylist();
     });
     BookmarkPerformerState.favoriteStream.listen((mediaEntry) {
-      queryMyArtist();
+      fetchMyArtist();
     });
   }
   static DiscoveryState get instance => _instance;
-  Future loadMoreResource() async {
+  Future fetchMoreResource() async {
     if (isYoutubeMusicEnable.value == false) {
       return IndicatorResult.noMore;
     }
-    return await _queryResource(continuationArg: _continuation);
+    return await _fetchResource(continuationArg: _continuation);
   }
 
-  Future queryAllLocalData() async {
-    await queryRecommend();
-    await queryMyPlaylist();
-    await queryMyArtist();
-    await queryTopCharts();
+  Future fetchAllLocalData() async {
+    await fetchRecommend();
+    await fetchMyPlaylist();
+    await fetchMyArtist();
+    await fetchTopCharts();
     await _getCacheResourceData();
     await _resumePlayback();
   }
 
-  Future<List<PerformerDetails>> queryMyArtist() async {
+  Future<List<PerformerDetails>> fetchMyArtist() async {
     List<PerformerDetails> entries =
-        await PerformerRepository.queryArtistInfo();
+        await PerformerRepository.fetchArtistInfo();
     if (entries.isEmpty) {
       final encryptedJsonLocal = await rootBundle.loadString(
         Assets.data.artSeed,
@@ -112,7 +112,7 @@ class DiscoveryState with ChangeNotifier {
         PerformerDetails performerProfile = PerformerDetails.fromJson(
           artistMap,
         );
-        await PerformerRepository.insertArtistInfo(performerProfile);
+        await PerformerRepository.addArtistInfo(performerProfile);
         entries.add(performerProfile);
       }
     }
@@ -120,10 +120,10 @@ class DiscoveryState with ChangeNotifier {
     return entries;
   }
 
-  Future<List<MediaCollection>> queryMyPlaylist() async {
+  Future<List<MediaCollection>> fetchMyPlaylist() async {
     List<MediaCollection> collections = [];
     List<FileInfo> likedListLocal = await CatalogState.instance
-        .queryLikedList();
+        .fetchLikedList();
     if (likedListLocal.isNotEmpty) {
       collections.add(
         MediaCollection(
@@ -134,7 +134,7 @@ class DiscoveryState with ChangeNotifier {
       );
     }
     List<FileInfo> savedListLocal = await CatalogState.instance
-        .querySavedList();
+        .fetchSavedList();
     if (savedListLocal.isNotEmpty) {
       collections.add(
         MediaCollection(
@@ -162,8 +162,8 @@ class DiscoveryState with ChangeNotifier {
     return collections;
   }
 
-  Future<List<FileInfo>> queryRecommend() async {
-    List<FileInfo> entries = await MediaRepository.queryFileInfo(
+  Future<List<FileInfo>> fetchRecommend() async {
+    List<FileInfo> entries = await MediaRepository.fetchFileInfo(
       whereArg:
           '''
     (json_content LIKE '%${'"source1":"${MediaOrigin.history.name}"'}%')
@@ -181,7 +181,7 @@ class DiscoveryState with ChangeNotifier {
     return entries;
   }
 
-  Future<List<MediaCollection>> queryTopCharts() async {
+  Future<List<MediaCollection>> fetchTopCharts() async {
     List<MediaCollection> collections = [];
     final encryptedJsonLocal = await rootBundle.loadString(Assets.data.topSeed);
     String serializedJson = StringCipher.decrypt(encryptedJsonLocal);
@@ -206,11 +206,11 @@ class DiscoveryState with ChangeNotifier {
     return collections;
   }
 
-  Future refreshResource({String? mediaOrigin = 'drop_down'}) async {
+  Future reloadResource({String? mediaOrigin = 'drop_down'}) async {
     if (isRefreshing) {
       return;
     }
-    return await _queryResource(mediaOrigin: mediaOrigin);
+    return await _fetchResource(mediaOrigin: mediaOrigin);
   }
 
   Future _cacheResourceData() async {
@@ -235,12 +235,12 @@ class DiscoveryState with ChangeNotifier {
         return;
       }
       _originalResourceList = lLocal;
-      List<MediaCollection> entries = await SharedParser.parseContents(
+      List<MediaCollection> entries = await SharedParser.decodeContents(
         _originalResourceList,
       );
       if (entries.isEmpty) {
         isYoutubeMusicEnable.value = false;
-        entries = await MusicCatalogParser.parseHomeContents(
+        entries = await MusicCatalogParser.decodeHomeContents(
           _originalResourceList,
         );
       }
@@ -249,7 +249,7 @@ class DiscoveryState with ChangeNotifier {
     }
   }
 
-  Future _queryResource({String? continuationArg, String? mediaOrigin}) async {
+  Future _fetchResource({String? continuationArg, String? mediaOrigin}) async {
     isRefreshing = true;
     Map<String, dynamic>? requestParameters = {'browseId': 'FEmusic_home'};
     //source是自定义埋点字段，和接口无关
@@ -296,9 +296,9 @@ class DiscoveryState with ChangeNotifier {
       if (response == null ||
           (itemSectionsLocal is List && itemSectionsLocal.isEmpty)) {
         if (response != null) {
-          MessageOverlay.showSuccess('Updated content.'.translate);
+          MessageOverlay.presentSuccess('Updated content.'.translate);
         } else {
-          MessageOverlay.showWarning(
+          MessageOverlay.presentWarning(
             'Network issue. Please try again later.'.translate,
           );
         }
@@ -318,14 +318,14 @@ class DiscoveryState with ChangeNotifier {
     }
 
     if (itemSectionsLocal is List && itemSectionsLocal.isNotEmpty) {
-      await _queryYTResource(mediaOrigin: mediaOrigin);
+      await _fetchYTResource(mediaOrigin: mediaOrigin);
       return;
     }
     isRefreshing = false;
     isYoutubeMusicEnable.value = true;
     response ??= [];
     _originalResourceList.addAll(response);
-    List<MediaCollection> entries = await SharedParser.parseContents(
+    List<MediaCollection> entries = await SharedParser.decodeContents(
       response,
       mediaOrigin: MediaOrigin.homeNet,
     );
@@ -337,7 +337,7 @@ class DiscoveryState with ChangeNotifier {
     }
   }
 
-  Future _queryYTResource({String? mediaOrigin}) async {
+  Future _fetchYTResource({String? mediaOrigin}) async {
     isYoutubeMusicEnable.value = false;
 
     Map<String, dynamic>? requestParameters = {
@@ -362,9 +362,9 @@ class DiscoveryState with ChangeNotifier {
       }
     }
     if (response != null) {
-      MessageOverlay.showSuccess('Updated content.'.translate);
+      MessageOverlay.presentSuccess('Updated content.'.translate);
     } else {
-      MessageOverlay.showWarning(
+      MessageOverlay.presentWarning(
         'Network issue. Please try again later.'.translate,
       );
     }
@@ -376,7 +376,7 @@ class DiscoveryState with ChangeNotifier {
         [];
 
     _originalResourceList = response;
-    List<MediaCollection> entries = await MusicCatalogParser.parseHomeContents(
+    List<MediaCollection> entries = await MusicCatalogParser.decodeHomeContents(
       response,
       mediaOrigin: MediaOrigin.homeNet,
     );

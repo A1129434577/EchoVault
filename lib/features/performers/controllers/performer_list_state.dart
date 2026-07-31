@@ -19,7 +19,7 @@ class PerformerListState with ChangeNotifier {
     _initArtistList = performersArg;
   }
 
-  Future queryData() async {
+  Future fetchData() async {
     Map<String, dynamic>? requestParameters = {
       'browseId': mediaCollection!.id!,
     };
@@ -33,7 +33,7 @@ class PerformerListState with ChangeNotifier {
           SectionListParserKeys.initResourceList,
         ) ??
         [];
-    List<MediaCollection> entries = await SharedParser.parseContents(response);
+    List<MediaCollection> entries = await SharedParser.decodeContents(response);
 
     for (final mediaCollection in entries) {
       if (mediaCollection.type == MediaCollectionShowType.twoRowArtist) {

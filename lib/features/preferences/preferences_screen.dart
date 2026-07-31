@@ -18,7 +18,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   @override
   void initState() {
     super.initState();
-    _settingController.getAppVersion();
+    _settingController.loadAppVersion();
   }
 
   @override

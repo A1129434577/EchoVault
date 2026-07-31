@@ -41,7 +41,7 @@ class BookmarkCollectionView extends StatelessWidget {
             if (controller == null) {
               return CupertinoButton(
                 onPressed: () {
-                  favoriteControllerLocal.infoChange();
+                  favoriteControllerLocal.updateCollection();
                 },
                 sizeStyle: CupertinoButtonSize.small,
                 padding: EdgeInsets.zero,

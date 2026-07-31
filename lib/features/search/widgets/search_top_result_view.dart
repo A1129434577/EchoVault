@@ -28,7 +28,7 @@ class SearchTopResultView extends StatelessWidget {
       onLoading: DiscoveryState.instance.isYoutubeMusicEnable.value
           ? null
           : () async {
-              return controller.loadMoreYTData();
+              return controller.fetchMoreYTData();
             },
       controller: controller.refreshController,
       child: ValueListenableBuilder(
@@ -150,7 +150,7 @@ class SearchTopResultView extends StatelessWidget {
                 TransferMediaState();
             actionButtonLocal = SharedButton(
               onPressed: () {
-                downloadFileControllerLocal.saveStateChange();
+                downloadFileControllerLocal.handleSaveState();
               },
               fontSize: 16,
               isWhite: true,
@@ -166,7 +166,7 @@ class SearchTopResultView extends StatelessWidget {
                 BookmarkPerformerState(artistArg: entry);
             actionButtonLocal = SharedButton(
               onPressed: () {
-                artistControllerLocal.favoriteStateChange();
+                artistControllerLocal.toggleBookmark();
               },
               fontSize: 16,
               isWhite: true,
@@ -182,7 +182,7 @@ class SearchTopResultView extends StatelessWidget {
                 BookmarkCollectionState(mediaCollectionArg: entry);
             actionButtonLocal = SharedButton(
               onPressed: () {
-                groupControllerLocal.infoChange();
+                groupControllerLocal.updateCollection();
               },
               fontSize: 16,
               isWhite: true,

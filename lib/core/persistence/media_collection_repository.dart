@@ -9,7 +9,7 @@ import 'package:echo_vault/core/models/media_collection.dart';
 export 'package:echo_vault/core/models/media_collection.dart';
 
 class MediaCollectionRepository {
-  static Future<int> deleteFileGroup(MediaCollection musicCollectionArg) async {
+  static Future<int> removeFileGroup(MediaCollection musicCollectionArg) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
       DatabaseTables.mediaCollection,
@@ -19,7 +19,7 @@ class MediaCollectionRepository {
     return deleteCountLocal;
   }
 
-  static Future<int> insertFileGroup(MediaCollection mediaCollectionArg) async {
+  static Future<int> addFileGroup(MediaCollection mediaCollectionArg) async {
     mediaCollectionArg.createTime ??= DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(mediaCollectionArg.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
@@ -31,7 +31,7 @@ class MediaCollectionRepository {
     return idLocal;
   }
 
-  static Future<List<MediaCollection>> queryFileGroup({
+  static Future<List<MediaCollection>> fetchFileGroup({
     int? limitInputArg,
     String? whereArg,
   }) async {
@@ -53,7 +53,7 @@ class MediaCollectionRepository {
           })
           .toList()
           .join(',');
-      musicCollectionLocal.children = await MediaRepository.queryFileInfo(
+      musicCollectionLocal.children = await MediaRepository.fetchFileInfo(
         whereArg: 'id IN ($idsStringLocal)',
       );
       if (musicCollectionLocal.id?.startsWith(
@@ -70,8 +70,8 @@ class MediaCollectionRepository {
     return entries;
   }
 
-  static Future<MediaCollection?> queryFileGroupFromId(String? idArg) async {
-    List<MediaCollection> entries = await queryFileGroup(
+  static Future<MediaCollection?> fetchFileGroupFromId(String? idArg) async {
+    List<MediaCollection> entries = await fetchFileGroup(
       whereArg: idArg != null ? 'id = "$idArg"' : 'id IS null',
     );
     return entries.firstOrNull;

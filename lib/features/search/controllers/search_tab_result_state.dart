@@ -66,15 +66,15 @@ class SearchTabResultState with ChangeNotifier {
   //请求更多分页的参数
   String? _continuation;
   SearchTabResultState({required this.keyword, required this.mediaCollection});
-  Future loadMoreResource() async {
-    return await _queryResource(continuationArg: _continuation);
+  Future fetchMoreResource() async {
+    return await _fetchResource(continuationArg: _continuation);
   }
 
-  Future refreshResource() async {
-    await _queryResource();
+  Future reloadResource() async {
+    await _fetchResource();
   }
 
-  Future _queryResource({String? continuationArg}) async {
+  Future _fetchResource({String? continuationArg}) async {
     Map<String, dynamic>? requestParameters = {
       'query': keyword,
       'params': mediaCollection.params,
@@ -104,7 +104,7 @@ class SearchTabResultState with ChangeNotifier {
             SearchTabResultParserKeys.initResourceList,
           ) ??
           [];
-      List<MediaCollection> entries = await SharedParser.parseContents(
+      List<MediaCollection> entries = await SharedParser.decodeContents(
         response,
         mediaOrigin: MediaOrigin.search,
       );
@@ -123,7 +123,7 @@ class SearchTabResultState with ChangeNotifier {
             SearchTabResultParserKeys.moreResourceList,
           ) ??
           [];
-      List entries = await SharedParser.parseChildren(
+      List entries = await SharedParser.decodeChildren(
         response,
         mediaOrigin: MediaOrigin.search,
       );

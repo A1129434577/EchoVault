@@ -26,7 +26,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   @override
   void initState() {
     super.initState();
-    _queryData();
+    _fetchData();
   }
 
   @override
@@ -152,11 +152,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
     );
   }
 
-  Future _queryData() async {
-    await _libraryController.querySavedList();
-    await _libraryController.queryLikedList();
-    await _libraryController.queryArtistList();
-    await _libraryController.queryMusicGroupList();
+  Future _fetchData() async {
+    await _libraryController.fetchSavedList();
+    await _libraryController.fetchLikedList();
+    await _libraryController.fetchArtistList();
+    await _libraryController.fetchMusicGroupList();
   }
 
   Widget _topViews() {
@@ -181,7 +181,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         child: GestureDetector(
                           onTap: () async {
                             _libraryController.isSavedNewly = false;
-                            _libraryController.querySavedList();
+                            _libraryController.fetchSavedList();
                             MediaCollection savedMusicGroupLocal =
                                 MediaCollection(
                                   name: 'Offline Songs'.translate,
@@ -289,7 +289,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                               return GestureDetector(
                                 onTap: () {
                                   _libraryController.isLikedNewly = false;
-                                  _libraryController.queryLikedList();
+                                  _libraryController.fetchLikedList();
                                   MediaCollection lickFileGroupLocal =
                                       MediaCollection(
                                         name: 'Favorite Songs'.translate,
@@ -406,7 +406,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                               return GestureDetector(
                                 onTap: () {
                                   _libraryController.isArtistNewly = false;
-                                  _libraryController.queryArtistList();
+                                  _libraryController.fetchArtistList();
                                   Get.to(
                                     PerformerListScreen(
                                       performers: performersArg,

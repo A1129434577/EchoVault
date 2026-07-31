@@ -77,7 +77,7 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   Get.back();
-                  MessageOverlay.showSuccess('Feedback successful!');
+                  MessageOverlay.presentSuccess('Feedback successful!');
                 }
               },
             ),
@@ -140,7 +140,7 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
                     } else if (!content.isEmail) {
                       String messageLocal =
                           'Please fill in a valid email address.'.translate;
-                      MessageOverlay.showError(messageLocal);
+                      MessageOverlay.presentError(messageLocal);
                       return messageLocal;
                     }
                     return null;

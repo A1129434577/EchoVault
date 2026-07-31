@@ -24,7 +24,7 @@ class _LaunchScreenState extends State<LaunchScreen> {
   @override
   void initState() {
     super.initState();
-    prepareData();
+    prepareContent();
   }
 
   @override
@@ -95,10 +95,10 @@ class _LaunchScreenState extends State<LaunchScreen> {
     );
   }
 
-  Future prepareData() async {
-    _openController.queryModules();
+  Future prepareContent() async {
+    _openController.fetchModules();
     int adStartTimeLocal = DateTime.now().millisecondsSinceEpoch;
-    bool successLocal = await _openController.loadAndShowAd();
+    bool successLocal = await _openController.fetchAndShowAd();
     int adEndTimeLocal = DateTime.now().millisecondsSinceEpoch;
     //广告只要显示成功，关闭广告后必定需要进入主页
     //广告展示失败，并且花费时间比较少，如果cloak未请求成功可以继续用剩下的时间等待
@@ -115,10 +115,10 @@ class _LaunchScreenState extends State<LaunchScreen> {
       _openController.isProgressFinish.value = true;
     }
 
-    toHome();
+    navigateToHome();
   }
 
-  Future toHome() async {
+  Future navigateToHome() async {
     if (_openController.isModulesUsable.value == true) {
       Get.offAll(PrimaryNavigationScreen());
     } else {

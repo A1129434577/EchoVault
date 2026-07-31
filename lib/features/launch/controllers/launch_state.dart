@@ -26,10 +26,10 @@ class LaunchState with ChangeNotifier {
     return _instance;
   }
   LaunchState._() {
-    listenNetwork();
+    monitorNetwork();
   }
   static LaunchState get instance => _instance;
-  Future listenNetwork() async {
+  Future monitorNetwork() async {
     await Future.delayed(Duration(seconds: 5));
     //是否曾经是wifi
     bool? isLastWifiValueLocal;
@@ -45,7 +45,7 @@ class LaunchState with ChangeNotifier {
           isNetworkUsable = true;
           if (isModulesUsable.value == null) {
             if (modulesCompleter.isCompleted) {
-              _queryModulesUsable(retryNumArg: 5);
+              _fetchModulesUsable(retryNumArg: 5);
             }
           }
           //如果曾经是wifi或者第一次检测到是流量，则提示
@@ -53,7 +53,7 @@ class LaunchState with ChangeNotifier {
               connectivityResultArg.contains(ConnectivityResult.wifi) ==
                   false) {
             isLastWifiValueLocal = false;
-            MessageOverlay.showWarning(
+            MessageOverlay.presentWarning(
               'Your Wi-Fi connection is weak. The app is now using your cellular data.'
                   .translate,
             );
@@ -65,7 +65,7 @@ class LaunchState with ChangeNotifier {
           isNetworkUsable = false;
           Future.delayed(Duration(seconds: 1), () {
             if (isNetworkUsable == false) {
-              MessageOverlay.showWarning(
+              MessageOverlay.presentWarning(
                 'Network Unavailable,Please check your Wi-Fi or mobile data connection and try again.'
                     .translate,
               );
@@ -79,7 +79,7 @@ class LaunchState with ChangeNotifier {
     connectivityLocal.checkConnectivity();
   }
 
-  Future<bool> loadAndShowAd() async {
+  Future<bool> fetchAndShowAd() async {
     Completer<bool> adCompleterLocal = Completer();
     await Future.any([
       AdHelper.requestAd(
@@ -126,10 +126,10 @@ class LaunchState with ChangeNotifier {
     return adCompleterLocal.future;
   }
 
-  Future queryModules() async {
+  Future fetchModules() async {
     startTime = DateTime.now();
     if (isModulesUsable.value == null) {
-      await _queryModulesUsable();
+      await _fetchModulesUsable();
       modulesCompleter.complete();
     } else {
       modulesCompleter.complete();
@@ -137,7 +137,7 @@ class LaunchState with ChangeNotifier {
     return modulesCompleter.future;
   }
 
-  Future _queryModulesUsable({int retryNumArg = 10}) async {
+  Future _fetchModulesUsable({int retryNumArg = 10}) async {
     String openVersionLocal = await RemoteFeatureSettings.modelCompleter.future;
     if (openVersionLocal.isEmpty) {
       openVersionLocal = '0.0.0';
@@ -165,7 +165,7 @@ class LaunchState with ChangeNotifier {
     if (isModulesUsable.value != true && retryNumArg > 0) {
       await Future.delayed(Duration(milliseconds: 500));
       retryNumArg--;
-      await _queryModulesUsable(retryNumArg: retryNumArg);
+      await _fetchModulesUsable(retryNumArg: retryNumArg);
     }
   }
 }

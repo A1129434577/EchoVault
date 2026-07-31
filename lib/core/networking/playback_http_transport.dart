@@ -4,7 +4,7 @@ import 'package:echo_vault/features/playback/controllers/playback_coordinator.da
 class PlaybackHttpTransport implements PlayerHttpClientInterface {
   @override
   Future<String?> getFileUrl({required FileInfo fileInfo}) async {
-    String? resourceUrl = await PlaybackCoordinator.instance.queryMediaDetail(
+    String? resourceUrl = await PlaybackCoordinator.instance.fetchMediaDetail(
       fileInfo,
     );
     return resourceUrl;

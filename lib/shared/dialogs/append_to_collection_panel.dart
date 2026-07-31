@@ -132,7 +132,7 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                                             _fileInfo,
                                             mediaCollectionLocal,
                                           );
-                                      MessageOverlay.showSuccess(
+                                      MessageOverlay.presentSuccess(
                                         'Added.'.translate,
                                       );
                                     },

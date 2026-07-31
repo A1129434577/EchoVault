@@ -81,7 +81,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
         );
       });
     });
-    _pageController.queryRecommendList();
+    _pageController.fetchRecommendList();
   }
 
   @override

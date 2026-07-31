@@ -346,7 +346,7 @@ class SectionListParserKeys {
 }
 
 class SharedParser {
-  static Future<PerformerDetails> parseCardArtist(
+  static Future<PerformerDetails> decodeCardArtist(
     Map performerRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -377,11 +377,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     artistLocal.desc = secondaryText;
-    await RecordSyncHelper.syncArtist(artistLocal);
+    await RecordSyncHelper.reconcileArtist(artistLocal);
     return artistLocal;
   }
 
-  static Future<FileInfo> parseCardMusicVideo(
+  static Future<FileInfo> decodeCardMusicVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -405,11 +405,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaEntry.artist = secondaryText;
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<MediaCollection> parseCardPlaylist(
+  static Future<MediaCollection> decodeCardPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -441,12 +441,12 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaCollectionLocal.detail = secondaryText;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
   ///解析书架样式的group(比如主页数据)
-  static Future<MediaCollection> parseCarouselShelfFileGroup(
+  static Future<MediaCollection> decodeCarouselShelfFileGroup(
     Map fileGroupMapArg, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -466,7 +466,7 @@ class SharedParser {
       CarouselShelfParserKeys.groupParams,
     );
     List childRecords = fileGroupMapArg[SharedParserKeys.children] ?? [];
-    List childEntries = await parseChildren(
+    List childEntries = await decodeChildren(
       childRecords,
       mediaCollectionArg: mediaCollectionLocal,
       mediaOrigin: mediaOrigin,
@@ -498,7 +498,7 @@ class SharedParser {
     return mediaCollectionLocal;
   }
 
-  static Future<List> parseChildren(
+  static Future<List> decodeChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -518,14 +518,14 @@ class SharedParser {
         if (playlistTypeLocal != null) {
           if (playlistTypeLocal == PerformerDetails.ytmTypeName) {
             mediaCollectionArg?.type = MediaCollectionShowType.twoRowArtist;
-            PerformerDetails artistLocal = await parseResponsiveListArtist(
+            PerformerDetails artistLocal = await decodeResponsiveListArtist(
               nestedRecord,
               mediaOrigin: mediaOrigin,
             );
             childEntries.add(artistLocal);
           } else {
             mediaCollectionArg?.type = MediaCollectionShowType.twoRowPlaylist;
-            MediaCollection playlistLocal = await parseResponsiveListPlaylist(
+            MediaCollection playlistLocal = await decodeResponsiveListPlaylist(
               nestedRecord,
               mediaOrigin: mediaOrigin,
             );
@@ -536,7 +536,7 @@ class SharedParser {
           //这里注意一下：如果已经作为Shelf单列表样式展示了就不再使用其他样式
           mediaCollectionArg?.type ??=
               MediaCollectionShowType.responsiveListMusic;
-          FileInfo mediaEntry = await parseResponsiveListMusic(
+          FileInfo mediaEntry = await decodeResponsiveListMusic(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -556,13 +556,13 @@ class SharedParser {
         );
         if (playlistTypeLocal != null) {
           if (playlistTypeLocal == PerformerDetails.ytmTypeName) {
-            PerformerDetails artistLocal = await parseTwoRowArtist(
+            PerformerDetails artistLocal = await decodeTwoRowArtist(
               nestedRecord,
               mediaOrigin: mediaOrigin,
             );
             childEntries.add(artistLocal);
           } else {
-            MediaCollection playlistLocal = await parseTwoRowPlaylist(
+            MediaCollection playlistLocal = await decodeTwoRowPlaylist(
               nestedRecord,
               mediaOrigin: mediaOrigin,
             );
@@ -570,7 +570,7 @@ class SharedParser {
             childEntries.add(playlistLocal);
           }
         } else if (videoTypeLocal != null) {
-          FileInfo mediaEntry = await parseTwoRowMusicVideo(
+          FileInfo mediaEntry = await decodeTwoRowMusicVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -591,13 +591,13 @@ class SharedParser {
         );
         if (playlistTypeLocal != null) {
           if (playlistTypeLocal == PerformerDetails.ytmTypeName) {
-            PerformerDetails artistLocal = await parseCardArtist(
+            PerformerDetails artistLocal = await decodeCardArtist(
               nestedRecord,
               mediaOrigin: mediaOrigin,
             );
             childEntries.add(artistLocal);
           } else {
-            MediaCollection playlistLocal = await parseCardPlaylist(
+            MediaCollection playlistLocal = await decodeCardPlaylist(
               nestedRecord,
               mediaOrigin: mediaOrigin,
             );
@@ -605,7 +605,7 @@ class SharedParser {
             childEntries.add(playlistLocal);
           }
         } else if (videoTypeLocal != null) {
-          FileInfo mediaEntry = await parseCardMusicVideo(
+          FileInfo mediaEntry = await decodeCardMusicVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -621,7 +621,7 @@ class SharedParser {
           MultiRowListParserKeys.musicVideoType,
         );
         if (videoTypeLocal != null) {
-          FileInfo mediaEntry = await parseMultiRowMusicVideo(
+          FileInfo mediaEntry = await decodeMultiRowMusicVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -637,7 +637,7 @@ class SharedParser {
           PanelVideoParserKeys.musicVideoType,
         );
         if (videoTypeLocal != null) {
-          FileInfo mediaEntry = await parsePanelVideo(
+          FileInfo mediaEntry = await decodePanelVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -650,7 +650,7 @@ class SharedParser {
         NavigationButtonParserKeys.navigation,
       )) {
         Map nestedRecord = childrenMap[NavigationButtonParserKeys.navigation];
-        MediaCollection playlistLocal = await parseNavigationPlaylist(
+        MediaCollection playlistLocal = await decodeNavigationPlaylist(
           nestedRecord,
           mediaOrigin: mediaOrigin,
         );
@@ -660,7 +660,7 @@ class SharedParser {
     return childEntries;
   }
 
-  static Future<List<MediaCollection>> parseContents(
+  static Future<List<MediaCollection>> decodeContents(
     List groupMapListArg, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -669,7 +669,7 @@ class SharedParser {
       if (groupMap.containsKey(CarouselShelfParserKeys.carouselShelf)) {
         groupMap = groupMap[CarouselShelfParserKeys.carouselShelf];
         MediaCollection mediaCollectionLocal =
-            await SharedParser.parseCarouselShelfFileGroup(
+            await SharedParser.decodeCarouselShelfFileGroup(
               groupMap,
               mediaOrigin: mediaOrigin,
             );
@@ -678,7 +678,7 @@ class SharedParser {
         //多类型中夹杂的单列表，有group的title、name等
         groupMap = groupMap[ShelfParserKeys.shelf];
         MediaCollection mediaCollectionLocal =
-            await SharedParser.parseShelfFileGroup(
+            await SharedParser.decodeShelfFileGroup(
               groupMap,
               mediaOrigin: mediaOrigin,
             );
@@ -690,7 +690,7 @@ class SharedParser {
           type: MediaCollectionShowType.listMusic,
         );
         List childRecords = groupMap[SharedParserKeys.children] ?? [];
-        List childEntries = await parseChildren(
+        List childEntries = await decodeChildren(
           childRecords,
           mediaOrigin: mediaOrigin,
         );
@@ -711,7 +711,7 @@ class SharedParser {
         List childRecords =
             ParserHelper.parse<List>(groupMap, GridRendererParserKeys.list) ??
             [];
-        List childEntries = await parseChildren(
+        List childEntries = await decodeChildren(
           childRecords,
           mediaOrigin: mediaOrigin,
         );
@@ -722,7 +722,7 @@ class SharedParser {
     return entries;
   }
 
-  static Future<FileInfo> parseMultiRowMusicVideo(
+  static Future<FileInfo> decodeMultiRowMusicVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -749,11 +749,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaEntry.artist = secondaryText;
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<MediaCollection> parseNavigationPlaylist(
+  static Future<MediaCollection> decodeNavigationPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -777,11 +777,11 @@ class SharedParser {
         ) ??
         '';
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
-  static Future<FileInfo> parsePanelVideo(
+  static Future<FileInfo> decodePanelVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -805,11 +805,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaEntry.artist = secondaryText;
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<PerformerDetails> parseResponsiveListArtist(
+  static Future<PerformerDetails> decodeResponsiveListArtist(
     Map performerRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -840,11 +840,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     performerProfile.desc = secondaryText;
-    await RecordSyncHelper.syncArtist(performerProfile);
+    await RecordSyncHelper.reconcileArtist(performerProfile);
     return performerProfile;
   }
 
-  static Future<FileInfo> parseResponsiveListMusic(
+  static Future<FileInfo> decodeResponsiveListMusic(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -881,11 +881,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaEntry.artist = secondaryText;
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<MediaCollection> parseResponsiveListPlaylist(
+  static Future<MediaCollection> decodeResponsiveListPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -917,12 +917,12 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaCollectionLocal.detail = secondaryText;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
   ///解析单列表类的group（比如歌手主页的热门歌曲）
-  static Future<MediaCollection> parseShelfFileGroup(
+  static Future<MediaCollection> decodeShelfFileGroup(
     Map fileGroupMapArg, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -944,7 +944,7 @@ class SharedParser {
       ShelfParserKeys.groupParams,
     );
     List childRecords = fileGroupMapArg[SharedParserKeys.children] ?? [];
-    List childEntries = await parseChildren(
+    List childEntries = await decodeChildren(
       childRecords,
       mediaCollectionArg: mediaCollectionLocal,
       mediaOrigin: mediaOrigin,
@@ -953,7 +953,7 @@ class SharedParser {
     return mediaCollectionLocal;
   }
 
-  static Future<PerformerDetails> parseTwoRowArtist(
+  static Future<PerformerDetails> decodeTwoRowArtist(
     Map performerRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -978,11 +978,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     artistLocal.desc = secondaryText;
-    await RecordSyncHelper.syncArtist(artistLocal);
+    await RecordSyncHelper.reconcileArtist(artistLocal);
     return artistLocal;
   }
 
-  static Future<FileInfo> parseTwoRowMusicVideo(
+  static Future<FileInfo> decodeTwoRowMusicVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -1004,11 +1004,11 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaEntry.artist = secondaryText;
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<MediaCollection> parseTwoRowPlaylist(
+  static Future<MediaCollection> decodeTwoRowPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -1034,7 +1034,7 @@ class SharedParser {
       secondaryText += textRun['text'];
     }
     mediaCollectionLocal.detail = secondaryText;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 }

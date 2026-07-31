@@ -5,10 +5,12 @@ import 'package:echo_vault/core/persistence/media_repository.dart';
 import 'package:echo_vault/core/models/performer_details.dart';
 
 class RecordSyncHelper {
-  static Future<PerformerDetails> syncArtist(PerformerDetails artistArg) async {
+  static Future<PerformerDetails> reconcileArtist(
+    PerformerDetails artistArg,
+  ) async {
     PerformerDetails? cacheArtistLocal;
     if (artistArg.id != null) {
-      cacheArtistLocal = await PerformerRepository.queryArtistInfoFromId(
+      cacheArtistLocal = await PerformerRepository.fetchArtistInfoFromId(
         artistArg.id!,
       );
     }
@@ -18,11 +20,11 @@ class RecordSyncHelper {
     return artistArg;
   }
 
-  static Future<MediaCollection> syncFileGroup(
+  static Future<MediaCollection> reconcileFileGroup(
     MediaCollection mediaCollectionArg,
   ) async {
     MediaCollection? cacheFileGroupLocal =
-        await MediaCollectionRepository.queryFileGroupFromId(
+        await MediaCollectionRepository.fetchFileGroupFromId(
           mediaCollectionArg.id,
         );
     if (cacheFileGroupLocal != null) {
@@ -31,8 +33,8 @@ class RecordSyncHelper {
     return mediaCollectionArg;
   }
 
-  static Future<FileInfo> syncFileInfo(FileInfo mediaEntry) async {
-    FileInfo? cacheFileInfoLocal = await MediaRepository.queryFileInfoFromId(
+  static Future<FileInfo> reconcileFileInfo(FileInfo mediaEntry) async {
+    FileInfo? cacheFileInfoLocal = await MediaRepository.fetchFileInfoFromId(
       mediaEntry.fileId,
     );
     if (cacheFileInfoLocal != null) {

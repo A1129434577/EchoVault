@@ -109,7 +109,7 @@ class MediaOptionsPanel extends StatelessWidget {
                 return GestureDetector(
                   onTap: () {
                     _actionsController.add(displayTitle);
-                    downloadControllerLocal.saveStateChange();
+                    downloadControllerLocal.handleSaveState();
                   },
                   behavior: HitTestBehavior.translucent,
                   child: SizedBox(
@@ -133,7 +133,7 @@ class MediaOptionsPanel extends StatelessWidget {
                 return GestureDetector(
                   onTap: () {
                     _actionsController.add(displayTitle);
-                    favoriteControllerLocal.favoriteStateChange();
+                    favoriteControllerLocal.toggleBookmark();
                   },
                   behavior: HitTestBehavior.translucent,
                   child: SizedBox(
@@ -161,7 +161,7 @@ class MediaOptionsPanel extends StatelessWidget {
                   onTap: () {
                     _actionsController.add(displayTitle);
                     PlayerPlayback.instance.insertNextPlayList([mediaDetails]);
-                    MessageOverlay.showSuccess('Will play next.'.translate);
+                    MessageOverlay.presentSuccess('Will play next.'.translate);
                     Navigator.pop(context);
                   },
                   behavior: HitTestBehavior.translucent,
@@ -181,7 +181,7 @@ class MediaOptionsPanel extends StatelessWidget {
                   onTap: () {
                     _actionsController.add(displayTitle);
                     PlayerPlayback.instance.insertPlayList([mediaDetails]);
-                    MessageOverlay.showSuccess('Added to queue.'.translate);
+                    MessageOverlay.presentSuccess('Added to queue.'.translate);
                     Navigator.pop(context);
                   },
                   behavior: HitTestBehavior.translucent,
@@ -222,7 +222,7 @@ class MediaOptionsPanel extends StatelessWidget {
                       id: mediaDetails.uid,
                       name: mediaDetails.userName ?? '',
                     );
-                    await RecordSyncHelper.syncArtist(artistLocal);
+                    await RecordSyncHelper.reconcileArtist(artistLocal);
                     PerformerDetailScreenHelper.to(
                       performerProfile: artistLocal,
                     );

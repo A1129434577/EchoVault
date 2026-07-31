@@ -7,7 +7,7 @@ class MessageOverlay {
     SmartDialog.dismiss();
   }
 
-  static Future<T?> loading<T>({String? currentStatus}) {
+  static Future<T?> fetching<T>({String? currentStatus}) {
     return SmartDialog.showLoading(
       builder: (buildContext) {
         return Container(
@@ -49,7 +49,7 @@ class MessageOverlay {
     );
   }
 
-  static Future showError(String currentStatus) {
+  static Future presentError(String currentStatus) {
     return SmartDialog.showToast(
       '',
       builder: (buildContext) {
@@ -61,7 +61,7 @@ class MessageOverlay {
     );
   }
 
-  static Future showMessage(String currentStatus) {
+  static Future presentMessage(String currentStatus) {
     return SmartDialog.showToast(
       '',
       builder: (buildContext) {
@@ -70,7 +70,7 @@ class MessageOverlay {
     );
   }
 
-  static Future showSuccess(String currentStatus) {
+  static Future presentSuccess(String currentStatus) {
     return SmartDialog.showToast(
       '',
       builder: (buildContext) {
@@ -82,7 +82,7 @@ class MessageOverlay {
     );
   }
 
-  static Future showWarning(String currentStatus) {
+  static Future presentWarning(String currentStatus) {
     return SmartDialog.showToast(
       '',
       builder: (buildContext) {

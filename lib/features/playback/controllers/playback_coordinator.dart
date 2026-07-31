@@ -105,7 +105,7 @@ class PlaybackCoordinator with ChangeNotifier {
       } else if (playStateInputArg.state == PlayState.loadFailed) {
         FileInfo? mediaEntry = playStateInputArg.fileInfo;
         if (player.currentMediaInfo.value == mediaEntry) {
-          MessageOverlay.showError('Play Failed.'.translate);
+          MessageOverlay.presentError('Play Failed.'.translate);
           if (_continuousPlayback < 4 && _playStartNeedPlayNow == true) {
             player.playNext(startPlay: _playStartNeedPlayNow);
             _continuousPlayback++;
@@ -142,7 +142,7 @@ class PlaybackCoordinator with ChangeNotifier {
     super.dispose();
   }
 
-  Future<String?> queryMediaDetail(FileInfo mediaEntry) async {
+  Future<String?> fetchMediaDetail(FileInfo mediaEntry) async {
     Map<String, dynamic>? requestParameters = {'videoId': mediaEntry.fileId};
     dynamic response = await MusicCatalogGateway.post(
       resourceUrl: MusicCatalogEndpoints.player,
@@ -169,7 +169,7 @@ class PlaybackCoordinator with ChangeNotifier {
       mediaEntry.url = resourceUrl;
       mediaEntry.uid = channelIdLocal;
       mediaEntry.userName = authorLocal;
-      MediaRepository.insertFileInfo(mediaEntry);
+      MediaRepository.addFileInfo(mediaEntry);
     }
     return resourceUrl;
   }

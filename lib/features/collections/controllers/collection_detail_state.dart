@@ -16,15 +16,15 @@ class CollectionDetailState with ChangeNotifier {
   ValueNotifier<List<MediaCollection>?> resourceList = ValueNotifier(null);
   CollectionDetailState({required this.mediaCollection});
 
-  Future loadMoreYTData() async {
+  Future fetchMoreYTData() async {
     FileInfo mediaEntry = mediaCollection.children.first;
-    await _queryYTData(
+    await _fetchYTData(
       moreParamsInputArg: {'videoId': mediaEntry.fileId, 'playlistIndex': 1},
     );
     return IndicatorResult.noMore;
   }
 
-  Future queryData() async {
+  Future fetchData() async {
     state.value = ResourceStatus.loading;
     //youtube的WEB_PAGE_TYPE_PLAYLIST类型（最佳搜索的顶部card）也需要用browse接口请求
     if (mediaCollection.playlistType ==
@@ -35,10 +35,10 @@ class CollectionDetailState with ChangeNotifier {
             CollectionType.WEB_PAGE_TYPE_PLAYLIST.name ||
         mediaCollection.playlistType ==
             CollectionType.MUSIC_PAGE_TYPE_PODCAST_SHOW_DETAIL_PAGE.name) {
-      await _queryData();
+      await _fetchData();
     } else {
       mediaCollection.children = [];
-      await _queryYTData();
+      await _fetchYTData();
     }
     if (resourceList.value?.isEmpty == true) {
       state.value = ResourceStatus.empty;
@@ -49,7 +49,7 @@ class CollectionDetailState with ChangeNotifier {
     }
   }
 
-  Future _queryData() async {
+  Future _fetchData() async {
     Map<String, dynamic>? requestParameters = {
       'browseId': mediaCollection.id!,
       'params': mediaCollection.params,
@@ -74,7 +74,7 @@ class CollectionDetailState with ChangeNotifier {
         [];
     //playlist和album的详情页面都是同一个，
     //但是专辑有点不同的是可能还有推荐作品，所以统一再次规定格式为一个FilGroup分组
-    entries = await SharedParser.parseContents(
+    entries = await SharedParser.decodeContents(
       entries,
       mediaOrigin: MediaOrigin.playlistHome,
     );
@@ -94,7 +94,7 @@ class CollectionDetailState with ChangeNotifier {
   }
 
   //请求更多显示根据
-  Future _queryYTData({Map<String, dynamic>? moreParamsInputArg}) async {
+  Future _fetchYTData({Map<String, dynamic>? moreParamsInputArg}) async {
     Map<String, dynamic>? requestParameters = {
       'playlistId': mediaCollection.id!,
     };
@@ -115,7 +115,7 @@ class CollectionDetailState with ChangeNotifier {
           CollectionCatalogParserKeys.resourceList,
         ) ??
         [];
-    List newChildrenLocal = await MusicCatalogParser.parsePlaylistChildren(
+    List newChildrenLocal = await MusicCatalogParser.decodePlaylistChildren(
       response,
     );
     mediaCollection.children = [

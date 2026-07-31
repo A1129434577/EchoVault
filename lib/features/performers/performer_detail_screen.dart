@@ -53,7 +53,7 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
       _isHeaderClosed.value = (_scrollController.offset >= 90);
     };
     _scrollController.addListener(_scrollControllerListener);
-    controller.queryData();
+    controller.fetchData();
   }
 
   @override
@@ -225,7 +225,7 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
                               Expanded(
                                 child: PagedRefreshView(
                                   onRefresh: () async {
-                                    await controller.queryData();
+                                    await controller.fetchData();
                                   },
                                   controller: controller.refreshController,
                                   childBuilder: (context, physics) {
@@ -247,7 +247,7 @@ class _PerformerDetailScreenState extends State<_PerformerDetailScreen> {
                                                   ? ResourceStatus.source
                                                   : state,
                                               action: () {
-                                                controller.queryData();
+                                                controller.fetchData();
                                               },
                                               child: CollectionListView(
                                                 physics: physics,

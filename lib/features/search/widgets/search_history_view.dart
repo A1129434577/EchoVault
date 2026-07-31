@@ -42,7 +42,7 @@ class SearchHistoryState with ChangeNotifier {
     });
     _mainTabIndexListener = () {
       if (PrimaryNavigationScreen.currentTabIndex.value == 2) {
-        queryHistoryKeywords();
+        fetchHistoryKeywords();
         AdHelper.loadSceneAdIfNull(
           scene: scene,
           detailScene: AdvertisingDetailScene.search,
@@ -64,10 +64,10 @@ class SearchHistoryState with ChangeNotifier {
   Future clearHistoryKeywords() async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
     await spLocal.remove(historyKeywordKey);
-    queryHistoryKeywords();
+    fetchHistoryKeywords();
   }
 
-  Future<List<String>> queryHistoryKeywords() async {
+  Future<List<String>> fetchHistoryKeywords() async {
     SharedPreferences spLocal = await SharedPreferences.getInstance();
     String? listJsonStringLocal = spLocal.getString(historyKeywordKey);
     List<dynamic> storedKeywordsLocal = [];
@@ -79,7 +79,7 @@ class SearchHistoryState with ChangeNotifier {
   }
 
   Future saveHistoryKeyword(String keywordArg) async {
-    List<String> historyEntriesLocal = await queryHistoryKeywords();
+    List<String> historyEntriesLocal = await fetchHistoryKeywords();
     if (historyEntriesLocal.contains(keywordArg)) {
       historyEntriesLocal.remove(keywordArg);
     }
@@ -110,7 +110,7 @@ class _SearchHistoryViewState extends State<SearchHistoryView> {
   @override
   void initState() {
     super.initState();
-    controller.queryHistoryKeywords();
+    controller.fetchHistoryKeywords();
   }
 
   @override

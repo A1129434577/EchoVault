@@ -52,7 +52,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       UpgradeDialog.show();
     });
-    controller.queryAllLocalData().then((e) async {
+    controller.fetchAllLocalData().then((e) async {
       controller.refreshController.callRefresh();
     });
   }
@@ -74,10 +74,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                 Expanded(
                   child: PagedRefreshView(
                     onRefresh: () {
-                      return controller.refreshResource();
+                      return controller.reloadResource();
                     },
                     onLoading: () {
-                      return controller.loadMoreResource();
+                      return controller.fetchMoreResource();
                     },
                     controller: controller.refreshController,
                     footerPadding: EdgeInsets.only(bottom: barHeight),

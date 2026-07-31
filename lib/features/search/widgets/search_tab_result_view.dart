@@ -30,10 +30,10 @@ class _FindTabResultViewState extends State<SearchTabResultView> {
   Widget build(BuildContext context) {
     return PagedRefreshView(
       onRefresh: () {
-        return controller.refreshResource();
+        return controller.reloadResource();
       },
       onLoading: () {
-        return controller.loadMoreResource();
+        return controller.fetchMoreResource();
       },
       controller: controller.refreshController,
       child: VisibilityDetector(

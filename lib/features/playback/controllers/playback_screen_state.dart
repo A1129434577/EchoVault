@@ -81,15 +81,15 @@ class PlaybackScreenState with ChangeNotifier {
     super.dispose();
   }
 
-  Future queryRecommendList() async {
+  Future fetchRecommendList() async {
     if (DiscoveryState.instance.isYoutubeMusicEnable.value) {
-      await _queryRecommendList();
+      await _fetchRecommendList();
     } else {
-      await _queryYTRecommendList();
+      await _fetchYTRecommendList();
     }
   }
 
-  Future _queryRecommendList() async {
+  Future _fetchRecommendList() async {
     if (mediaDetails == null) {
       return;
     }
@@ -107,7 +107,7 @@ class PlaybackScreenState with ChangeNotifier {
         response,
         PlaybackParserKeys.nextPlayListId,
       );
-      queryRecommendList();
+      fetchRecommendList();
     } else {
       List responses =
           ParserHelper.parse<List>(
@@ -115,12 +115,12 @@ class PlaybackScreenState with ChangeNotifier {
             PlaybackParserKeys.nextPlaylistResourceList,
           ) ??
           [];
-      final suggestedItems = await SharedParser.parseChildren(responses);
+      final suggestedItems = await SharedParser.decodeChildren(responses);
       PlayerPlayback.instance.insertPlayList(suggestedItems.cast<FileInfo>());
     }
   }
 
-  Future _queryYTRecommendList() async {
+  Future _fetchYTRecommendList() async {
     if (mediaDetails == null) {
       return;
     }
@@ -136,7 +136,7 @@ class PlaybackScreenState with ChangeNotifier {
           PlaybackSuggestionParserKeys.resourceList,
         ) ??
         [];
-    final suggestedItems = await MusicCatalogParser.parsePlayRecommendChildren(
+    final suggestedItems = await MusicCatalogParser.decodePlayRecommendChildren(
       responses,
     );
     PlayerPlayback.instance.insertPlayList(suggestedItems.cast<FileInfo>());

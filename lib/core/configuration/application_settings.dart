@@ -22,7 +22,7 @@ class ApplicationSettings {
     });
 
     //下载
-    await TransferMediaState.initSdk();
+    await TransferMediaState.initializeSdk();
 
     //播放相关
     PlayerBase.init(
@@ -34,6 +34,6 @@ class ApplicationSettings {
     //云控(注意：不要去await Firebase初始化，因为发现它会影响AdMob广告的初始化和请求)
     await RemoteFeatureSettings.init();
 
-    await AdvertisingCoordinator.initAdSdk();
+    await AdvertisingCoordinator.initializeAdSdk();
   }
 }

@@ -20,12 +20,12 @@ class PerformerDetailState with ChangeNotifier {
   ValueNotifier<List<MediaCollection>?> resourceList = ValueNotifier(null);
   PerformerDetailState({required this.performerDetails});
 
-  Future queryData() async {
+  Future fetchData() async {
     state.value = ResourceStatus.loading;
     if (DiscoveryState.instance.isYoutubeMusicEnable.value) {
-      await _queryData();
+      await _fetchData();
     } else {
-      await _queryYTData();
+      await _fetchYTData();
     }
     if (resourceList.value?.isEmpty == true) {
       state.value = ResourceStatus.empty;
@@ -36,7 +36,7 @@ class PerformerDetailState with ChangeNotifier {
     }
   }
 
-  Future _queryData() async {
+  Future _fetchData() async {
     Map<String, dynamic>? requestParameters = {'browseId': performerDetails.id};
     dynamic response = await MusicCatalogGateway.post(
       resourceUrl: MusicCatalogEndpoints.artistDetail,
@@ -55,14 +55,14 @@ class PerformerDetailState with ChangeNotifier {
           SectionListParserKeys.initResourceList,
         ) ??
         [];
-    final newResultLocal = await SharedParser.parseContents(
+    final newResultLocal = await SharedParser.decodeContents(
       response,
       mediaOrigin: MediaOrigin.artistHome,
     );
     resourceList.value = newResultLocal;
   }
 
-  Future _queryYTData() async {
+  Future _fetchYTData() async {
     String? browseIdLocal = performerDetails.ytId ?? performerDetails.id;
     Map<String, dynamic>? requestParameters = {'browseId': browseIdLocal};
     dynamic response = await MusicCatalogGateway.post(
@@ -134,7 +134,7 @@ class PerformerDetailState with ChangeNotifier {
                   PerformerCatalogParserKeys.richItems,
                 ) ??
                 [];
-            List childEntries = await MusicCatalogParser.parseArtistChildren(
+            List childEntries = await MusicCatalogParser.decodeArtistChildren(
               videosLocal,
             );
             mediaCollectionLocal.children = childEntries;
@@ -180,7 +180,7 @@ class PerformerDetailState with ChangeNotifier {
                   PerformerCatalogParserKeys.richItems,
                 ) ??
                 [];
-            List childEntries = await MusicCatalogParser.parseArtistChildren(
+            List childEntries = await MusicCatalogParser.decodeArtistChildren(
               entries,
             );
             if (childEntries.isNotEmpty) {
@@ -228,7 +228,7 @@ class PerformerDetailState with ChangeNotifier {
                   PerformerCatalogParserKeys.lockupViewModelPlaylistItems,
                 ) ??
                 [];
-            List childEntries = await MusicCatalogParser.parseArtistChildren(
+            List childEntries = await MusicCatalogParser.decodeArtistChildren(
               entries,
             );
             if (childEntries.isNotEmpty) {

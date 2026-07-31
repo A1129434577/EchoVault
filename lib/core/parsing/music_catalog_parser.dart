@@ -176,7 +176,7 @@ class DiscoveryCatalogParserKeys {
 
 ///解析Youtube
 class MusicCatalogParser {
-  static Future<MediaCollection> parseArtistAlbum(
+  static Future<MediaCollection> decodeArtistAlbum(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -204,11 +204,11 @@ class MusicCatalogParser {
       secondaryText += textRun['text'];
     }
     mediaCollectionLocal.detail = secondaryText;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
-  static Future<List> parseArtistChildren(
+  static Future<List> decodeArtistChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -230,7 +230,7 @@ class MusicCatalogParser {
           PerformerCatalogParserKeys.lockupViewModelVideoItem,
         );
         if (videoRendererVideoIdLocal != null) {
-          FileInfo mediaEntry = await parseArtistVideoRendererVideo(
+          FileInfo mediaEntry = await decodeArtistVideoRendererVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -238,7 +238,7 @@ class MusicCatalogParser {
           mediaEntry.parentId = mediaCollectionArg?.name;
           childEntries.add(mediaEntry);
         } else if (lockupViewModelLocal != null) {
-          FileInfo mediaEntry = await parseArtistLockupViewModelVideo(
+          FileInfo mediaEntry = await decodeArtistLockupViewModelVideo(
             lockupViewModelLocal,
             mediaOrigin: mediaOrigin,
           );
@@ -246,7 +246,7 @@ class MusicCatalogParser {
           mediaEntry.parentId = mediaCollectionArg?.name;
           childEntries.add(mediaEntry);
         } else if (playlistIdLocal != null) {
-          MediaCollection playlistLocal = await parseArtistAlbum(
+          MediaCollection playlistLocal = await decodeArtistAlbum(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -265,7 +265,7 @@ class MusicCatalogParser {
           PerformerCatalogParserKeys.lockupViewModelId,
         );
         if (playlistIdLocal != null) {
-          MediaCollection playlistLocal = await parseArtistPlaylist(
+          MediaCollection playlistLocal = await decodeArtistPlaylist(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -277,7 +277,7 @@ class MusicCatalogParser {
     return childEntries;
   }
 
-  static Future<FileInfo> parseArtistLockupViewModelVideo(
+  static Future<FileInfo> decodeArtistLockupViewModelVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -310,11 +310,11 @@ class MusicCatalogParser {
           PerformerCatalogParserKeys.lockupViewModelSubtitle,
         ) ??
         '';
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<MediaCollection> parseArtistPlaylist(
+  static Future<MediaCollection> decodeArtistPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -336,11 +336,11 @@ class MusicCatalogParser {
         ) ??
         '';
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
-  static Future<FileInfo> parseArtistVideoRendererVideo(
+  static Future<FileInfo> decodeArtistVideoRendererVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -380,11 +380,11 @@ class MusicCatalogParser {
       lengthTextLocal,
       publishedTimeTextLocal,
     ].join(' • ');
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<List> parseHomeChildren(
+  static Future<List> decodeHomeChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -405,7 +405,7 @@ class MusicCatalogParser {
                 CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name ||
             playlistTypeLocal ==
                 CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name) {
-          MediaCollection playlistLocal = await parseHomePlaylist(
+          MediaCollection playlistLocal = await decodeHomePlaylist(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -413,7 +413,7 @@ class MusicCatalogParser {
           childEntries.add(playlistLocal);
         } else if (playlistTypeLocal ==
             MediaType.LOCKUP_CONTENT_TYPE_VIDEO.name) {
-          FileInfo mediaEntry = await parseHomePlaylistVideo(
+          FileInfo mediaEntry = await decodeHomePlaylistVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -421,7 +421,7 @@ class MusicCatalogParser {
           mediaEntry.parentId = mediaCollectionArg?.name;
           childEntries.add(mediaEntry);
         } else if (mediaId != null) {
-          FileInfo mediaEntry = await parseHomeVideo(
+          FileInfo mediaEntry = await decodeHomeVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -434,7 +434,7 @@ class MusicCatalogParser {
     return childEntries;
   }
 
-  static Future<List<MediaCollection>> parseHomeContents(
+  static Future<List<MediaCollection>> decodeHomeContents(
     List groupMapListArg, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -448,7 +448,7 @@ class MusicCatalogParser {
             ) ??
             {};
         MediaCollection mediaCollectionLocal =
-            await MusicCatalogParser.parseHomeFileGroup(
+            await MusicCatalogParser.decodeHomeFileGroup(
               groupMap,
               mediaOrigin: mediaOrigin,
             );
@@ -459,7 +459,7 @@ class MusicCatalogParser {
   }
 
   ///解析Youtube(非Youtube Music)首页数据
-  static Future<MediaCollection> parseHomeFileGroup(
+  static Future<MediaCollection> decodeHomeFileGroup(
     Map fileGroupMapArg, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -475,7 +475,7 @@ class MusicCatalogParser {
         ) ??
         '';
     List childRecords = fileGroupMapArg[SharedParserKeys.children] ?? [];
-    List childEntries = await parseHomeChildren(
+    List childEntries = await decodeHomeChildren(
       childRecords,
       mediaCollectionArg: mediaCollectionLocal,
       mediaOrigin: mediaOrigin,
@@ -507,7 +507,7 @@ class MusicCatalogParser {
     return mediaCollectionLocal;
   }
 
-  static Future<MediaCollection> parseHomePlaylist(
+  static Future<MediaCollection> decodeHomePlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -533,11 +533,11 @@ class MusicCatalogParser {
       collectionRecord,
       DiscoveryCatalogParserKeys.playlistSubtitle,
     );
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
-  static Future<FileInfo> parseHomePlaylistVideo(
+  static Future<FileInfo> decodeHomePlaylistVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -564,11 +564,11 @@ class MusicCatalogParser {
       mediaRecord,
       DiscoveryCatalogParserKeys.playlistVideoSubtitle,
     );
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<FileInfo> parseHomeVideo(
+  static Future<FileInfo> decodeHomeVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -595,11 +595,11 @@ class MusicCatalogParser {
       mediaRecord,
       DiscoveryCatalogParserKeys.videoSubtitle,
     );
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<List> parsePlayRecommendChildren(
+  static Future<List> decodePlayRecommendChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -616,7 +616,7 @@ class MusicCatalogParser {
           PlaybackSuggestionParserKeys.videoId,
         );
         if (mediaId != null) {
-          FileInfo mediaEntry = await parsePlayRecommendVideo(
+          FileInfo mediaEntry = await decodePlayRecommendVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -630,7 +630,7 @@ class MusicCatalogParser {
     return childEntries;
   }
 
-  static Future<FileInfo> parsePlayRecommendVideo(
+  static Future<FileInfo> decodePlayRecommendVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -657,11 +657,11 @@ class MusicCatalogParser {
       mediaRecord,
       PlaybackSuggestionParserKeys.subtitle,
     );
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<List> parsePlaylistChildren(
+  static Future<List> decodePlaylistChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -675,7 +675,7 @@ class MusicCatalogParser {
           CollectionCatalogParserKeys.videoId,
         );
         if (mediaId != null) {
-          FileInfo mediaEntry = await parsePlaylistVideo(
+          FileInfo mediaEntry = await decodePlaylistVideo(
             nestedRecord,
             mediaOrigin: mediaOrigin,
           );
@@ -689,7 +689,7 @@ class MusicCatalogParser {
     return childEntries;
   }
 
-  static Future<FileInfo> parsePlaylistVideo(
+  static Future<FileInfo> decodePlaylistVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -716,11 +716,11 @@ class MusicCatalogParser {
       mediaRecord,
       CollectionCatalogParserKeys.subtitle,
     );
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<PerformerDetails> parseSearchArtist(
+  static Future<PerformerDetails> decodeSearchArtist(
     Map performerRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -750,11 +750,11 @@ class MusicCatalogParser {
           SearchCatalogParserKeys.artistSubtitle,
         ) ??
         '';
-    await RecordSyncHelper.syncArtist(artistLocal);
+    await RecordSyncHelper.reconcileArtist(artistLocal);
     return artistLocal;
   }
 
-  static Future<List> parseSearchChildren(
+  static Future<List> decodeSearchChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -763,13 +763,13 @@ class MusicCatalogParser {
     for (final childrenMap in childRecords) {
       if (childrenMap.containsKey(SearchCatalogParserKeys.channelRenderer)) {
         Map nestedRecord = childrenMap[SearchCatalogParserKeys.channelRenderer];
-        PerformerDetails artistLocal = await parseSearchArtist(nestedRecord);
+        PerformerDetails artistLocal = await decodeSearchArtist(nestedRecord);
         childEntries.add(artistLocal);
       } else if (childrenMap.containsKey(
         SearchCatalogParserKeys.playlistItem,
       )) {
         Map nestedRecord = childrenMap[SearchCatalogParserKeys.playlistItem];
-        MediaCollection playlistLocal = await parseSearchPlaylist(
+        MediaCollection playlistLocal = await decodeSearchPlaylist(
           nestedRecord,
           mediaOrigin: mediaOrigin,
         );
@@ -778,7 +778,7 @@ class MusicCatalogParser {
         SearchCatalogParserKeys.videoRenderer,
       )) {
         Map nestedRecord = childrenMap[SearchCatalogParserKeys.videoRenderer];
-        FileInfo mediaEntry = await parseSearchVideo(
+        FileInfo mediaEntry = await decodeSearchVideo(
           nestedRecord,
           mediaOrigin: mediaOrigin,
         );
@@ -788,7 +788,7 @@ class MusicCatalogParser {
     return childEntries;
   }
 
-  static Future<MediaCollection> parseSearchPlaylist(
+  static Future<MediaCollection> decodeSearchPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -818,11 +818,11 @@ class MusicCatalogParser {
       collectionRecord,
       SearchCatalogParserKeys.playlistSubtitle,
     );
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
-  static Future<PerformerDetails> parseSearchTopCardArtist(
+  static Future<PerformerDetails> decodeSearchTopCardArtist(
     Map performerRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -849,11 +849,11 @@ class MusicCatalogParser {
           SearchCatalogParserKeys.topCardSubtitle,
         ) ??
         '';
-    await RecordSyncHelper.syncArtist(artistLocal);
+    await RecordSyncHelper.reconcileArtist(artistLocal);
     return artistLocal;
   }
 
-  static Future<MediaCollection> parseSearchTopCardPlaylist(
+  static Future<MediaCollection> decodeSearchTopCardPlaylist(
     Map collectionRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -873,11 +873,11 @@ class MusicCatalogParser {
       SearchCatalogParserKeys.topCardSubtitle,
     );
     mediaCollectionLocal.displayName = mediaCollectionLocal.name;
-    await RecordSyncHelper.syncFileGroup(mediaCollectionLocal);
+    await RecordSyncHelper.reconcileFileGroup(mediaCollectionLocal);
     return mediaCollectionLocal;
   }
 
-  static Future<List> parseSearchTopChildren(
+  static Future<List> decodeSearchTopChildren(
     List childRecords, {
     MediaCollection? mediaCollectionArg,
     MediaSourceInterface? mediaOrigin,
@@ -886,7 +886,7 @@ class MusicCatalogParser {
     for (final childrenMap in childRecords) {
       if (childrenMap.containsKey(SearchCatalogParserKeys.topVideoItem)) {
         Map nestedRecord = childrenMap[SearchCatalogParserKeys.topVideoItem];
-        FileInfo mediaEntry = await parseSearchTopVideo(
+        FileInfo mediaEntry = await decodeSearchTopVideo(
           nestedRecord,
           mediaOrigin: mediaOrigin,
         );
@@ -900,14 +900,14 @@ class MusicCatalogParser {
           SearchCatalogParserKeys.topCardPageType,
         );
         if (pageTypeLocal == PerformerDetails.ytSearchTypeName) {
-          PerformerDetails artistLocal = await parseSearchTopCardArtist(
+          PerformerDetails artistLocal = await decodeSearchTopCardArtist(
             nestedRecord,
           );
           childEntries.add(artistLocal);
         } else if (pageTypeLocal ==
             CollectionType.WEB_PAGE_TYPE_PLAYLIST.name) {
           MediaCollection mediaCollectionLocal =
-              await parseSearchTopCardPlaylist(nestedRecord);
+              await decodeSearchTopCardPlaylist(nestedRecord);
           mediaCollectionLocal.playlistType = pageTypeLocal;
           childEntries.add(mediaCollectionLocal);
         }
@@ -916,7 +916,7 @@ class MusicCatalogParser {
     return childEntries;
   }
 
-  static Future<FileInfo> parseSearchTopVideo(
+  static Future<FileInfo> decodeSearchTopVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -944,11 +944,11 @@ class MusicCatalogParser {
           mediaRecord,
           SearchCatalogParserKeys.topVideoSubtitle1,
         );
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 
-  static Future<FileInfo> parseSearchVideo(
+  static Future<FileInfo> decodeSearchVideo(
     Map mediaRecord, {
     MediaSourceInterface? mediaOrigin,
   }) async {
@@ -979,7 +979,7 @@ class MusicCatalogParser {
       mediaRecord,
       SearchCatalogParserKeys.videoUid,
     );
-    await RecordSyncHelper.syncFileInfo(mediaEntry);
+    await RecordSyncHelper.reconcileFileInfo(mediaEntry);
     return mediaEntry;
   }
 }

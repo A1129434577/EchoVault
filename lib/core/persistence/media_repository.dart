@@ -4,7 +4,7 @@ import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/core/persistence/application_database.dart';
 
 class MediaRepository {
-  static Future<int> deleteFileInfo(FileInfo mediaEntry) async {
+  static Future<int> removeFileInfo(FileInfo mediaEntry) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
       DatabaseTables.files,
@@ -13,7 +13,7 @@ class MediaRepository {
     return deleteCountLocal;
   }
 
-  static Future<int> insertFileInfo(FileInfo mediaEntry) async {
+  static Future<int> addFileInfo(FileInfo mediaEntry) async {
     int timestampLocal = DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(mediaEntry.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
@@ -28,7 +28,7 @@ class MediaRepository {
     return idLocal;
   }
 
-  static Future<List<FileInfo>> queryFileInfo({
+  static Future<List<FileInfo>> fetchFileInfo({
     int? limitInputArg,
     String? whereArg,
   }) async {
@@ -49,8 +49,8 @@ class MediaRepository {
     return entries;
   }
 
-  static Future<FileInfo?> queryFileInfoFromId(String fileIdArg) async {
-    List<FileInfo> entries = await queryFileInfo(whereArg: 'id = "$fileIdArg"');
+  static Future<FileInfo?> fetchFileInfoFromId(String fileIdArg) async {
+    List<FileInfo> entries = await fetchFileInfo(whereArg: 'id = "$fileIdArg"');
     return entries.firstOrNull;
   }
 }

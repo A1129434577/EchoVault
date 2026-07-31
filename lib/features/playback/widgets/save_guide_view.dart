@@ -49,7 +49,7 @@ class SaveGuideView extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    downloadControllerLocal.saveStateChange();
+                    downloadControllerLocal.handleSaveState();
                   },
                   child: Container(
                     alignment: Alignment.center,

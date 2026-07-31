@@ -100,7 +100,7 @@ class SearchState with ChangeNotifier {
       }
       if (focusNode.hasFocus && editingController.text.isNotEmpty) {
         needShowSuggestions.value = true;
-        querySuggestions(editingController.text);
+        fetchSuggestions(editingController.text);
       } else {
         needShowSuggestions.value = false;
       }
@@ -138,19 +138,19 @@ class SearchState with ChangeNotifier {
     }
   }
 
-  Future loadMoreYTData() async {
-    return await _queryYTData(continuationArg: _continuation);
+  Future fetchMoreYTData() async {
+    return await _fetchYTData(continuationArg: _continuation);
   }
 
-  Future queryData(String keywordArg, {String mediaOrigin = 'input'}) async {
+  Future fetchData(String keywordArg, {String mediaOrigin = 'input'}) async {
     state.value = ResourceStatus.loading;
     editingController.text = keywordArg;
     focusNode.unfocus();
     Get.find<SearchHistoryState>(tag: tag).saveHistoryKeyword(keywordArg);
     if (DiscoveryState.instance.isYoutubeMusicEnable.value) {
-      await _queryData(mediaOrigin: mediaOrigin);
+      await _fetchData(mediaOrigin: mediaOrigin);
     } else {
-      await _queryYTData(mediaOrigin: mediaOrigin);
+      await _fetchYTData(mediaOrigin: mediaOrigin);
     }
     if (resourceList.value?.isEmpty == true) {
       state.value = ResourceStatus.empty;
@@ -161,7 +161,7 @@ class SearchState with ChangeNotifier {
     }
   }
 
-  Future querySuggestions(String keywordArg) async {
+  Future fetchSuggestions(String keywordArg) async {
     Map<String, dynamic>? requestParameters = {'input': keywordArg};
     dynamic response = await MusicCatalogGateway.post(
       resourceUrl: MusicCatalogEndpoints.suggestions,
@@ -188,7 +188,7 @@ class SearchState with ChangeNotifier {
     suggestionsList.value = entries;
   }
 
-  Future _queryData({String mediaOrigin = 'input'}) async {
+  Future _fetchData({String mediaOrigin = 'input'}) async {
     Map<String, dynamic>? requestParameters = {
       'query': editingController.text,
       //from自定义埋点字段，非接口需要
@@ -228,7 +228,7 @@ class SearchState with ChangeNotifier {
           //由于卡片不是分组，所以手动组装一个分组并加入卡片以及卡片紧跟的列表
           MediaCollection childGroupLocal = MediaCollection(children: []);
           //最佳搜索卡片:FilGroup|PerformerDetails|FileInfo
-          final entry = (await SharedParser.parseChildren([
+          final entry = (await SharedParser.decodeChildren([
             element,
           ], mediaOrigin: MediaOrigin.search)).firstOrNull;
           if (entry != null) {
@@ -239,7 +239,7 @@ class SearchState with ChangeNotifier {
           if (element.containsKey(SharedParserKeys.children)) {
             final childRecords = element[SharedParserKeys.children];
             if (childRecords != null) {
-              List entries = await SharedParser.parseChildren(
+              List entries = await SharedParser.decodeChildren(
                 childRecords,
                 mediaOrigin: MediaOrigin.search,
               );
@@ -249,7 +249,7 @@ class SearchState with ChangeNotifier {
           topFileGroupLocal.children.add(childGroupLocal);
         } else if (element.containsKey(ShelfParserKeys.shelf)) {
           //最佳搜索延伸的音乐
-          List<MediaCollection> entries = await SharedParser.parseContents([
+          List<MediaCollection> entries = await SharedParser.decodeContents([
             element,
           ], mediaOrigin: MediaOrigin.search);
           topFileGroupLocal.children.addAll(entries);
@@ -260,7 +260,7 @@ class SearchState with ChangeNotifier {
         }
       }
       if (newSearchOtherListLocal.isNotEmpty) {
-        List entries = await SharedParser.parseChildren(
+        List entries = await SharedParser.decodeChildren(
           newSearchOtherListLocal,
           mediaOrigin: MediaOrigin.search,
         );
@@ -300,7 +300,7 @@ class SearchState with ChangeNotifier {
     resourceList.value = responses;
   }
 
-  Future _queryYTData({
+  Future _fetchYTData({
     String? continuationArg,
     String mediaOrigin = 'input',
   }) async {
@@ -359,7 +359,7 @@ class SearchState with ChangeNotifier {
       if (cardLocal.containsKey(SearchCatalogParserKeys.topCard)) {
         Map headerLocal = cardLocal[SearchCatalogParserKeys.topCard];
         //最佳搜索卡片:FilGroup|PerformerDetails
-        final entry = (await MusicCatalogParser.parseSearchTopChildren([
+        final entry = (await MusicCatalogParser.decodeSearchTopChildren([
           headerLocal,
         ], mediaOrigin: MediaOrigin.search)).firstOrNull;
         if (entry != null) {
@@ -389,9 +389,8 @@ class SearchState with ChangeNotifier {
               SearchCatalogParserKeys.topVideoFileGroupItems,
             ) ??
             [];
-        List topChildrenLocal = await MusicCatalogParser.parseSearchTopChildren(
-          childRecords,
-        );
+        List topChildrenLocal =
+            await MusicCatalogParser.decodeSearchTopChildren(childRecords);
         childGroupLocal.children.addAll(topChildrenLocal);
       }
       if (childGroupLocal.children.isNotEmpty) {
@@ -409,7 +408,9 @@ class SearchState with ChangeNotifier {
         children: [],
         type: MediaCollectionShowType.listMusic,
       );
-      List childEntries = await MusicCatalogParser.parseSearchChildren(entries);
+      List childEntries = await MusicCatalogParser.decodeSearchChildren(
+        entries,
+      );
       mediaCollectionLocal.children.addAll(childEntries);
       topFileGroupLocal.children.add(mediaCollectionLocal);
       resourceList.value = [topFileGroupLocal];
@@ -427,7 +428,9 @@ class SearchState with ChangeNotifier {
             SearchCatalogParserKeys.moreResourceList,
           ) ??
           [];
-      List childEntries = await MusicCatalogParser.parseSearchChildren(entries);
+      List childEntries = await MusicCatalogParser.decodeSearchChildren(
+        entries,
+      );
 
       for (MediaCollection tabGroup in resourceList.value ?? []) {
         if (tabGroup.params == null) {

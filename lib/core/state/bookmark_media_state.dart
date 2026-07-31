@@ -29,17 +29,17 @@ class BookmarkMediaState with ChangeNotifier {
     super.dispose();
   }
 
-  void favoriteStateChange() async {
+  void toggleBookmark() async {
     if (notifier.value != null) {
       FileInfo mediaEntry = notifier.value!;
       mediaEntry.isFavorite ^= 1;
       if (mediaEntry.isFavorite == 1) {
-        MessageOverlay.showMessage('Added to Library.');
+        MessageOverlay.presentMessage('Added to Library.');
       } else {
-        MessageOverlay.showMessage('Removed from Library.');
+        MessageOverlay.presentMessage('Removed from Library.');
       }
       notifier.notifyListeners();
-      await MediaRepository.insertFileInfo(mediaEntry);
+      await MediaRepository.addFileInfo(mediaEntry);
       _favoriteController.add(mediaEntry);
     }
   }

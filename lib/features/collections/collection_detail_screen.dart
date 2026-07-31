@@ -65,7 +65,7 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
     }
 
     if (!_isSelfBuiltPlaylist) {
-      controller.queryData();
+      controller.fetchData();
     }
   }
 
@@ -279,7 +279,7 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
       onRefresh: _isSelfBuiltPlaylist
           ? null
           : () {
-              return controller.queryData();
+              return controller.fetchData();
             },
       // onLoading: mediaCollection.playlistType==CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name||
       //     mediaCollection.playlistType==CollectionType.LOCKUP_CONTENT_TYPE_ALBUM.name?() {
@@ -301,7 +301,7 @@ class _CollectionDetailScreenState extends State<_CollectionDetailScreen> {
                       ? ResourceStatus.source
                       : stateArg,
                   action: () {
-                    controller.queryData();
+                    controller.fetchData();
                   },
                   child: CollectionListView(
                     physics: physicsInputArg,

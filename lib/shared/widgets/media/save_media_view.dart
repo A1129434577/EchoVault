@@ -89,7 +89,7 @@ class SaveMediaView extends StatelessWidget {
         if (controller == null) {
           return CupertinoButton(
             onPressed: () {
-              downloadControllerLocal.saveStateChange();
+              downloadControllerLocal.handleSaveState();
             },
             onLongPress: () {
               downloadControllerLocal.cancel();

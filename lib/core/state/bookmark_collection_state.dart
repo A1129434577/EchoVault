@@ -29,7 +29,7 @@ class BookmarkCollectionState with ChangeNotifier {
     super.dispose();
   }
 
-  void infoChange({bool isEditNameArg = false}) async {
+  void updateCollection({bool isEditNameArg = false}) async {
     MediaCollection musicCollectionLocal = notifier.value;
     if (isEditNameArg) {
       musicCollectionLocal.isFavorite = 1;
@@ -38,10 +38,10 @@ class BookmarkCollectionState with ChangeNotifier {
     }
     notifier.notifyListeners();
     if (musicCollectionLocal.isFavorite == 1) {
-      MessageOverlay.showMessage('Added to Library.');
+      MessageOverlay.presentMessage('Added to Library.');
       String likeStringLocal = '"name":"${musicCollectionLocal.name}"';
       List<MediaCollection> exitListLocal =
-          await MediaCollectionRepository.queryFileGroup(
+          await MediaCollectionRepository.fetchFileGroup(
             whereArg: 'json_content LIKE \'%$likeStringLocal%\'',
           );
       if (exitListLocal.isNotEmpty) {
@@ -50,10 +50,10 @@ class BookmarkCollectionState with ChangeNotifier {
       } else {
         musicCollectionLocal.displayName = musicCollectionLocal.name;
       }
-      await MediaCollectionRepository.insertFileGroup(musicCollectionLocal);
+      await MediaCollectionRepository.addFileGroup(musicCollectionLocal);
     } else {
-      MessageOverlay.showMessage('Removed from Library.');
-      await MediaCollectionRepository.deleteFileGroup(musicCollectionLocal);
+      MessageOverlay.presentMessage('Removed from Library.');
+      await MediaCollectionRepository.removeFileGroup(musicCollectionLocal);
     }
     _favoriteController.add(musicCollectionLocal);
   }

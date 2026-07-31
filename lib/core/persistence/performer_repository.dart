@@ -4,7 +4,7 @@ import 'package:echo_vault/core/persistence/application_database.dart';
 import 'package:echo_vault/core/models/performer_details.dart';
 
 class PerformerRepository {
-  static Future<int> deleteArtistInfo(PerformerDetails performerProfile) async {
+  static Future<int> removeArtistInfo(PerformerDetails performerProfile) async {
     Database databaseLocal = await ApplicationDatabase.database;
     int deleteCountLocal = await databaseLocal.delete(
       DatabaseTables.performer,
@@ -13,7 +13,7 @@ class PerformerRepository {
     return deleteCountLocal;
   }
 
-  static Future<int> insertArtistInfo(PerformerDetails performerProfile) async {
+  static Future<int> addArtistInfo(PerformerDetails performerProfile) async {
     int timestampLocal = DateTime.now().millisecondsSinceEpoch;
     String encodedContent = jsonEncode(performerProfile.toJson());
     Database databaseLocal = await ApplicationDatabase.database;
@@ -26,7 +26,7 @@ class PerformerRepository {
     return idLocal;
   }
 
-  static Future<List<PerformerDetails>> queryArtistInfo({
+  static Future<List<PerformerDetails>> fetchArtistInfo({
     int? limitInputArg,
     String? whereArg,
   }) async {
@@ -47,10 +47,10 @@ class PerformerRepository {
     return entries;
   }
 
-  static Future<PerformerDetails?> queryArtistInfoFromId(
+  static Future<PerformerDetails?> fetchArtistInfoFromId(
     String artistIdArg,
   ) async {
-    List<PerformerDetails> entries = await queryArtistInfo(
+    List<PerformerDetails> entries = await fetchArtistInfo(
       whereArg: 'id = "$artistIdArg"',
     );
     return entries.firstOrNull;

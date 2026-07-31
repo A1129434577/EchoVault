@@ -121,8 +121,8 @@ class _CollectionOptionsPanelState extends State<CollectionOptionsPanel> {
                       onConfirmArg: () {
                         BookmarkCollectionState(
                           mediaCollectionArg: musicCollection,
-                        ).infoChange();
-                        MessageOverlay.showSuccess('Deleted.'.translate);
+                        ).updateCollection();
+                        MessageOverlay.presentSuccess('Deleted.'.translate);
                         Navigator.pop(context);
                       },
                     );

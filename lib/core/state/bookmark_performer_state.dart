@@ -30,16 +30,16 @@ class BookmarkPerformerState with ChangeNotifier {
     super.dispose();
   }
 
-  void favoriteStateChange() async {
+  void toggleBookmark() async {
     PerformerDetails artistLocal = notifier.value;
     artistLocal.isFavorite ^= 1;
     if (artistLocal.isFavorite == 1) {
-      MessageOverlay.showMessage('Added to Library.');
+      MessageOverlay.presentMessage('Added to Library.');
     } else {
-      MessageOverlay.showMessage('Removed from Library.');
+      MessageOverlay.presentMessage('Removed from Library.');
     }
     notifier.notifyListeners();
-    await PerformerRepository.insertArtistInfo(artistLocal);
+    await PerformerRepository.addArtistInfo(artistLocal);
     _favoriteController.add(artistLocal);
   }
 }

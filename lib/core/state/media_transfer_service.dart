@@ -53,7 +53,7 @@ class MediaTransferService {
       return cachedMediaPath;
     }
 
-    String? resultPathLocal = await syncTaskToFileInfo(
+    String? resultPathLocal = await reconcileTaskToFileInfo(
       mediaEntry,
       cacheArg: true,
     );
@@ -147,7 +147,7 @@ class MediaTransferService {
       return filePathLocal;
     }
 
-    String? resultPathLocal = await syncTaskToFileInfo(mediaEntry);
+    String? resultPathLocal = await reconcileTaskToFileInfo(mediaEntry);
     if (resultPathLocal != null) {
       mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
       _downloaderController.add(mediaEntry);
@@ -225,7 +225,7 @@ class MediaTransferService {
     sendLocal?.send([idArg, currentStatus, progressArg]);
   }
 
-  static Future initSdk() async {
+  static Future initializeSdk() async {
     await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
     IsolateNameServer.removePortNameMapping(_downloaderSendPortName);
     ReceivePort receivePortLocal = ReceivePort();
@@ -243,7 +243,7 @@ class MediaTransferService {
 
       FileInfo? mediaEntry = downloadingFilesMap[taskIdLocal];
       if (mediaEntry == null) {
-        List<FileInfo> mediaEntries = await MediaRepository.queryFileInfo(
+        List<FileInfo> mediaEntries = await MediaRepository.fetchFileInfo(
           whereArg: 'download_task_id = "$taskIdLocal"',
         );
         if (mediaEntries.isNotEmpty) {
@@ -392,7 +392,7 @@ class MediaTransferService {
   }
 
   ///有时候文件下载成功，但是未同步到FileInfo，直接使用其文件
-  static Future<String?> syncTaskToFileInfo(
+  static Future<String?> reconcileTaskToFileInfo(
     FileInfo mediaEntry, {
     bool cacheArg = false,
   }) async {

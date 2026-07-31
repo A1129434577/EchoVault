@@ -59,8 +59,8 @@ class TransferMediaState with ChangeNotifier {
     }
   }
 
-  static Future deleteAllDownloaded() async {
-    List<FileInfo> mediaEntries = await MediaRepository.queryFileInfo(
+  static Future removeAllDownloaded() async {
+    List<FileInfo> mediaEntries = await MediaRepository.fetchFileInfo(
       whereArg: 'download_status = ${DownloadTaskStatus.complete.index}',
     );
     for (final mediaDetails in mediaEntries) {
@@ -68,8 +68,8 @@ class TransferMediaState with ChangeNotifier {
     }
   }
 
-  static Future deleteAllDownloadingFile() async {
-    List<FileInfo> mediaEntries = await MediaRepository.queryFileInfo(
+  static Future removeAllDownloadingFile() async {
+    List<FileInfo> mediaEntries = await MediaRepository.fetchFileInfo(
       whereArg:
           'download_status NOT IN (${DownloadTaskStatus.enqueued.index}, ${DownloadTaskStatus.running.index})',
     );
@@ -78,10 +78,10 @@ class TransferMediaState with ChangeNotifier {
     }
   }
 
-  static Future initSdk() async {
+  static Future initializeSdk() async {
     try {
-      await MediaTransferService.initSdk();
-      listenFileDownloadStatus();
+      await MediaTransferService.initializeSdk();
+      monitorFileDownloadStatus();
       Future.delayed(Duration(seconds: 2)).then((ignoredResult) {
         resumeAllFileDownloadingTask();
       });
@@ -89,7 +89,7 @@ class TransferMediaState with ChangeNotifier {
   }
 
   ///更新数据库，需要先行调用
-  static listenFileDownloadStatus() {
+  static monitorFileDownloadStatus() {
     MediaTransferService.downloadStream.listen((mediaEntry) async {
       DownloadTaskStatus taskStatusLocal = DownloadTaskStatus.fromInt(
         mediaEntry.downloadStatus,
@@ -100,14 +100,14 @@ class TransferMediaState with ChangeNotifier {
           taskStatusLocal == DownloadTaskStatus.failed ||
           taskStatusLocal == DownloadTaskStatus.canceled ||
           taskStatusLocal == DownloadTaskStatus.paused) {
-        await MediaRepository.insertFileInfo(mediaEntry);
+        await MediaRepository.addFileInfo(mediaEntry);
       }
       if (taskStatusLocal == DownloadTaskStatus.complete) {
         _downloadFinishAndRemoveController.add(mediaEntry);
-        MessageOverlay.showSuccess('Downloaded.'.translate);
+        MessageOverlay.presentSuccess('Downloaded.'.translate);
       }
       if (taskStatusLocal == DownloadTaskStatus.failed) {
-        MessageOverlay.showError('Download failed.'.translate);
+        MessageOverlay.presentError('Download failed.'.translate);
       }
     });
   }
@@ -119,14 +119,14 @@ class TransferMediaState with ChangeNotifier {
       mediaEntry,
     );
     if (removeFileInfoLocal != null) {
-      await MediaRepository.insertFileInfo(removeFileInfoLocal);
+      await MediaRepository.addFileInfo(removeFileInfoLocal);
       _downloadFinishAndRemoveController.add(removeFileInfoLocal);
     }
   }
 
   ///读取所有下载任务并继续
   static Future resumeAllFileDownloadingTask() async {
-    List<FileInfo> mediaEntries = await MediaRepository.queryFileInfo(
+    List<FileInfo> mediaEntries = await MediaRepository.fetchFileInfo(
       whereArg:
           'download_status IN (${DownloadTaskStatus.failed.index}, ${DownloadTaskStatus.enqueued.index})',
     );
@@ -145,11 +145,11 @@ class TransferMediaState with ChangeNotifier {
       isClickArg: isClickArg,
     );
     if (resumeFileInfoLocal != null) {
-      await MediaRepository.insertFileInfo(resumeFileInfoLocal);
+      await MediaRepository.addFileInfo(resumeFileInfoLocal);
     }
   }
 
-  void saveStateChange() {
+  void handleSaveState() {
     if (fileInfoNotifier.value != null) {
       FileInfo mediaEntry = fileInfoNotifier.value!;
       DownloadTaskStatus taskStatusLocal = DownloadTaskStatus.fromInt(
