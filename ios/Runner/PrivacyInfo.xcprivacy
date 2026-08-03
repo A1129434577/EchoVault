@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://apple.com">
 <plist version="1.0">
 <dict>
+	<!-- 1. 声明开启了跨应用广告追踪 -->
 	<key>NSPrivacyTracking</key>
 	<true/>
+
+	<!-- 2. 补全 AdMob 广告服务及追踪所需的官方核心域名（解决 ITMS-91064 报错） -->
 	<key>NSPrivacyTrackingDomains</key>
-	<array/>
+	<array>
+		<string>googleads.g.doubleclick.net</string>
+		<string>://googlesyndication.com</string>
+		<string>pubads.g.doubleclick.net</string>
+		<string>adservice.google.com</string>
+	</array>
+
+	<!-- 3. 声明收集的数据类型 -->
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>
 		<dict>
@@ -22,6 +32,8 @@
 			</array>
 		</dict>
 	</array>
+
+	<!-- 4. 如果你的业务代码有使用 UserDefaults 等受限 API，记得按需在下方补全 -->
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array/>
 </dict>
