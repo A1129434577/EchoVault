@@ -219,7 +219,6 @@ class _RemoteAdUnitParser {
       level: jsonArg[AdRemoteParser.priorityField] ?? 0,
     );
     if (typeLocal == AdFormatType.native || typeLocal == AdFormatType.banner) {
-      unitRemoteConfigLocal.aspectRatio = 300 / 180;
       unitRemoteConfigLocal.closeButtonBuilder =
           nativeCoseSizeValueLocal != null
           ? () {
@@ -227,7 +226,7 @@ class _RemoteAdUnitParser {
             }
           : null;
       unitRemoteConfigLocal.backgroundBuilder = () {
-        return Container(color: Color(0xffA68DFE));
+        return Container(color: Colors.black);
       };
       unitRemoteConfigLocal.nativeShowSeconds = nativeShowSecondsValueLocal;
       unitRemoteConfigLocal.nativeHitProbability =
