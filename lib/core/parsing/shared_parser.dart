@@ -681,8 +681,9 @@ class SharedParser {
     List groupMapListArg, {
     MediaSourceInterface? mediaOrigin,
   }) async {
+    List groupMapList = List.from(groupMapListArg);
     List<MediaCollection> entries = [];
-    for (Map groupMap in groupMapListArg) {
+    for (Map groupMap in groupMapList) {
       if (groupMap.containsKey(CarouselShelfParserKeys.carouselShelfNode)) {
         groupMap = groupMap[CarouselShelfParserKeys.carouselShelfNode];
         MediaCollection mediaCollectionLocal =

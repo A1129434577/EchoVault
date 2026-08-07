@@ -38,17 +38,19 @@ class BookmarkCollectionState with ChangeNotifier {
     notifier.notifyListeners();
     if (musicCollectionLocal.isFavorite == 1) {
       MessageOverlay.presentMessage('Added to Library.');
-      String likeStringLocal = '"name":"${musicCollectionLocal.name}"';
-      List<MediaCollection> exitListLocal =
-          await MediaCollectionRepository.fetchFileGroup(
-            whereArg: 'json_content LIKE \'%$likeStringLocal%\'',
-          );
-      if (exitListLocal.isNotEmpty) {
-        musicCollectionLocal.displayName =
-            '${musicCollectionLocal.name}(${exitListLocal.length})';
-      } else {
-        musicCollectionLocal.displayName = musicCollectionLocal.name;
-      }
+      try{
+        String likeStringLocal = '"name":"${musicCollectionLocal.name}"';
+        List<MediaCollection> exitListLocal =
+        await MediaCollectionRepository.fetchFileGroup(
+          whereArg: 'json_content LIKE \'%$likeStringLocal%\'',
+        );
+        if (exitListLocal.isNotEmpty) {
+          musicCollectionLocal.displayName =
+          '${musicCollectionLocal.name}(${exitListLocal.length})';
+        } else {
+          musicCollectionLocal.displayName = musicCollectionLocal.name;
+        }
+      }catch(_){}
       await MediaCollectionRepository.addFileGroup(musicCollectionLocal);
     } else {
       MessageOverlay.presentMessage('Removed from Library.');

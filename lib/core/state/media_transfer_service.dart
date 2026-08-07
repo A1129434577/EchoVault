@@ -260,8 +260,10 @@ class MediaTransferService {
             //下载完成后将文件拷贝至对应文件夹
             File tempFileLocal = File(await mediaEntry!.tempFilePath);
             if (tempFileLocal.existsSync()) {
-              tempFileLocal.copySync(await mediaEntry.filePath);
-              tempFileLocal.deleteSync();
+              try{
+                tempFileLocal.copySync(await mediaEntry.filePath);
+                tempFileLocal.deleteSync();
+              }catch(_){}
             }
           }, RootIsolateToken.instance!);
         }
@@ -286,8 +288,10 @@ class MediaTransferService {
             //下载完成后将文件拷贝至对应文件夹
             File tempFileLocal = File(await cacheFileInfoLocal.tempFilePath);
             if (tempFileLocal.existsSync()) {
-              tempFileLocal.copySync(await cacheFileInfoLocal.cacheFilePath);
-              tempFileLocal.deleteSync();
+              try{
+                tempFileLocal.copySync(await cacheFileInfoLocal.cacheFilePath);
+                tempFileLocal.deleteSync();
+              }catch(_){}
             }
           }, RootIsolateToken.instance!);
         }
