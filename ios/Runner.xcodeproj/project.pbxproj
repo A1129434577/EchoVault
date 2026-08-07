@@ -106,7 +106,6 @@
 				33628CE1CFB9875BAA6E01F3 /* Pods-RunnerTests.release.xcconfig */,
 				D9697566DAE07B5BD0A4938B /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -516,6 +515,7 @@
 				DEVELOPMENT_TEAM = GGDBGTHHM4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -707,6 +707,7 @@
 				DEVELOPMENT_TEAM = GGDBGTHHM4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -738,6 +739,7 @@
 				DEVELOPMENT_TEAM = GGDBGTHHM4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
