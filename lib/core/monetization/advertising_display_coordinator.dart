@@ -15,7 +15,6 @@ import 'package:echo_vault/core/networking/music_catalog_gateway.dart';
 import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 
 class AdvertisingDisplayCoordinator {
-  static int ratingPromptTimestamp = DateTime.now().millisecondsSinceEpoch;
   static bool audioTemporarilyMuted = false;
 
   static final DebounceUtil _displayThrottle = DebounceUtil();
@@ -42,6 +41,12 @@ class AdvertisingDisplayCoordinator {
               detailScene == AdvertisingDetailScene.savedCollection ||
               detailScene == AdvertisingDetailScene.playback) {
             DateTime nowLocal = DateTime.now();
+            SharedPreferences sp = await SharedPreferences.getInstance();
+            int? ratingPromptTimestamp = sp.getInt(UserPreferenceKeys.ratingPromptLastShown);
+            if(ratingPromptTimestamp==null){
+              ratingPromptTimestamp = DateTime.now().millisecondsSinceEpoch;
+              await sp.setInt(UserPreferenceKeys.ratingPromptLastShown, ratingPromptTimestamp);
+            }
             if (nowLocal
                     .difference(
                       DateTime.fromMillisecondsSinceEpoch(
@@ -51,18 +56,18 @@ class AdvertisingDisplayCoordinator {
                     .inHours >
                 24) {
               int rateAlertShowCountLocal =
-                  AdHelper.sharedPreferences.getInt(
+                  sp.getInt(
                     UserPreferenceKeys.ratingPromptCount,
                   ) ??
                   0;
               if (rateAlertShowCountLocal < 5) {
                 RatingDialog.show();
-                AdHelper.sharedPreferences.setInt(
+                await sp.setInt(
                   UserPreferenceKeys.ratingPromptLastShown,
                   DateTime.now().millisecondsSinceEpoch,
                 );
                 rateAlertShowCountLocal++;
-                AdHelper.sharedPreferences.setInt(
+                await sp.setInt(
                   UserPreferenceKeys.ratingPromptCount,
                   rateAlertShowCountLocal,
                 );
@@ -76,18 +81,6 @@ class AdvertisingDisplayCoordinator {
   }
 
   static void start() async {
-    int? rateAlertLastShowTimeNew = AdHelper.sharedPreferences.getInt(
-      UserPreferenceKeys.ratingPromptLastShown,
-    );
-    if (rateAlertLastShowTimeNew == null) {
-      AdHelper.sharedPreferences.setInt(
-        UserPreferenceKeys.ratingPromptLastShown,
-        ratingPromptTimestamp,
-      );
-    } else {
-      ratingPromptTimestamp = rateAlertLastShowTimeNew;
-    }
-
     //前后台监听
     AppLifecycleObserver.lifecycleStream.listen((stateArg) {
       if (stateArg == AppLifecycleState.foreground) {
