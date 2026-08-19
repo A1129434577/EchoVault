@@ -250,12 +250,6 @@ class $AssetsPlayerGen {
   final AssetGenImage skipBackDisabled = const AssetGenImage(
     'assets/images/player/skip_back_disabled.png',
   );
-  final AssetGenImage skipForward = const AssetGenImage(
-    'assets/images/player/skip_forward.png',
-  );
-  final AssetGenImage skipForwardDisabled = const AssetGenImage(
-    'assets/images/player/skip_forward_disabled.png',
-  );
 }
 
 class $AssetsPromptsGen {

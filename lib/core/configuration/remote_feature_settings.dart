@@ -58,8 +58,7 @@ class AdRemoteParser {
 
 class RemoteFeatureSettings {
   static Completer remoteServiceReady = Completer();
-
-  static Completer<String> releaseModelReady = Completer();
+  static Completer remoteServiceUpdated = Completer();
 
   static Future<void> getUpdateRemoteAdConfig({
     String? adConfigArg,
@@ -117,16 +116,9 @@ class RemoteFeatureSettings {
   }
 
   static void applyUpgradeConfig() async {
-    ///用户模式云控
-    try {
-      String versionLocal = FirebaseRemoteConfig.instance.getString('version');
-      if (!releaseModelReady.isCompleted) {
-        releaseModelReady.complete(versionLocal);
-      }
-    } catch (_) {
-      releaseModelReady.complete('');
+    if(remoteServiceUpdated.isCompleted==false){
+      remoteServiceUpdated.complete();
     }
-
     ///广告云控
     try {
       String adConfigLocal = FirebaseRemoteConfig.instance.getString(

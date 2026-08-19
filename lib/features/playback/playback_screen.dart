@@ -490,8 +490,8 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
             padding: EdgeInsets.zero,
             child:
                 (_pageController.player.hasNext()
-                        ? Assets.images.player.skipForward
-                        : Assets.images.player.skipForwardDisabled)
+                        ? Assets.images.player.miniNext
+                        : Assets.images.player.miniNextDisabled)
                     .image(width: 32),
           ),
           ValueListenableBuilder(

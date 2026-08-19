@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ad/ad.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';

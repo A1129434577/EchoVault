@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:echo_vault/core/configuration/remote_feature_settings.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:player_playback/player_playback.dart';
 import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
@@ -44,7 +45,7 @@ class LaunchState with ChangeNotifier {
           networkAvailable = true;
           if (isModulesUsable.value == null) {
             if (modulesCompleter.isCompleted) {
-              _fetchModulesUsable(retryNumArg: 5);
+              fetchModulesUsable(retryNumArg: 5);
             }
           }
           //如果曾经是wifi或者第一次检测到是流量，则提示
@@ -128,7 +129,7 @@ class LaunchState with ChangeNotifier {
   Future fetchModules() async {
     startTime = DateTime.now();
     if (isModulesUsable.value == null) {
-      await _fetchModulesUsable();
+      await fetchModulesUsable();
       modulesCompleter.complete();
     } else {
       modulesCompleter.complete();
@@ -136,27 +137,28 @@ class LaunchState with ChangeNotifier {
     return modulesCompleter.future;
   }
 
-  Future _fetchModulesUsable({int retryNumArg = 10}) async {
-    String openVersionLocal =
-        await RemoteFeatureSettings.releaseModelReady.future;
-    if (openVersionLocal.isEmpty) {
-      openVersionLocal = '0.0.0';
+  Future fetchModulesUsable({int retryNumArg = 10}) async {
+    ///用户模式云控
+    await RemoteFeatureSettings.remoteServiceUpdated.future;
+    String versionLocal = FirebaseRemoteConfig.instance.getString('version');
+    if (versionLocal.isEmpty) {
+      versionLocal = '0.0.0';
     }
-    openVersionLocal = openVersionLocal.replaceAll('.', '');
+    versionLocal = versionLocal.replaceAll('.', '');
     String currentVersionStringLocal = await EventsInfoUtil.packageVersion();
     currentVersionStringLocal = currentVersionStringLocal.replaceAll('.', '');
     int deviationLocal =
-        currentVersionStringLocal.length - openVersionLocal.length;
+        currentVersionStringLocal.length - versionLocal.length;
     if (deviationLocal < 0) {
       for (int offset = 0; offset < deviationLocal.abs(); offset++) {
         currentVersionStringLocal += '0';
       }
     } else if (deviationLocal > 0) {
       for (int offset = 0; offset < deviationLocal; offset++) {
-        openVersionLocal += '0';
+        versionLocal += '0';
       }
     }
-    if (int.parse(openVersionLocal) >= int.parse(currentVersionStringLocal)) {
+    if (int.parse(versionLocal) >= int.parse(currentVersionStringLocal)) {
       isModulesUsable.value = true;
       SharedPreferences spLocal = await SharedPreferences.getInstance();
       await spLocal.setBool(UserPreferenceKeys.modulesEnabled, true);
@@ -165,7 +167,7 @@ class LaunchState with ChangeNotifier {
     if (isModulesUsable.value != true && retryNumArg > 0) {
       await Future.delayed(Duration(milliseconds: 500));
       retryNumArg--;
-      await _fetchModulesUsable(retryNumArg: retryNumArg);
+      await fetchModulesUsable(retryNumArg: retryNumArg);
     }
   }
 }
