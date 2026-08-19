@@ -215,9 +215,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
         LayoutBuilder(
           builder: (BuildContext buildContext, BoxConstraints constraintsArg) {
             double itemWidthLocal = (constraintsArg.maxWidth - 10 * 3) / 7 * 2;
-            double aspectRatioLocal = 100 / 88;
+            double aspectRatioLocal = 1;
             return SizedBox(
-              height: itemWidthLocal / 100 * 88 + 25,
+              height: itemWidthLocal + 25,
               child: GridView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 scrollDirection: Axis.horizontal,
@@ -237,7 +237,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                       );
                     },
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AspectRatio(
                           aspectRatio: aspectRatioLocal,
@@ -247,7 +246,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                               Assets.images.media.albumPlaceholder.image(),
                               NetworkImageWidget(
                                 url: mediaCollectionLocal.thumbnail,
-                                fit: BoxFit.fill,
+                                fit: BoxFit.cover,
                                 radius: 12,
                               ),
                             ],
