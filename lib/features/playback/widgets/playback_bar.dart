@@ -154,7 +154,7 @@ class _PlaybackBarState extends State<PlaybackBar> {
                                                                             : Assets.images.player.miniPlay)
                                                                         .image(
                                                                           width:
-                                                                              32,
+                                                                              24,
                                                                         ),
                                                               );
                                                             },
@@ -162,7 +162,7 @@ class _PlaybackBarState extends State<PlaybackBar> {
                                               },
                                         ),
                                         Padding(
-                                          padding: EdgeInsets.only(left: 8),
+                                          padding: EdgeInsets.only(left: 12),
                                           child: CupertinoButton(
                                             onPressed: () {
                                               if (PlayerPlayback.instance.player
@@ -185,7 +185,7 @@ class _PlaybackBarState extends State<PlaybackBar> {
                                                               .images
                                                               .player
                                                               .miniNextDisabled)
-                                                    .image(),
+                                                    .image(width: 24),
                                           ),
                                         ),
                                       ],
