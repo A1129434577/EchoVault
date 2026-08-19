@@ -14,10 +14,10 @@ packages:
     description:
       path: ad
       ref: ad_admob
-      resolved-ref: "866f7796589f97f17d5cf170453ae711fc7cd2f3"
+      resolved-ref: "7b172ffc908e13a262369e70947453055cc73cce"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "5.6.1"
+    version: "5.6.2"
   advertising_id:
     dependency: transitive
     description:
@@ -895,19 +895,19 @@ packages:
     description:
       path: player_base
       ref: main
-      resolved-ref: "6b968255b6926565bbf58bbc41402348efb0c5ec"
+      resolved-ref: "245b9afc83a9e0ae7700d28170cdabbdf6cadab6"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "2.0.2"
+    version: "2.0.5"
   player_playback:
     dependency: "direct main"
     description:
       path: player_playback
       ref: main
-      resolved-ref: "6b968255b6926565bbf58bbc41402348efb0c5ec"
+      resolved-ref: "245b9afc83a9e0ae7700d28170cdabbdf6cadab6"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "1.6.2"
+    version: "1.6.5"
   plugin_platform_interface:
     dependency: transitive
     description:
