@@ -102,7 +102,7 @@ class PlaybackCoordinator with ChangeNotifier {
       } else if (playStateInputArg.state == PlayState.loadFailed) {
         FileInfo? mediaEntry = playStateInputArg.fileInfo;
         if (player.currentMediaInfo.value == mediaEntry) {
-          MessageOverlay.presentError('Play Failed.'.translate);
+          MessageOverlay.presentError('Play failed.'.translate);
           if (_continuousPlayback < 4 && _playStartNeedPlayNow == true) {
             player.playNext(startPlay: _playStartNeedPlayNow);
             _continuousPlayback++;

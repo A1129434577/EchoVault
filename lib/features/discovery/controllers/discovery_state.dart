@@ -296,7 +296,7 @@ class DiscoveryState with ChangeNotifier {
       if (response == null ||
           (itemSectionsLocal is List && itemSectionsLocal.isEmpty)) {
         if (response != null) {
-          MessageOverlay.presentSuccess('Updated content.'.translate);
+          MessageOverlay.presentSuccess('Refresh successful.'.translate);
         } else {
           MessageOverlay.presentWarning(
             'Network issue. Please try again later.'.translate,
@@ -362,7 +362,7 @@ class DiscoveryState with ChangeNotifier {
       }
     }
     if (response != null) {
-      MessageOverlay.presentSuccess('Updated content.'.translate);
+      MessageOverlay.presentSuccess('Refresh successful.'.translate);
     } else {
       MessageOverlay.presentWarning(
         'Network issue. Please try again later.'.translate,
