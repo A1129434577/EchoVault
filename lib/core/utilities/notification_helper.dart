@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ad/ad.dart';
+import 'package:echo_vault/features/launch/controllers/launch_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:player_base/models/file_info.dart';
@@ -59,12 +60,12 @@ class NotificationHelper {
       await FlutterLocalNotificationsPlugin().cancelAll();
       if (_scheduledHours.isEmpty) return;
 
-      List<FileInfo> suggestedItems = await DiscoveryState.instance
-          .fetchRecommend();
+      List<FileInfo> suggestedItems = [];
+      if(LaunchState.instance.isModulesUsable.value==true){
+        suggestedItems = await DiscoveryState.instance.fetchRecommend();
+      }
       if (suggestedItems.isEmpty) {
-        suggestedItems.add(
-          FileInfo(name: 'Open Via Timer and let the sound focus you'),
-        );
+        suggestedItems.add(FileInfo(name: 'Open app and let the sound focus you'));
       }
 
       Random randomLocal = Random();

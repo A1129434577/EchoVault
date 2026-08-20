@@ -904,10 +904,10 @@ packages:
     description:
       path: player_playback
       ref: main
-      resolved-ref: "245b9afc83a9e0ae7700d28170cdabbdf6cadab6"
+      resolved-ref: "7eb26c4beee8452eecd095e0a3c5346702aaf064"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "1.6.5"
+    version: "1.6.6"
   plugin_platform_interface:
     dependency: transitive
     description:

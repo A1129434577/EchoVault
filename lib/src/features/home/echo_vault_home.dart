@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';
+import 'package:echo_vault/core/utilities/notification_helper.dart';
 import 'package:echo_vault/features/launch/controllers/launch_state.dart';
 import 'package:echo_vault/features/primary_navigation_screen.dart';
 import 'package:echo_vault/src/models/track_model.dart';
@@ -83,6 +84,8 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_requestTrackingAuthorization());
+      NotificationHelper.init();
+      AdHelper.configUmp();
     });
     _loadLibrary();
     _playbackSub = widget.service.playbackEvents.listen(
