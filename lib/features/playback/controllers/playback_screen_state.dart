@@ -53,7 +53,7 @@ class PlaybackParserKeys {
 class PlaybackScreenState with ChangeNotifier {
   final Player player = PlayerPlayback.instance.player;
   final ValueNotifier<AdInfo?> playNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[AdvertisingScene.playbackBanner],
+    AdHelper.adSceneCacheInfo[AdvertisingScene.playbackNative],
   );
 
   StreamSubscription? _adLoadSubscription;
@@ -63,11 +63,11 @@ class PlaybackScreenState with ChangeNotifier {
   String? playlistId;
   PlaybackScreenState({this.mediaDetails}) {
     AdHelper.loadSceneAdIfNull(
-      scene: AdvertisingScene.playbackBanner,
+      scene: AdvertisingScene.playbackNative,
       detailScene: AdvertisingDetailScene.playback,
     );
     _adLoadSubscription = AdHelper.adLoadStatusStream.listen((adInfoInputArg) {
-      if (adInfoInputArg.scene == AdvertisingScene.playbackBanner) {
+      if (adInfoInputArg.scene == AdvertisingScene.playbackNative) {
         if (adInfoInputArg.loadState == AdLoadStatus.loaded) {
           playNatoAd.value = adInfoInputArg;
         }

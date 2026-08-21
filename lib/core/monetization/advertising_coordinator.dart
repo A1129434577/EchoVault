@@ -57,13 +57,26 @@ class AdvertisingCoordinator {
     AdvertisingScene.searchResultsNative: [
       AdUnitRemoteConfig(
         source: AdSource.admob,
-        level: 0,
+        level: 1,
         type: AdFormatType.native,
         id: 'ca-app-pub-6383874853723176/8595265725',
       ),
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 0,
+        type: AdFormatType.banner,
+        id: 'ca-app-pub-6383874853723176/4269113101',
+        size: AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt()),
+      ),
     ],
-
     AdvertisingScene.libraryFeedNative: [
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 1,
+        type: AdFormatType.banner,
+        id: 'ca-app-pub-6383874853723176/4269113101',
+        size: AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt()),
+      ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 0,
@@ -71,8 +84,13 @@ class AdvertisingCoordinator {
         id: 'ca-app-pub-6383874853723176/8448081594',
       ),
     ],
-
-    AdvertisingScene.playbackBanner: [
+    AdvertisingScene.playbackNative: [
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 0,
+        type: AdFormatType.native,
+        id: 'ca-app-pub-6383874853723176/8448081594',
+      ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 2,
@@ -148,7 +166,7 @@ class AdvertisingScene {
     isAddToInterval: false,
   );
   //播放原生广告位
-  static AdScene playbackBanner = AdScene(
+  static AdScene playbackNative = AdScene(
     name: 'play_native',
     isNeedAutoLoad: false,
     isFullScreen: false,
