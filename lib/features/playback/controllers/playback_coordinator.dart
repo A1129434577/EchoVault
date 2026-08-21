@@ -25,8 +25,10 @@ class PlaybackCoordinator with ChangeNotifier {
   late VoidCallback _mediaListener;
   late VoidCallback _playModeListener;
   late VoidCallback _fileListListener;
+  late VoidCallback _adVisibleListener;
   StreamSubscription? _playStatusSub;
   StreamSubscription? _playerRecoverSub;
+  Timer? _recoverTimer;
 
   static final PlaybackCoordinator _sharedCoordinator = PlaybackCoordinator._();
   factory PlaybackCoordinator() {
@@ -133,15 +135,22 @@ class PlaybackCoordinator with ChangeNotifier {
 
   void _playerRecover() {
     _playerRecoverSub = PlayerRecoverHelper.listen();
-    Timer.periodic(Duration(milliseconds: 500), (timer) async {
-      //ios局部广告播放或者广告播放过程中AudioSession容易被中断，所以需要恢复一下
-      if(AdHelper.isFullScreenAdShowing.value || AdHelper.visibleNativePartAdList.isNotEmpty){
+    _adVisibleListener = (){
+      //ios任何局部广告或全屏广告播放过程中AudioSession容易被中断，所以需要恢复一下
+      if(AdHelper.isFullScreenAdShowing.value || AdHelper.isNativePartAdVisible.value){
         if(Platform.isIOS) {
-          await PlayerPlayback.instance.audioSession.configure(AudioSessionConfiguration.music());
-          await PlayerPlayback.instance.audioSession.setActive(true);
+          _recoverTimer ??= Timer.periodic(Duration(milliseconds: 500), (timer) async {
+            await PlayerPlayback.instance.audioSession.configure(AudioSessionConfiguration.music());
+            await PlayerPlayback.instance.audioSession.setActive(true);
+          });
         }
+      }else{
+        _recoverTimer?.cancel();
+        _recoverTimer = null;
       }
-    });
+    };
+    AdHelper.isFullScreenAdShowing.addListener(_adVisibleListener);
+    AdHelper.isNativePartAdVisible.addListener(_adVisibleListener);
   }
 
   @override
@@ -149,8 +158,12 @@ class PlaybackCoordinator with ChangeNotifier {
     player.currentMediaInfo.removeListener(_mediaListener);
     PlayerPlayback.instance.playModeInfo.removeListener(_playModeListener);
     PlayerPlayback.instance.showPlayFileList.removeListener(_fileListListener);
+    AdHelper.isFullScreenAdShowing.removeListener(_adVisibleListener);
+    AdHelper.isNativePartAdVisible.removeListener(_adVisibleListener);
     _playStatusSub?.cancel();
     _playerRecoverSub?.cancel();
+    _recoverTimer?.cancel();
+    _recoverTimer = null;
     super.dispose();
   }
 
