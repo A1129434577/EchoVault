@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:echo_vault/features/launch/controllers/launch_state.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
@@ -118,6 +119,7 @@ class RemoteFeatureSettings {
   static void applyUpgradeConfig() async {
     if(remoteServiceUpdated.isCompleted==false){
       remoteServiceUpdated.complete();
+      LaunchState.instance.fetchModulesUsable();
     }
     ///广告云控
     try {

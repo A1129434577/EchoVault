@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:echo_vault/core/monetization/advertising_coordinator.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';
 import 'package:echo_vault/core/utilities/notification_helper.dart';
@@ -15,6 +14,7 @@ import 'package:echo_vault/src/widgets/echo_vault_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:player_playback/player_playback.dart';
 
 class EchoVaultHome extends StatefulWidget {
   const EchoVaultHome({super.key, required this.service});
@@ -83,7 +83,12 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(_requestTrackingAuthorization());
+      Future.delayed(Duration(seconds: 2), () {
+        AdvertisingId.id(true);
+      });
+      Future.delayed(Duration(seconds: 4), () {
+        AdvertisingId.id(true);
+      });
       NotificationHelper.init();
       AdHelper.configUmp();
     });
@@ -102,26 +107,6 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
       }
     };
     LaunchState.instance.isModulesUsable.addListener(_isModulesListener);
-  }
-
-  Future<void> _requestTrackingAuthorization() async {
-    if (!Platform.isIOS) {
-      return;
-    }
-
-    await Future<void>.delayed(const Duration(seconds: 2));
-    if (!mounted) {
-      return;
-    }
-
-    try {
-      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-      if (status == TrackingStatus.notDetermined) {
-        await AppTrackingTransparency.requestTrackingAuthorization();
-      }
-    } on PlatformException {
-      // Tracking authorization must never block the offline player startup.
-    }
   }
 
   @override

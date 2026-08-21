@@ -37,10 +37,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 2), () {
       AdvertisingId.id(true);
     });
-    Future.delayed(Duration(seconds: 6), () {
+    Future.delayed(Duration(seconds: 4), () {
       AdvertisingId.id(true);
     });
     Future.delayed(Duration(seconds: 2), () async {
