@@ -11,41 +11,47 @@ class AdvertisingCoordinator {
     AdvertisingScene.appLaunch: [
       AdUnitRemoteConfig(
         source: AdSource.admob,
-        level: 1,
+        level: 2,
         type: AdFormatType.open,
         id: 'ca-app-pub-6383874853723176/1852258435',
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
-        level: 0,
+        level: 1,
         type: AdFormatType.interstitial,
         id: 'ca-app-pub-6383874853723176/9217788739',
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
-        level: 2,
-        type: AdFormatType.rewarded,
-        id: 'ca-app-pub-6383874853723176/1423059197',
+        level: 0,
+        type: AdFormatType.interstitial,
+        id: 'ca-app-pub-6383874853723176/2760640640',
       ),
     ],
     AdvertisingScene.fullScreen: [
       AdUnitRemoteConfig(
         source: AdSource.admob,
-        level: 2,
+        level: 3,
         type: AdFormatType.native,
         id: 'ca-app-pub-6383874853723176/7713135377',
         child: AdUnitRemoteConfig(
             source: AdSource.admob,
-            level: 2,
+            level: 3,
             type: AdFormatType.native,
             id: 'ca-app-pub-6383874853723176/1064415598',
         ),
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
-        level: 1,
+        level: 2,
         type: AdFormatType.rewarded,
         id: 'ca-app-pub-6383874853723176/9545540847',
+      ),
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 1,
+        type: AdFormatType.rewarded,
+        id: 'ca-app-pub-6383874853723176/1423059197',
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,

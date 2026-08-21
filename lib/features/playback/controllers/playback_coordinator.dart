@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:ad/ad.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:player_playback/player_playback.dart';
@@ -125,9 +127,22 @@ class PlaybackCoordinator with ChangeNotifier {
     };
     PlayerPlayback.instance.showPlayFileList.addListener(_fileListListener);
 
-    _playerRecoverSub = PlayerRecoverHelper.listen();
+    _playerRecover();
   }
   static PlaybackCoordinator get instance => _sharedCoordinator;
+
+  void _playerRecover() {
+    _playerRecoverSub = PlayerRecoverHelper.listen();
+    Timer.periodic(Duration(milliseconds: 500), (timer) async {
+      //ios局部广告播放或者广告播放过程中AudioSession容易被中断，所以需要恢复一下
+      if(AdHelper.isFullScreenAdShowing.value || AdHelper.visibleNativePartAdList.isNotEmpty){
+        if(Platform.isIOS) {
+          await PlayerPlayback.instance.audioSession.configure(AudioSessionConfiguration.music());
+          await PlayerPlayback.instance.audioSession.setActive(true);
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {

@@ -14,10 +14,10 @@ packages:
     description:
       path: ad
       ref: ad_admob
-      resolved-ref: ddf95c6db621a210b48c26a3fa1db5d64ca96ef0
+      resolved-ref: d1efac2c9e554865d93ba7930b52f7df6808913b
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "5.6.3"
+    version: "5.6.5"
   advertising_id:
     dependency: transitive
     description:
