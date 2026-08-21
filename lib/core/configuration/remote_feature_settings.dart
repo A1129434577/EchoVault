@@ -43,9 +43,6 @@ class AdRemoteParser {
         if (adSceneLocal == AdvertisingScene.searchResultsNative) {
           adSceneConfigLocal[AdvertisingScene.searchHomeNative] =
               adUnitListLocal;
-          adSceneConfigLocal[AdvertisingScene.libraryFeedNative] =
-              adUnitListLocal;
-          adSceneConfigLocal[AdvertisingScene.playbackNative] = adUnitListLocal;
         }
       }
     });

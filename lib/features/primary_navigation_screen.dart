@@ -32,7 +32,12 @@ class _PrimaryNavigationScreenState extends State<PrimaryNavigationScreen> {
           body: IndexedStack(index: currentTabIndex, children: pageList),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: currentTabIndex,
-            selectedItemColor: Color(0xff141414),
+            selectedItemColor: Colors.black,
+            unselectedFontSize: 12,
+            selectedLabelStyle: TextStyle(
+              fontSize: 12,
+              fontWeight: .w600,
+            ),
             onTap: (index) {
               if (currentTabIndex == 0 && index == 0) {
                 _debounce(Duration(milliseconds: 1500), () {

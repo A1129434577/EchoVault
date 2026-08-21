@@ -151,7 +151,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                 ) {
                   if (currentMediaInfo?.fileId != _lastNativeAdMedia?.fileId) {
                     AdHelper.loadSceneAdIfNull(
-                      scene: AdvertisingScene.playbackNative,
+                      scene: AdvertisingScene.playbackBanner,
                       detailScene: AdvertisingDetailScene.playback,
                     );
                   }

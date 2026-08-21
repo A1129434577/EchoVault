@@ -1,60 +1,57 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:ad/ad.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';
 import 'package:echo_vault/core/configuration/remote_feature_settings.dart';
+import 'package:flutter/foundation.dart';
 
 export 'package:ad/ad.dart';
 
 class AdvertisingCoordinator {
-  ///测试单元 ID
-  static String fallbackLaunchAdUnit = Platform.isAndroid
-      ? ''
-      : 'ca-app-pub-6383874853723176/1852258435';
-  static String fallbackInterstitialUnit = Platform.isAndroid
-      ? ''
-      : 'ca-app-pub-6383874853723176/9217788739';
-  static String fallbackRewardedUnit = Platform.isAndroid
-      ? ''
-      : 'ca-app-pub-6383874853723176/1423059197';
-  static String fallbackBannerUnit = Platform.isAndroid ? '' : '';
-  static String fallbackNativeUnit = Platform.isAndroid
-      ? ''
-      : 'ca-app-pub-6383874853723176/7713135377';
-
   static final Map<AdScene, List<AdUnitRemoteConfig>> _fallbackPlacements = {
     AdvertisingScene.appLaunch: [
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 1,
         type: AdFormatType.open,
-        id: fallbackLaunchAdUnit,
+        id: 'ca-app-pub-6383874853723176/1852258435',
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 0,
         type: AdFormatType.interstitial,
-        id: fallbackInterstitialUnit,
+        id: 'ca-app-pub-6383874853723176/9217788739',
+      ),
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 2,
+        type: AdFormatType.rewarded,
+        id: 'ca-app-pub-6383874853723176/1423059197',
       ),
     ],
     AdvertisingScene.fullScreen: [
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 2,
-        type: AdFormatType.rewarded,
-        id: fallbackRewardedUnit,
+        type: AdFormatType.native,
+        id: 'ca-app-pub-6383874853723176/7713135377',
+        child: AdUnitRemoteConfig(
+            source: AdSource.admob,
+            level: 2,
+            type: AdFormatType.native,
+            id: 'ca-app-pub-6383874853723176/1064415598',
+        ),
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 1,
-        type: AdFormatType.interstitial,
-        id: fallbackInterstitialUnit,
+        type: AdFormatType.rewarded,
+        id: 'ca-app-pub-6383874853723176/9545540847',
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
         level: 0,
-        type: AdFormatType.native,
-        id: fallbackNativeUnit,
+        type: AdFormatType.interstitial,
+        id: 'ca-app-pub-6383874853723176/2760640640',
       ),
     ],
     AdvertisingScene.searchResultsNative: [
@@ -62,7 +59,26 @@ class AdvertisingCoordinator {
         source: AdSource.admob,
         level: 0,
         type: AdFormatType.native,
-        id: fallbackNativeUnit,
+        id: 'ca-app-pub-6383874853723176/8595265725',
+      ),
+    ],
+
+    AdvertisingScene.libraryFeedNative: [
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 0,
+        type: AdFormatType.native,
+        id: 'ca-app-pub-6383874853723176/8448081594',
+      ),
+    ],
+
+    AdvertisingScene.playbackBanner: [
+      AdUnitRemoteConfig(
+        source: AdSource.admob,
+        level: 2,
+        type: AdFormatType.banner,
+        id: 'ca-app-pub-6383874853723176/4269113101',
+        size: AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt()),
       ),
     ],
   };
@@ -71,12 +87,11 @@ class AdvertisingCoordinator {
     _fallbackPlacements.addAll({
       AdvertisingScene.searchHomeNative:
           _fallbackPlacements[AdvertisingScene.searchResultsNative]!,
-      AdvertisingScene.libraryFeedNative:
-          _fallbackPlacements[AdvertisingScene.searchResultsNative]!,
-      AdvertisingScene.playbackNative:
-          _fallbackPlacements[AdvertisingScene.searchResultsNative]!,
     });
     AdHelper.openAppWaitSeconds = 8;
+    if(kDebugMode) {
+      AdHelper.adIntervalSeconds = 15;
+    }
     await AdHelper.init(
       defaultAllConfigs: _fallbackPlacements,
       isNeedUMP: false,
@@ -133,7 +148,7 @@ class AdvertisingScene {
     isAddToInterval: false,
   );
   //播放原生广告位
-  static AdScene playbackNative = AdScene(
+  static AdScene playbackBanner = AdScene(
     name: 'play_native',
     isNeedAutoLoad: false,
     isFullScreen: false,
