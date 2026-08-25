@@ -138,7 +138,7 @@ class PlaybackCoordinator with ChangeNotifier {
     _adVisibleListener = (){
       //ios任何局部广告或全屏广告播放过程中AudioSession容易被中断，所以需要恢复一下
       if(AdHelper.isFullScreenAdShowing.value || AdHelper.isNativePartAdVisible.value){
-        if(Platform.isIOS) {
+        if(Platform.isIOS && PlayerRecoverHelper.isManualPause==false) {
           _recoverTimer ??= Timer.periodic(Duration(milliseconds: 500), (timer) async {
             await PlayerPlayback.instance.audioSession.configure(AudioSessionConfiguration.music());
             await PlayerPlayback.instance.audioSession.setActive(true);
