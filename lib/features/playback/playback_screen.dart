@@ -359,16 +359,8 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
             padding: EdgeInsets.zero,
             child: Assets.images.collection.addPlaylistAction.image(),
           ),
-          BookmarkMediaView(mediaDetails: currentMediaInfoArg),
           SaveMediaView(key: _saveButtonKey, mediaDetails: currentMediaInfoArg),
-          CupertinoButton(
-            onPressed: () {
-              QueueListPanel.show();
-            },
-            sizeStyle: CupertinoButtonSize.small,
-            padding: EdgeInsets.zero,
-            child: Assets.images.collection.playlistIcon.image(),
-          ),
+          BookmarkMediaView(mediaDetails: currentMediaInfoArg),
         ],
       ),
     );
@@ -406,18 +398,18 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                           PlayerPlayMode.loopOne) {
                         PlayerPlayback.instance.playModeInfo.value =
                             PlayerPlayModeInfo(
-                              mode: PlayerPlayMode.loop,
+                              mode: PlayerPlayMode.shuffle,
                               isAuto: false,
                             );
                       }
                     },
                     sizeStyle: CupertinoButtonSize.small,
                     padding: EdgeInsets.zero,
-                    child:
-                        (playModeInfoArg.mode == PlayerPlayMode.loopOne
-                                ? Assets.images.player.repeatOne
-                                : Assets.images.player.repeat)
-                            .image(width: 32),
+                    child: (playModeInfoArg.mode == PlayerPlayMode.loopOne
+                        ?Assets.images.player.repeatOne
+                        :playModeInfoArg.mode == PlayerPlayMode.shuffle
+                        ?Assets.images.player.shuffleControl
+                        :Assets.images.player.repeat).image(width: 32),
                   );
                 },
           ),
@@ -494,31 +486,13 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
                         : Assets.images.player.miniNextDisabled)
                     .image(width: 32),
           ),
-          ValueListenableBuilder(
-            valueListenable: PlayerPlayback.instance.playModeInfo,
-            builder:
-                (
-                  BuildContext buildContext,
-                  PlayerPlayModeInfo playModeInfoArg,
-                  Widget? nestedEntry,
-                ) {
-                  return CupertinoButton(
-                    onPressed: () {
-                      PlayerPlayback.instance.playModeInfo.value =
-                          PlayerPlayModeInfo(
-                            mode: PlayerPlayMode.shuffle,
-                            isAuto: false,
-                          );
-                    },
-                    sizeStyle: CupertinoButtonSize.small,
-                    padding: EdgeInsets.zero,
-                    child:
-                        (playModeInfoArg.mode == PlayerPlayMode.shuffle
-                                ? Assets.images.player.shuffleActive
-                                : Assets.images.player.shuffleControl)
-                            .image(width: 32),
-                  );
-                },
+          CupertinoButton(
+            onPressed: () {
+              QueueListPanel.show();
+            },
+            sizeStyle: CupertinoButtonSize.small,
+            padding: EdgeInsets.zero,
+            child: Assets.images.collection.playlistIcon.image(),
           ),
         ],
       ),

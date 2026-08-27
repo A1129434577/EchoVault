@@ -238,9 +238,6 @@ class $AssetsPlayerGen {
   final AssetGenImage repeatOne = const AssetGenImage(
     'assets/images/player/repeat_one.png',
   );
-  final AssetGenImage shuffleActive = const AssetGenImage(
-    'assets/images/player/shuffle_active.png',
-  );
   final AssetGenImage shuffleControl = const AssetGenImage(
     'assets/images/player/shuffle_control.png',
   );
