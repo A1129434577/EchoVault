@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -179,7 +178,7 @@ class FlutterAudioService implements AppAudioService {
       throw PlatformException(
         code: 'unsupported_file',
         message:
-            'Please choose a supported audio file: $_supportedAudioExtensionText.',
+            'Choose a supported audio file: $_supportedAudioExtensionText.',
       );
     }
 

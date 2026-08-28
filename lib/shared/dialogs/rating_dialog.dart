@@ -44,7 +44,7 @@ class RatingDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'Enjoying our app?'.translate,
+                  'Enjoying the app?'.translate,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w500,
@@ -53,8 +53,7 @@ class RatingDialog extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'Your support is our greatest motivation for progress!'
-                      .translate,
+                  'Your support helps us keep improving!'.translate,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,

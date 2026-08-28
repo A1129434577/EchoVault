@@ -296,10 +296,10 @@ class DiscoveryState with ChangeNotifier {
       if (response == null ||
           (itemSectionsLocal is List && itemSectionsLocal.isEmpty)) {
         if (response != null) {
-          MessageOverlay.presentSuccess('Refresh successful.'.translate);
+          MessageOverlay.presentSuccess('Refresh complete.'.translate);
         } else {
           MessageOverlay.presentWarning(
-            'Network issue. Please try again later.'.translate,
+            'Connection issue. Please try again later.'.translate,
           );
         }
       }
@@ -362,10 +362,10 @@ class DiscoveryState with ChangeNotifier {
       }
     }
     if (response != null) {
-      MessageOverlay.presentSuccess('Refresh successful.'.translate);
+      MessageOverlay.presentSuccess('Refresh complete.'.translate);
     } else {
       MessageOverlay.presentWarning(
-        'Network issue. Please try again later.'.translate,
+        'Connection issue. Please try again later.'.translate,
       );
     }
     response =

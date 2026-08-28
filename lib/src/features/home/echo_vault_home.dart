@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:io';
 
@@ -163,7 +162,10 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
 
   Future<void> _playTrack(TrackModel track) async {
     try {
-      AdvertisingDisplayCoordinator.showScene(scene: AdvertisingScene.inApp, detailScene: AdvertisingDetailScene.play);
+      AdvertisingDisplayCoordinator.showScene(
+        scene: AdvertisingScene.inApp,
+        detailScene: AdvertisingDetailScene.play,
+      );
       await widget.service.play(track.id);
       if (mounted) {
         setState(() {
@@ -315,7 +317,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                   LibraryView(
                     loading: _loading,
                     tracks: _visibleTracks,
-                    emptyTitle: 'Your vault is empty',
+                    emptyTitle: 'Your vault is empty.',
                     emptyAction: 'Import audio',
                     currentTrackId: _playback.trackId,
                     onImport: _importAudio,
@@ -326,7 +328,7 @@ class _EchoVaultHomeState extends State<EchoVaultHome> {
                   LibraryView(
                     loading: _loading,
                     tracks: _visibleTracks,
-                    emptyTitle: 'No favorites yet',
+                    emptyTitle: 'No favorites yet.',
                     emptyAction: 'Browse library',
                     currentTrackId: _playback.trackId,
                     onImport: () => _changeTab(0),

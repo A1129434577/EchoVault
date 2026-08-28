@@ -161,7 +161,9 @@ class MediaOptionsPanel extends StatelessWidget {
                   onTap: () {
                     _optionEvents.add(displayTitle);
                     PlayerPlayback.instance.insertNextPlayList([mediaDetails]);
-                    MessageOverlay.presentSuccess('Will play next.'.translate);
+                    MessageOverlay.presentSuccess(
+                      'This track will play next.'.translate,
+                    );
                     Navigator.pop(context);
                   },
                   behavior: HitTestBehavior.translucent,

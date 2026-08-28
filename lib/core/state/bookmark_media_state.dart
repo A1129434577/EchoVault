@@ -34,9 +34,9 @@ class BookmarkMediaState with ChangeNotifier {
       FileInfo mediaEntry = notifier.value!;
       mediaEntry.isFavorite ^= 1;
       if (mediaEntry.isFavorite == 1) {
-        MessageOverlay.presentMessage('Added to Library.');
+        MessageOverlay.presentMessage('Added to favorites.'.translate);
       } else {
-        MessageOverlay.presentMessage('Removed from Library.');
+        MessageOverlay.presentMessage('Removed from Favorites.'.translate);
       }
       notifier.notifyListeners();
       await MediaRepository.addFileInfo(mediaEntry);

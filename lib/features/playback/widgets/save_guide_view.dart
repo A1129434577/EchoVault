@@ -83,7 +83,7 @@ class SaveGuideView extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Access your favorite tracks instantly with a click here.'
+                  'Tap here to access your favorite tracks instantly.'
                       .translate,
                   style: TextStyle(
                     fontSize: 14,

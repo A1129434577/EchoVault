@@ -50,7 +50,7 @@ class TransferMediaState with ChangeNotifier {
       ConfirmationDialog.show(
         displayTitle: 'Cancel'.translate,
         messageArg:
-            'Are you sure you want to cancel download "${mediaEntry.name}"?'
+            'Are you sure you want to cancel the download of "${mediaEntry.name}"?'
                 .translate,
         onConfirmArg: () {
           MediaTransferService.cancel(mediaEntry);
@@ -104,10 +104,10 @@ class TransferMediaState with ChangeNotifier {
       }
       if (taskStatusLocal == DownloadTaskStatus.complete) {
         _completedTransferController.add(mediaEntry);
-        MessageOverlay.presentSuccess('Downloaded.'.translate);
+        MessageOverlay.presentSuccess('Download complete.'.translate);
       }
       if (taskStatusLocal == DownloadTaskStatus.failed) {
-        MessageOverlay.presentError('Download failed.'.translate);
+        MessageOverlay.presentError('Unable to download this track.'.translate);
       }
     });
   }

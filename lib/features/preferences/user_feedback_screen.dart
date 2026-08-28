@@ -77,7 +77,9 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   Get.back();
-                  MessageOverlay.presentSuccess('Feedback successful!');
+                  MessageOverlay.presentSuccess(
+                    'Feedback submitted successfully.'.translate,
+                  );
                 }
               },
             ),
@@ -99,7 +101,7 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
                   controller: _feedbackController,
                   validator: (content) {
                     if (content == null || content.isEmpty) {
-                      return 'Please input feedback content.'.translate;
+                      return 'Please enter your feedback.'.translate;
                     }
                     return null;
                   },
@@ -136,7 +138,7 @@ class _UserFeedbackScreenState extends State<UserFeedbackScreen> {
                   placeholder: 'Please input'.translate,
                   validator: (content) {
                     if (content == null || content.isEmpty) {
-                      return 'Please input Email Address.'.translate;
+                      return 'Please enter your email address.'.translate;
                     } else if (!content.isEmail) {
                       String messageLocal =
                           'Please fill in a valid email address.'.translate;

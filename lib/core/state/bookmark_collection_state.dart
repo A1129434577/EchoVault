@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:echo_vault/core/persistence/media_collection_repository.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
+import 'package:player_base/player_base.dart';
 
 class BookmarkCollectionState with ChangeNotifier {
   static final StreamController<MediaCollection> _bookmarkEvents =
@@ -37,23 +38,23 @@ class BookmarkCollectionState with ChangeNotifier {
     }
     notifier.notifyListeners();
     if (musicCollectionLocal.isFavorite == 1) {
-      MessageOverlay.presentMessage('Added to Library.');
-      try{
+      MessageOverlay.presentMessage('Added to favorites.'.translate);
+      try {
         String likeStringLocal = '"name":"${musicCollectionLocal.name}"';
         List<MediaCollection> exitListLocal =
-        await MediaCollectionRepository.fetchFileGroup(
-          whereArg: 'json_content LIKE \'%$likeStringLocal%\'',
-        );
+            await MediaCollectionRepository.fetchFileGroup(
+              whereArg: 'json_content LIKE \'%$likeStringLocal%\'',
+            );
         if (exitListLocal.isNotEmpty) {
           musicCollectionLocal.displayName =
-          '${musicCollectionLocal.name}(${exitListLocal.length})';
+              '${musicCollectionLocal.name}(${exitListLocal.length})';
         } else {
           musicCollectionLocal.displayName = musicCollectionLocal.name;
         }
-      }catch(_){}
+      } catch (_) {}
       await MediaCollectionRepository.addFileGroup(musicCollectionLocal);
     } else {
-      MessageOverlay.presentMessage('Removed from Library.');
+      MessageOverlay.presentMessage('Removed from Favorites.'.translate);
       await MediaCollectionRepository.removeFileGroup(musicCollectionLocal);
     }
     _bookmarkEvents.add(musicCollectionLocal);

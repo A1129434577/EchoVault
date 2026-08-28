@@ -54,7 +54,7 @@ class LaunchState with ChangeNotifier {
                   false) {
             isLastWifiValueLocal = false;
             MessageOverlay.presentWarning(
-              'Your Wi-Fi connection is weak. The app is now using your cellular data.'
+              'Your Wi-Fi connection is unstable. The app is now using mobile data.'
                   .translate,
             );
           }
@@ -66,7 +66,7 @@ class LaunchState with ChangeNotifier {
           Future.delayed(Duration(seconds: 1), () {
             if (networkAvailable == false) {
               MessageOverlay.presentWarning(
-                'Network Unavailable,Please check your Wi-Fi or mobile data connection and try again.'
+                'No network connection. Check your Wi-Fi or mobile data and try again.'
                     .translate,
               );
             }
@@ -147,8 +147,7 @@ class LaunchState with ChangeNotifier {
     versionLocal = versionLocal.replaceAll('.', '');
     String currentVersionStringLocal = await EventsInfoUtil.packageVersion();
     currentVersionStringLocal = currentVersionStringLocal.replaceAll('.', '');
-    int deviationLocal =
-        currentVersionStringLocal.length - versionLocal.length;
+    int deviationLocal = currentVersionStringLocal.length - versionLocal.length;
     if (deviationLocal < 0) {
       for (int offset = 0; offset < deviationLocal.abs(); offset++) {
         currentVersionStringLocal += '0';

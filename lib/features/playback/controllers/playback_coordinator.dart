@@ -106,7 +106,7 @@ class PlaybackCoordinator with ChangeNotifier {
       } else if (playStateInputArg.state == PlayState.loadFailed) {
         FileInfo? mediaEntry = playStateInputArg.fileInfo;
         if (player.currentMediaInfo.value == mediaEntry) {
-          MessageOverlay.presentError('Play failed.'.translate);
+          MessageOverlay.presentError('Unable to play this track.'.translate);
           if (_continuousPlayback < 4 && _playStartNeedPlayNow == true) {
             player.playNext(startPlay: _playStartNeedPlayNow);
             _continuousPlayback++;
@@ -135,16 +135,21 @@ class PlaybackCoordinator with ChangeNotifier {
 
   void _playerRecover() {
     _playerRecoverSub = PlayerRecoverHelper.listen();
-    _adVisibleListener = (){
+    _adVisibleListener = () {
       //ios任何局部广告或全屏广告播放过程中AudioSession容易被中断，所以需要恢复一下
-      if(AdHelper.isFullScreenAdShowing.value || AdHelper.isNativePartAdVisible.value){
-        if(Platform.isIOS && PlayerRecoverHelper.isManualPause==false) {
-          _recoverTimer ??= Timer.periodic(Duration(milliseconds: 500), (timer) async {
-            await PlayerPlayback.instance.audioSession.configure(AudioSessionConfiguration.music());
+      if (AdHelper.isFullScreenAdShowing.value ||
+          AdHelper.isNativePartAdVisible.value) {
+        if (Platform.isIOS && PlayerRecoverHelper.isManualPause == false) {
+          _recoverTimer ??= Timer.periodic(Duration(milliseconds: 500), (
+            timer,
+          ) async {
+            await PlayerPlayback.instance.audioSession.configure(
+              AudioSessionConfiguration.music(),
+            );
             await PlayerPlayback.instance.audioSession.setActive(true);
           });
         }
-      }else{
+      } else {
         _recoverTimer?.cancel();
         _recoverTimer = null;
       }

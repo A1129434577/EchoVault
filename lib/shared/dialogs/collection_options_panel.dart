@@ -117,12 +117,15 @@ class _CollectionOptionsPanelState extends State<CollectionOptionsPanel> {
                   } else if (displayTitle == 'Delete'.translate) {
                     ConfirmationDialog.show(
                       displayTitle: 'Delete',
-                      messageArg: 'Confirm delete this playlist?',
+                      messageArg:
+                          'Are you sure you want to delete this playlist?',
                       onConfirmArg: () {
                         BookmarkCollectionState(
                           mediaCollectionArg: musicCollection,
                         ).updateCollection();
-                        MessageOverlay.presentSuccess('Deleted.'.translate);
+                        MessageOverlay.presentSuccess(
+                          'Playlist deleted.'.translate,
+                        );
                         Navigator.pop(context);
                       },
                     );

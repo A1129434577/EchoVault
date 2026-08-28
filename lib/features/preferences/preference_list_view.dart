@@ -43,7 +43,7 @@ class PreferenceListView extends StatelessWidget {
                 ConfirmationDialog.show(
                   displayTitle: 'Cache clean'.translate,
                   messageArg:
-                      'This will delete temporary data and cannot be undone. This will not affect your personal files or settings.'
+                      'This will permanently delete temporary data. Your personal files and settings will not be affected.'
                           .translate,
                   onConfirmArg: () async {
                     await controller.clearCache();

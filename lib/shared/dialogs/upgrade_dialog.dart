@@ -61,9 +61,9 @@ class UpgradeDialog extends StatelessWidget {
                 SizedBox(height: 12),
                 Text(
                   _upgradeMode == UpdateType.open
-                      ? 'The current app is no longer receiving updates. For an enhanced experience, we recommend downloading our new app.'
+                      ? 'This app no longer receives updates. Download our new app for the best experience.'
                             .translate
-                      : 'Please note that the current app is no longer supported. Kindly download our new app to continue enjoying all music.'
+                      : 'This app is no longer supported. Download our new app to continue enjoying your music.'
                             .translate,
                   style: TextStyle(
                     fontSize: 14,

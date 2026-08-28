@@ -134,7 +134,8 @@ class _SearchHistoryViewState extends State<SearchHistoryView> {
               onPressed: () {
                 ConfirmationDialog.show(
                   displayTitle: 'Delete',
-                  messageArg: 'Confirm delete the history?',
+                  messageArg:
+                      'Are you sure you want to clear your search history?',
                   onConfirmArg: () {
                     controller.clearHistoryKeywords();
                   },

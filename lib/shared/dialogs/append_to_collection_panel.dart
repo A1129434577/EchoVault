@@ -133,7 +133,7 @@ class _AppendToCollectionPanelState extends State<AppendToCollectionPanel> {
                                             mediaCollectionLocal,
                                           );
                                       MessageOverlay.presentSuccess(
-                                        'Added.'.translate,
+                                        'Added to playlist.'.translate,
                                       );
                                     },
                                   );

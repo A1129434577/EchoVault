@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:echo_vault/core/persistence/performer_repository.dart';
 import 'package:echo_vault/core/models/performer_details.dart';
 import 'package:echo_vault/core/utilities/message_overlay.dart';
+import 'package:player_base/player_base.dart';
 
 class BookmarkPerformerState with ChangeNotifier {
   static final StreamController<PerformerDetails> _bookmarkEvents =
@@ -33,9 +34,9 @@ class BookmarkPerformerState with ChangeNotifier {
     PerformerDetails artistLocal = notifier.value;
     artistLocal.isFavorite ^= 1;
     if (artistLocal.isFavorite == 1) {
-      MessageOverlay.presentMessage('Added to Library.');
+      MessageOverlay.presentMessage('Added to favorites.'.translate);
     } else {
-      MessageOverlay.presentMessage('Removed from Library.');
+      MessageOverlay.presentMessage('Removed from Favorites.'.translate);
     }
     notifier.notifyListeners();
     await PerformerRepository.addArtistInfo(artistLocal);
