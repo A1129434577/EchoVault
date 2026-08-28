@@ -48,6 +48,9 @@ class LaunchState with ChangeNotifier {
               fetchModulesUsable(retryNumArg: 5);
             }
           }
+          if(RemoteFeatureSettings.remoteServiceUpdated.isCompleted==false){
+            RemoteFeatureSettings.init();
+          }
           //如果曾经是wifi或者第一次检测到是流量，则提示
           if (isLastWifiValueLocal != false &&
               connectivityResultArg.contains(ConnectivityResult.wifi) ==
