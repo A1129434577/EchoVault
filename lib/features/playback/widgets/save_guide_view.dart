@@ -16,9 +16,8 @@ class SaveGuideView extends StatelessWidget {
     TransferMediaState downloadControllerLocal = TransferMediaState();
     downloadControllerLocal.fileInfoNotifier.value = mediaDetails;
 
-    RenderObject? targetRenderBoxLocal = targetKey.currentContext
-        ?.findRenderObject();
-    Offset centerLocal = (targetRenderBoxLocal as RenderBox).localToGlobal(
+    final targetRenderBoxLocal = targetKey.currentContext?.findRenderObject() as RenderBox;
+    Offset centerLocal = targetRenderBoxLocal.localToGlobal(
       Offset(
         targetRenderBoxLocal.size.width / 2,
         targetRenderBoxLocal.size.height / 2,
@@ -100,6 +99,9 @@ class SaveGuideView extends StatelessWidget {
   }
 
   static show({required GlobalKey targetKeyArg, FileInfo? mediaEntry}) async {
+    if (targetKeyArg.currentContext?.findRenderObject() == null) {
+      return;
+    }
     SharedPreferences spLocal = await SharedPreferences.getInstance();
     bool? saveGuideShowedValueLocal = spLocal.getBool(
       UserPreferenceKeys.saveMediaGuideSeen,

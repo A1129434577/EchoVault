@@ -492,7 +492,7 @@ class _PlaybackScreenState extends State<_PlaybackScreen>
             },
             sizeStyle: CupertinoButtonSize.small,
             padding: EdgeInsets.zero,
-            child: Assets.images.collection.playlistIcon.image(),
+            child: Assets.images.collection.playlistIcon.image(width: 32),
           ),
         ],
       ),
