@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:ad/ad.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';
 import 'package:echo_vault/core/configuration/remote_feature_settings.dart';
@@ -7,6 +8,23 @@ import 'package:flutter/foundation.dart';
 export 'package:ad/ad.dart';
 
 class AdvertisingCoordinator {
+  ///测试单元 ID
+  static String defaultAdmobOpenAdId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/9257395921'
+      : 'ca-app-pub-3940256099942544/5575463023';
+  static String defaultAdmobInterstitialAdId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/1033173712'
+      : 'ca-app-pub-3940256099942544/4411468910';
+  static String defaultAdmobRewardedAdId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/5224354917'
+      : 'ca-app-pub-3940256099942544/1712485313';
+  static String defaultAdmobBannerAdId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/9214589741'
+      : 'ca-app-pub-3940256099942544/2435281174';
+  static String defaultAdmobNativeAdId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/2247696110'
+      : 'ca-app-pub-3940256099942544/3986624511';
+
   static final Map<AdScene, List<AdUnitRemoteConfig>> _fallbackPlacements = {
     AdvertisingScene.appLaunch: [
       AdUnitRemoteConfig(
@@ -72,7 +90,6 @@ class AdvertisingCoordinator {
         level: 0,
         type: AdFormatType.banner,
         id: 'ca-app-pub-6383874853723176/4269113101',
-        size: AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt()),
       ),
     ],
     AdvertisingScene.libraryFeedNative: [
@@ -81,7 +98,6 @@ class AdvertisingCoordinator {
         level: 1,
         type: AdFormatType.banner,
         id: 'ca-app-pub-6383874853723176/4269113101',
-        size: AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt()),
       ),
       AdUnitRemoteConfig(
         source: AdSource.admob,
@@ -102,7 +118,6 @@ class AdvertisingCoordinator {
         level: 2,
         type: AdFormatType.banner,
         id: 'ca-app-pub-6383874853723176/4269113101',
-        size: AdSize(width: (AdHelper.screenWidth-16*2).toInt(), height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt()),
       ),
     ],
   };
@@ -122,8 +137,52 @@ class AdvertisingCoordinator {
       isAdInvalidAutoFill: false,
     );
     await RemoteFeatureSettings.getUpdateRemoteAdConfig();
+    againConfigAllSceneConfig();
 
     AdvertisingDisplayCoordinator.start();
+  }
+
+  static void againConfigAllSceneConfig() {
+    setUnitTestAd(AdUnitRemoteConfig? adUnitConfig){
+      if(kReleaseMode || adUnitConfig == null) return;
+      if(adUnitConfig.type == AdFormatType.open){
+        adUnitConfig.id = defaultAdmobOpenAdId;
+      }
+      else if(adUnitConfig.type == AdFormatType.interstitial){
+        adUnitConfig.id = defaultAdmobInterstitialAdId;
+      }
+      else if(adUnitConfig.type == AdFormatType.rewarded){
+        adUnitConfig.id = defaultAdmobRewardedAdId;
+      }
+      else if(adUnitConfig.type == AdFormatType.banner){
+        adUnitConfig.id = defaultAdmobBannerAdId;
+      }
+      else if(adUnitConfig.type == AdFormatType.native){
+        adUnitConfig.id = defaultAdmobNativeAdId;
+      }
+    }
+    AdHelper.allSceneConfig.forEach((adScene, adUnitConfigList) {
+      for (var adUnitConfig in adUnitConfigList) {
+        setUnitTestAd(adUnitConfig);
+        setUnitTestAd(adUnitConfig.child);
+        if(adUnitConfig.type == AdFormatType.native || adUnitConfig.type == AdFormatType.banner){
+          adUnitConfig.size = AdSize(
+            width: (AdHelper.screenWidth-16*2).toInt(),
+            height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt(),
+          );
+          adUnitConfig.closeButtonBuilder = (){
+            return RemoteAdUnitParser.closeButton();
+          };
+          adUnitConfig.child?.size = AdSize(
+            width: (AdHelper.screenWidth-16*2).toInt(),
+            height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt(),
+          );
+          adUnitConfig.child?.closeButtonBuilder = (){
+            return RemoteAdUnitParser.closeButton();
+          };
+        }
+      }
+    });
   }
 }
 

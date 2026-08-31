@@ -13,8 +13,8 @@ packages:
     dependency: "direct main"
     description:
       path: ad
-      ref: ad_admob
-      resolved-ref: "359b5bd3b25cfc35135933aae8bd845f7514998d"
+      ref: ad_admob_pure
+      resolved-ref: ced405c2fdeee402b859ac97aab2d71ff8b3953c
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
     version: "5.6.6"

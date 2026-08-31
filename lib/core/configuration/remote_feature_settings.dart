@@ -18,42 +18,6 @@ import 'package:echo_vault/features/discovery/controllers/discovery_state.dart';
 import 'package:echo_vault/core/utilities/notification_helper.dart';
 import 'package:echo_vault/utils/string_cipher.dart';
 
-class AdRemoteParser {
-  static const String unitIdField = 'adid';
-  static const String formatField = 'adtype';
-  static const String providerField = 'adsource';
-  static const String priorityField = 'adlevel';
-
-  static AdRemoteConfig fromJson(Map jsonArg) {
-    Map<AdScene, List<AdUnitRemoteConfig>> adSceneConfigLocal = {};
-    jsonArg.forEach((keyInputArg, currentValue) {
-      AdScene? adSceneLocal = AdScene.fromName(keyInputArg);
-      if (adSceneLocal != null) {
-        List configListLocal = currentValue;
-        List<AdUnitRemoteConfig> adUnitListLocal = configListLocal
-            .cast<Map>()
-            .map((entry) {
-              AdUnitRemoteConfig unitLocal = _RemoteAdUnitParser.fromJson(
-                entry,
-              );
-              return unitLocal;
-            })
-            .toList();
-        adSceneConfigLocal[adSceneLocal] = adUnitListLocal;
-        if (adSceneLocal == AdvertisingScene.searchResultsNative) {
-          adSceneConfigLocal[AdvertisingScene.searchHomeNative] =
-              adUnitListLocal;
-        }
-      }
-    });
-    return AdRemoteConfig(
-      adSceneConfig: adSceneConfigLocal,
-      adIntervalSeconds: jsonArg['adinterval'],
-      loadTimeOut: 30,
-    );
-  }
-}
-
 class RemoteFeatureSettings {
   static Completer remoteServiceReady = Completer();
   static Completer remoteServiceUpdated = Completer();
@@ -173,11 +137,11 @@ class RemoteFeatureSettings {
   }
 }
 
-class _RemoteAdUnitParser {
-  static Widget closeButton(double sizeArg) {
+class RemoteAdUnitParser {
+  static Widget closeButton() {
     return Container(
-      height: sizeArg,
-      width: sizeArg,
+      height: 24,
+      width: 24,
       alignment: Alignment.center,
       margin: EdgeInsets.only(top: 6, left: 6),
       decoration: BoxDecoration(
@@ -189,17 +153,6 @@ class _RemoteAdUnitParser {
   }
 
   static AdUnitRemoteConfig fromJson(Map jsonArg) {
-    //0-100
-    double? nativeHitProbabilityValueLocal = double.tryParse(
-      (jsonArg['native_hit']).toString(),
-    );
-    double? nativeCoseSizeValueLocal = double.tryParse(
-      (jsonArg['native_close_size']).toString(),
-    );
-    int? nativeShowSecondsValueLocal = double.tryParse(
-      (jsonArg['native_time']).toString(),
-    )?.toInt();
-
     AdFormatType typeLocal = AdFormatType.fromValue(
       jsonArg[AdRemoteParser.formatField],
     );
@@ -210,23 +163,44 @@ class _RemoteAdUnitParser {
       level: jsonArg[AdRemoteParser.priorityField] ?? 0,
     );
     if (typeLocal == AdFormatType.native || typeLocal == AdFormatType.banner) {
-      unitRemoteConfigLocal.closeButtonBuilder =
-          nativeCoseSizeValueLocal != null
-          ? () {
-              return closeButton(nativeCoseSizeValueLocal);
-            }
-          : null;
-      unitRemoteConfigLocal.backgroundBuilder = () {
-        return Container(color: Colors.black);
+      unitRemoteConfigLocal.closeButtonBuilder = () {
+        return closeButton();
       };
-      unitRemoteConfigLocal.nativeShowSeconds = nativeShowSecondsValueLocal;
-      unitRemoteConfigLocal.nativeHitProbability =
-          nativeHitProbabilityValueLocal;
       unitRemoteConfigLocal.size = AdSize(
         width: (AdHelper.screenWidth - 16 * 2).toInt(),
         height: (((AdHelper.screenWidth - 16 * 2)) * (250 / 300)).toInt(),
       );
     }
     return unitRemoteConfigLocal;
+  }
+}
+
+class AdRemoteParser {
+  static const String unitIdField = 'adid';
+  static const String formatField = 'adtype';
+  static const String providerField = 'adsource';
+  static const String priorityField = 'adlevel';
+
+  static AdRemoteConfig fromJson(Map jsonArg) {
+    Map<AdScene, List<AdUnitRemoteConfig>> adSceneConfigLocal = {};
+    jsonArg.forEach((keyInputArg, currentValue) {
+      AdScene? adSceneLocal = AdScene.fromName(keyInputArg);
+      if (adSceneLocal != null) {
+        List configListLocal = currentValue;
+        List<AdUnitRemoteConfig> adUnitListLocal = configListLocal.cast<Map>().map((entry) {
+          AdUnitRemoteConfig unitLocal = RemoteAdUnitParser.fromJson(entry);
+          return unitLocal;
+        }).toList();
+        adSceneConfigLocal[adSceneLocal] = adUnitListLocal;
+        if (adSceneLocal == AdvertisingScene.searchResultsNative) {
+          adSceneConfigLocal[AdvertisingScene.searchHomeNative] = adUnitListLocal;
+        }
+      }
+    });
+    return AdRemoteConfig(
+      adSceneConfig: adSceneConfigLocal,
+      adIntervalSeconds: jsonArg['adinterval'],
+      loadTimeOut: 30,
+    );
   }
 }
