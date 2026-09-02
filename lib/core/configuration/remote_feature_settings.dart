@@ -39,6 +39,7 @@ class RemoteFeatureSettings {
       Map adConfigMapLocal = jsonDecode(adConfigArg!);
       if (isNeedSetArg == false) return;
       AdHelper.setAdConfig(AdRemoteParser.fromJson(adConfigMapLocal));
+      AdvertisingCoordinator.againConfigAllSceneConfig();
     } catch (_) {}
   }
 

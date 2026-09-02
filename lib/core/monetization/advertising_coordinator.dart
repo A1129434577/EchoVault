@@ -162,24 +162,21 @@ class AdvertisingCoordinator {
       }
     }
     AdHelper.allSceneConfig.forEach((adScene, adUnitConfigList) {
-      for (var adUnitConfig in adUnitConfigList) {
-        setUnitTestAd(adUnitConfig);
-        setUnitTestAd(adUnitConfig.child);
-        if(adUnitConfig.type == AdFormatType.native || adUnitConfig.type == AdFormatType.banner){
-          adUnitConfig.size = AdSize(
-            width: (AdHelper.screenWidth-16*2).toInt(),
-            height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt(),
-          );
-          adUnitConfig.closeButtonBuilder = (){
-            return RemoteAdUnitParser.closeButton();
-          };
-          adUnitConfig.child?.size = AdSize(
-            width: (AdHelper.screenWidth-16*2).toInt(),
-            height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt(),
-          );
-          adUnitConfig.child?.closeButtonBuilder = (){
-            return RemoteAdUnitParser.closeButton();
-          };
+      for (AdUnitRemoteConfig adUnitConfig in adUnitConfigList) {
+        for (AdUnitRemoteConfig adUnitC in [adUnitConfig, if(adUnitConfig.child!=null)adUnitConfig.child!]) {
+          setUnitTestAd(adUnitC);
+          if(adUnitC.type == AdFormatType.native || adUnitC.type == AdFormatType.banner){
+            adUnitConfig.closeButtonBuilder = (){
+              return RemoteAdUnitParser.closeButton();
+            };
+
+            if(adUnitC.type == AdFormatType.banner){
+              adUnitC.size = AdSize(
+                width: (AdHelper.screenWidth-16*2).toInt(),
+                height: (((AdHelper.screenWidth-16*2))*(250/300)).toInt(),
+              );
+            }
+          }
         }
       }
     });
