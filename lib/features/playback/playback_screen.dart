@@ -33,7 +33,7 @@ class PlaybackNavigator {
       }
       PlayerPlayback.instance.startPlayList(
         mediaQueue!,
-        playIndex: mediaQueue.indexOf(mediaEntry),
+        playIndex: max(0, mediaQueue.indexOf(mediaEntry)),
       );
     }
     showModalBottomSheet(

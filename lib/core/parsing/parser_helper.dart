@@ -79,9 +79,9 @@ class ParserHelper {
             }
             payload = filteredListLocal;
           } else if (filtersLocal is Map) {
-            String? filterKeyLocal =
-                filtersLocal[ParserHelper.nestedFilterField];
+            String? filterKeyLocal = filtersLocal[ParserHelper.matchField];
             String? childKeyLocal = filtersLocal[ParserHelper.childMatchField];
+            // String? childValue = filtersLocal[ParserHelper.childValueField];
             List filteredListLocal = [];
             for (var e in payload) {
               if (e is Map) {

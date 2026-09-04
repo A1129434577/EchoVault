@@ -40,11 +40,8 @@ class PlaybackCoordinator with ChangeNotifier {
       if (mediaEntry != null) {
         if (mediaEntry.type !=
             MediaType.MUSIC_VIDEO_TYPE_PODCAST_EPISODE.name) {
-          if (mediaEntry.cacheDownloadTaskId != null ||
-              DownloadTaskStatus.fromInt(mediaEntry.downloadStatus) !=
-                  DownloadTaskStatus.running ||
-              DownloadTaskStatus.fromInt(mediaEntry.downloadStatus) !=
-                  DownloadTaskStatus.enqueued) {
+          if (MediaTransferService.activeDownloads.values.where((e)=>e.fileId==mediaEntry.fileId).isEmpty &&
+              MediaTransferService.activeCacheTasks.values.where((e)=>e.fileId==mediaEntry.fileId).isEmpty) {
             //缓存当前音乐
             MediaTransferService.cache(
               mediaEntry: mediaEntry,
@@ -65,11 +62,8 @@ class PlaybackCoordinator with ChangeNotifier {
           //3.文件比较大的不提前缓存
           if (nextFileInfoLocal.type !=
               MediaType.MUSIC_VIDEO_TYPE_PODCAST_EPISODE.name) {
-            if (nextFileInfoLocal.cacheDownloadTaskId != null ||
-                DownloadTaskStatus.fromInt(nextFileInfoLocal.downloadStatus) !=
-                    DownloadTaskStatus.running ||
-                DownloadTaskStatus.fromInt(nextFileInfoLocal.downloadStatus) !=
-                    DownloadTaskStatus.enqueued) {
+            if (MediaTransferService.activeDownloads.values.where((e)=>e.fileId==mediaEntry.fileId).isEmpty &&
+                MediaTransferService.activeCacheTasks.values.where((e)=>e.fileId==mediaEntry.fileId).isEmpty) {
               //缓存下一个音乐
               MediaTransferService.cache(
                 mediaEntry: nextFileInfoLocal,
