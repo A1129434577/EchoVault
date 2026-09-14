@@ -32,7 +32,6 @@ class ApplicationSettings {
     );
     await PlayerPlayback.instance.init(PlaybackHttpTransport());
 
-    //云控(注意：不要去await Firebase初始化，因为发现它会影响AdMob广告的初始化和请求)
     await RemoteFeatureSettings.init();
 
     await AdvertisingCoordinator.initializeAdSdk();

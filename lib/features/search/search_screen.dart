@@ -18,7 +18,7 @@ class SearchScreen extends StatefulWidget {
   static const String discoveryEntryTag = 'home';
   static const String resultTabTag = 'tab';
 
-  static ValueNotifier<int> selectedResultTab = ValueNotifier(0);
+  static ValueNotifier<int?> selectedResultTab = ValueNotifier(null);
 
   final String tag;
   const SearchScreen({super.key, this.tag = resultTabTag});
@@ -36,7 +36,6 @@ class _SearchScreenState extends State<SearchScreen>
   late final FocusNode focusNode = controller.focusNode;
   late final TextEditingController editingController =
       controller.editingController;
-  TabController? tabController;
 
   late VoidCallback editingListener;
   late final AnimationController suggestionsAnimationC;
@@ -174,24 +173,20 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   Widget _contentWidget() {
+    SearchScreen.selectedResultTab.value = null;
+
     List<MediaCollection> resourceListLocal =
         controller.resourceList.value ?? [];
-    if (tabController?.length != resourceListLocal.length) {
-      tabController?.dispose();
-      tabController = TabController(
-        length: resourceListLocal.length,
-        vsync: this,
-      );
-      tabController!.addListener(() {
-        SearchScreen.selectedResultTab.value = tabController!.index;
-      });
-    }
+    TabController tabController = TabController(
+      length: resourceListLocal.length,
+      vsync: this,
+    );
     return Column(
       spacing: 16,
       children: [
         if (resourceListLocal.length > 1)
           TabNavigationView(
-            controller: tabController!,
+            controller: tabController,
             titles: resourceListLocal.map((mediaCollectionArg) {
               return mediaCollectionArg.name;
             }).toList(),
@@ -202,11 +197,11 @@ class _SearchScreenState extends State<SearchScreen>
             builder:
                 (
                   BuildContext buildContext,
-                  int currentTabIndexArg,
+                  int? currentTabIndexArg,
                   Widget? nestedEntry,
                 ) {
                   return IndexedStack(
-                    index: currentTabIndexArg,
+                    index: currentTabIndexArg??0,
                     children: resourceListLocal.map((mediaCollectionArg) {
                       if (mediaCollectionArg.params == null) {
                         return SearchTopResultView(controller: controller);
