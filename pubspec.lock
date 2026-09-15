@@ -895,19 +895,19 @@ packages:
     description:
       path: player_base
       ref: main
-      resolved-ref: "3017d5941e268535e9521b57e7125385fb1e656e"
+      resolved-ref: "054ddfc0fe408eadf05321c354927af2988ffdcb"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "2.0.6"
+    version: "2.0.7"
   player_playback:
     dependency: "direct main"
     description:
       path: player_playback
       ref: main
-      resolved-ref: "3017d5941e268535e9521b57e7125385fb1e656e"
+      resolved-ref: "054ddfc0fe408eadf05321c354927af2988ffdcb"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "1.6.7"
+    version: "1.6.8"
   plugin_platform_interface:
     dependency: transitive
     description:
