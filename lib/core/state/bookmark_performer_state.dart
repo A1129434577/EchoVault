@@ -33,13 +33,14 @@ class BookmarkPerformerState with ChangeNotifier {
   void toggleBookmark() async {
     PerformerDetails artistLocal = notifier.value;
     artistLocal.isFavorite ^= 1;
+    notifier.notifyListeners();
     if (artistLocal.isFavorite == 1) {
       MessageOverlay.presentMessage('Added to favorites.'.translate);
+      await PerformerRepository.addArtistInfo(artistLocal);
     } else {
       MessageOverlay.presentMessage('Removed from Favorites.'.translate);
+      await PerformerRepository.removeArtistInfo(artistLocal);
     }
-    notifier.notifyListeners();
-    await PerformerRepository.addArtistInfo(artistLocal);
     _bookmarkEvents.add(artistLocal);
   }
 }
