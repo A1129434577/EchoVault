@@ -93,8 +93,8 @@ class PreferenceState with ChangeNotifier {
     await DefaultCacheManager().emptyCache();
     String fileCachePathLocal = await FileInfo.filesCacheDirectoryPath;
     Directory fileCacheDirectoryLocal = Directory(fileCachePathLocal);
-    if (fileCacheDirectoryLocal.existsSync()) {
-      fileCacheDirectoryLocal.deleteSync(recursive: true);
+    if (await fileCacheDirectoryLocal.exists()) {
+      await fileCacheDirectoryLocal.delete(recursive: true);
     }
   }
 
@@ -109,11 +109,11 @@ class PreferenceState with ChangeNotifier {
       await FileInfo.filesCacheDirectoryPath,
     );
     int fileCacheSizeLocal = 0;
-    if (cacheFileDirectoryLocal.existsSync()) {
-      List<FileSystemEntity> entries = cacheFileDirectoryLocal.listSync(
+    if (await cacheFileDirectoryLocal.exists()) {
+      List<FileSystemEntity> entries = await cacheFileDirectoryLocal.list(
         recursive: true,
         followLinks: false,
-      );
+      ).toList();
       for (FileSystemEntity entity in entries) {
         fileCacheSizeLocal += (await entity.stat()).size;
       }

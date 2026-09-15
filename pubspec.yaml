@@ -74,7 +74,7 @@ dependencies:
       url: git@github.com:A1129434577/zy_common.git
       path: ad
       ref: ad_admob_pure
-    version: ^5.6.6
+    version: ^5.7.0
 
 dev_dependencies:
   flutter_test:

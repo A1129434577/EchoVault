@@ -224,14 +224,14 @@ class DiscoveryState with ChangeNotifier {
     String cachedMediaPath =
         '${await FileInfo.filesCacheDirectoryPath}${Platform.pathSeparator}home_cache_data';
     File fileLocal = File(cachedMediaPath);
-    if (fileLocal.existsSync()) {
+    if (await fileLocal.exists()) {
       String serializedJson = await fileLocal.readAsString();
       List lLocal = [];
       try {
         lLocal = jsonDecode(serializedJson);
       } catch (_) {}
       if (lLocal.isEmpty) {
-        fileLocal.deleteSync();
+        await fileLocal.delete();
         return;
       }
       _originalResourceList = lLocal;

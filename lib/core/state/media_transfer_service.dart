@@ -45,11 +45,11 @@ class MediaTransferService {
     String cachedMediaPath = await mediaEntry.cacheFilePath;
 
     File fileLocal = File(filePathLocal);
-    if (fileLocal.existsSync()) {
+    if (await fileLocal.exists()) {
       return filePathLocal;
     }
     File cacheFileLocal = File(cachedMediaPath);
-    if (cacheFileLocal.existsSync()) {
+    if (await cacheFileLocal.exists()) {
       return cachedMediaPath;
     }
 
@@ -124,30 +124,21 @@ class MediaTransferService {
     String cachedMediaPath = await mediaEntry.cacheFilePath;
 
     File fileLocal = File(filePathLocal);
-    if (fileLocal.existsSync()) {
+    if (await fileLocal.exists()) {
       //文件已下载
       mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
       _transferEvents.add(mediaEntry);
       return filePathLocal;
     }
     File cacheFileLocal = File(cachedMediaPath);
-    if (cacheFileLocal.existsSync()) {
-      bool suc = await compute((rootIsolateTokenInputArg) async {
-        BackgroundIsolateBinaryMessenger.ensureInitialized(
-          rootIsolateTokenInputArg,
-        );
-        try{
-          cacheFileLocal.copySync(filePathLocal);
-          cacheFileLocal.deleteSync();
-          return true;
-        }catch(_){}
-        return false;
-      }, RootIsolateToken.instance!);
-      if(suc) {
+    if (await cacheFileLocal.exists()) {
+      try{
+        await cacheFileLocal.copy(filePathLocal);
+        await cacheFileLocal.delete();
         mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
         _transferEvents.add(mediaEntry);
         return filePathLocal;
-      }
+      }catch(_){}
     }
 
     String? resultPathLocal = await reconcileTaskToFileInfo(mediaEntry);
@@ -261,19 +252,14 @@ class MediaTransferService {
       }
       if (mediaEntry != null) {
         if (newStatusLocal == DownloadTaskStatus.complete) {
-          compute((rootIsolateTokenInputArg) async {
-            BackgroundIsolateBinaryMessenger.ensureInitialized(
-              rootIsolateTokenInputArg,
-            );
-            //下载完成后将文件拷贝至对应文件夹
-            File tempFileLocal = File(await mediaEntry!.tempFilePath);
-            if (tempFileLocal.existsSync()) {
-              try{
-                tempFileLocal.copySync(await mediaEntry.filePath);
-                tempFileLocal.deleteSync();
-              }catch(_){}
-            }
-          }, RootIsolateToken.instance!);
+          //下载完成后将文件拷贝至对应文件夹
+          File tempFileLocal = File(await mediaEntry.tempFilePath);
+          if (await tempFileLocal.exists()) {
+            try{
+              await tempFileLocal.copy(await mediaEntry.filePath);
+              await tempFileLocal.delete();
+            }catch(_){}
+          }
         }
         mediaEntry.downloadProgress = newProgressLocal;
         mediaEntry.downloadStatus = newStatusLocal.index;
@@ -289,19 +275,14 @@ class MediaTransferService {
       FileInfo? cacheFileInfoLocal = activeCacheTasks[taskIdLocal];
       if (cacheFileInfoLocal != null) {
         if (newStatusLocal == DownloadTaskStatus.complete) {
-          compute((rootIsolateTokenInputArg) async {
-            BackgroundIsolateBinaryMessenger.ensureInitialized(
-              rootIsolateTokenInputArg,
-            );
-            //下载完成后将文件拷贝至对应文件夹
-            File tempFileLocal = File(await cacheFileInfoLocal.tempFilePath);
-            if (tempFileLocal.existsSync()) {
-              try{
-                tempFileLocal.copySync(await cacheFileInfoLocal.cacheFilePath);
-                tempFileLocal.deleteSync();
-              }catch(_){}
-            }
-          }, RootIsolateToken.instance!);
+          //下载完成后将文件拷贝至对应文件夹
+          File tempFileLocal = File(await cacheFileInfoLocal.tempFilePath);
+          if (await tempFileLocal.exists()) {
+            try{
+              await tempFileLocal.copy(await cacheFileInfoLocal.cacheFilePath);
+              await tempFileLocal.delete();
+            }catch(_){}
+          }
         }
         if (newStatusLocal == DownloadTaskStatus.complete ||
             newStatusLocal == DownloadTaskStatus.failed ||
@@ -336,7 +317,7 @@ class MediaTransferService {
     }
     String filePathLocal = await mediaEntry.filePath;
     File fileLocal = File(filePathLocal);
-    if (fileLocal.existsSync()) {
+    if (await fileLocal.exists()) {
       await fileLocal.delete();
     }
     mediaEntry.downloadTaskId = null;
@@ -362,21 +343,14 @@ class MediaTransferService {
         //如果发现已经完成，直接更新状态
         String filePathLocal = await mediaEntry.filePath;
         File tempFileLocal = File(await mediaEntry.tempFilePath);
-        if (tempFileLocal.existsSync()) {
-          bool suc = await compute((rootIsolateToken) async {
-            BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-            try{
-              tempFileLocal.copySync(filePathLocal);
-              tempFileLocal.deleteSync();
-              return true;
-            }catch(_){}
-            return false;
-          }, RootIsolateToken.instance!);
-          if(suc) {
+        if (await tempFileLocal.exists()) {
+          try{
+            await tempFileLocal.copy(filePathLocal);
+            await tempFileLocal.delete();
             mediaEntry.downloadStatus = DownloadTaskStatus.complete.index;
             _transferEvents.add(mediaEntry);
             return mediaEntry;
-          }
+          }catch(_){}
         }
       } else if (transferTaskLocal.status == DownloadTaskStatus.paused) {
         String? newTaskIdLocal = await FlutterDownloader.resume(
@@ -425,18 +399,12 @@ class MediaTransferService {
           filePathLocal = await mediaEntry.cacheFilePath;
         }
         File tempFileLocal = File(await mediaEntry.tempFilePath);
-        if (tempFileLocal.existsSync()) {
-          return await compute((rootIsolateTokenInputArg) async {
-            BackgroundIsolateBinaryMessenger.ensureInitialized(
-              rootIsolateTokenInputArg,
-            );
-            try{
-              tempFileLocal.copySync(filePathLocal);
-              tempFileLocal.deleteSync();
-              return filePathLocal;
-            }catch(_){}
-            return null;
-          }, RootIsolateToken.instance!);
+        if (await tempFileLocal.exists()) {
+          try{
+            await tempFileLocal.copy(filePathLocal);
+            await tempFileLocal.delete();
+            return filePathLocal;
+          }catch(_){}
         }
       }
     }
