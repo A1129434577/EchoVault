@@ -94,9 +94,7 @@ class SearchState with ChangeNotifier {
       isSearchBarEmpty.value = editingController.text.isEmpty;
       if (isSearchBarEmpty.value) {
         resourceList.value = null;
-        if (state.value != ResourceStatus.source) {
-          state.value = ResourceStatus.idl;
-        }
+        state.value = ResourceStatus.idl;
       }
       if (focusNode.hasFocus && editingController.text.isNotEmpty) {
         needShowSuggestions.value = true;
@@ -152,12 +150,17 @@ class SearchState with ChangeNotifier {
     } else {
       await _fetchYTData(mediaOrigin: mediaOrigin);
     }
-    if (resourceList.value?.isEmpty == true) {
-      state.value = ResourceStatus.empty;
-    } else if (resourceList.value?.isNotEmpty == true) {
-      state.value = ResourceStatus.source;
-    } else {
-      state.value = ResourceStatus.error;
+    if(isSearchBarEmpty.value){
+      //搜索过程中被取消了
+      resourceList.value = null;
+    }else {
+      if (resourceList.value?.isEmpty == true) {
+        state.value = ResourceStatus.empty;
+      } else if (resourceList.value?.isNotEmpty == true) {
+        state.value = ResourceStatus.source;
+      } else {
+        state.value = ResourceStatus.error;
+      }
     }
   }
 

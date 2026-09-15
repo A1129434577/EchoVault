@@ -139,19 +139,6 @@ class RemoteFeatureSettings {
 }
 
 class RemoteAdUnitParser {
-  static Widget closeButton() {
-    return Container(
-      height: 24,
-      width: 24,
-      alignment: Alignment.center,
-      margin: EdgeInsets.only(top: 6, left: 6),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.black.withAlpha((255 * 0.5).round()),
-      ),
-      child: Icon(Icons.close, size: 15, color: Colors.white),
-    );
-  }
 
   static AdUnitRemoteConfig fromJson(Map jsonArg) {
     AdFormatType typeLocal = AdFormatType.fromValue(
@@ -163,15 +150,6 @@ class RemoteAdUnitParser {
       source: AdSource.fromValue(jsonArg[AdRemoteParser.providerField]),
       level: jsonArg[AdRemoteParser.priorityField] ?? 0,
     );
-    if (typeLocal == AdFormatType.native || typeLocal == AdFormatType.banner) {
-      unitRemoteConfigLocal.closeButtonBuilder = () {
-        return closeButton();
-      };
-      unitRemoteConfigLocal.size = AdSize(
-        width: (AdHelper.screenWidth - 16 * 2).toInt(),
-        height: (((AdHelper.screenWidth - 16 * 2)) * (250 / 300)).toInt(),
-      );
-    }
     return unitRemoteConfigLocal;
   }
 }

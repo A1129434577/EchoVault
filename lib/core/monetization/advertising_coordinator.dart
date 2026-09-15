@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:ad/ad.dart';
 import 'package:echo_vault/core/monetization/advertising_display_coordinator.dart';
 import 'package:echo_vault/core/configuration/remote_feature_settings.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 export 'package:ad/ad.dart';
 
@@ -162,12 +164,23 @@ class AdvertisingCoordinator {
       }
     }
     AdHelper.allSceneConfig.forEach((adScene, adUnitConfigList) {
+      if(adUnitConfigList==null) return;
       for (AdUnitRemoteConfig adUnitConfig in adUnitConfigList) {
         for (AdUnitRemoteConfig adUnitC in [adUnitConfig, if(adUnitConfig.child!=null)adUnitConfig.child!]) {
           setUnitTestAd(adUnitC);
           if(adUnitC.type == AdFormatType.native || adUnitC.type == AdFormatType.banner){
-            adUnitConfig.closeButtonBuilder = (){
-              return RemoteAdUnitParser.closeButton();
+            adUnitC.closeButtonBuilder = (){
+              return Container(
+                height: 24,
+                width: 24,
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(top: 6, left: 6),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withAlpha((255 * 0.5).round()),
+                ),
+                child: Icon(Icons.close, size: 15, color: Colors.white),
+              );
             };
 
             if(adUnitC.type == AdFormatType.banner){
@@ -180,6 +193,7 @@ class AdvertisingCoordinator {
         }
       }
     });
+    print(AdHelper.allSceneConfig);
   }
 }
 

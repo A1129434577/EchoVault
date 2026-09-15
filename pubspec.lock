@@ -14,10 +14,10 @@ packages:
     description:
       path: ad
       ref: ad_admob_pure
-      resolved-ref: ced405c2fdeee402b859ac97aab2d71ff8b3953c
+      resolved-ref: "0b3a3276599f5b9b565c35fb9cb43992254522a1"
       url: "git@github.com:A1129434577/zy_common.git"
     source: git
-    version: "5.6.6"
+    version: "5.7.0"
   advertising_id:
     dependency: transitive
     description:
@@ -494,90 +494,90 @@ packages:
     dependency: transitive
     description:
       name: gma_mediation_applovin
-      sha256: d3f6a588de3ff48b0ddb9558e6577edf161814753737b879360fe0e1893ad09a
+      sha256: "8310f8f508cc4a2f8a62db322e3d4c26767b44f1461c894d0481d25b70fc85e1"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.6.0"
+    version: "2.6.2"
   gma_mediation_dtexchange:
     dependency: transitive
     description:
       name: gma_mediation_dtexchange
-      sha256: "88e2bcb8c45b8b27de95b4c72c06aece704afd862f8c7b8694db2f59b184d7e8"
+      sha256: "93e83591432c84f70575865030712c726807c962955eb4da9bfa8c7483f9ace6"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.3.4"
+    version: "1.3.6"
   gma_mediation_inmobi:
     dependency: transitive
     description:
       name: gma_mediation_inmobi
-      sha256: "6a467a1c2b9526d126bf9730be8bf65ac7ad074e745183b97037ba0f24093eb0"
+      sha256: a3c287d49abba10c5b4baaa9e7ea61b665999f03d860296cc6821d0614b3cb94
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.2.0"
+    version: "2.3.1"
   gma_mediation_ironsource:
     dependency: transitive
     description:
       name: gma_mediation_ironsource
-      sha256: f1d5a8b96d38e915e081540eb57ed9eeef3f6c6f33476de19c9050354825891c
+      sha256: fb6a1d006bd77c0e016e4575c8a84ab0c9fa6a24c45dafb98aa62c51435f9d08
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.4.2"
+    version: "2.5.1"
   gma_mediation_liftoffmonetize:
     dependency: transitive
     description:
       name: gma_mediation_liftoffmonetize
-      sha256: c3ed8a92a717f477cf5909a7f4ce0c96dc7ff86427d84ef6716ab590035345c9
+      sha256: "0df3ab01dfc198c86b8c54de1b69a39b5f6553ea9b79440cc837dea50f918eee"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.4"
   gma_mediation_meta:
     dependency: transitive
     description:
       name: gma_mediation_meta
-      sha256: d65dd79c51f6161aaac8c9b07f9a921f73a560d275a15106f440be2016c766bc
+      sha256: f2a8019cc51d9aed49513f1224ca80f59e67d3f4f1b72bc6bfc4da3afa9e8c67
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.5.2"
+    version: "1.7.0"
   gma_mediation_mintegral:
     dependency: transitive
     description:
       name: gma_mediation_mintegral
-      sha256: b1488b4e5979ba4705717e736708966eeb886a4bbfc1db2e563d8d37828896d5
+      sha256: b96f39e50a41ebe50bee9d4bd10afcb8a94b5b3043f5cb4551d8dd015be9d702
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.3"
   gma_mediation_moloco:
     dependency: transitive
     description:
       name: gma_mediation_moloco
-      sha256: "48da090933c160b2b1f450bd4a33caaab569b182a838de01008150f971c7f21c"
+      sha256: "61d6d4f1593dc62c5453d9d41bcc22f5b5d9b2c350cdf79336234c7c5fe2c44d"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.4.0"
+    version: "3.7.0"
   gma_mediation_pangle:
     dependency: transitive
     description:
       name: gma_mediation_pangle
-      sha256: ea8112f5419c1606bc13d7fcdc75a716cf0bf27cb7d368c385543c0c5d41f9d6
+      sha256: "444190e219295c2383cd1c8843cf093fe2479a29d7d33a3b4fce5e68c7eab466"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.6.0"
+    version: "4.1.1"
   gma_mediation_unity:
     dependency: transitive
     description:
       name: gma_mediation_unity
-      sha256: "42d039d2b7fb6c2a7702cbe64bbe4465e6d5b29e83e4fd67936366da6f3597e1"
+      sha256: "0fcad412e2cf5418e03db92efd0e0cfab0c3e33ca15e46a7ccf86d7c33fe0848"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.8.1"
+    version: "1.10.0"
   google_mobile_ads:
     dependency: transitive
     description:
       name: google_mobile_ads
-      sha256: "50549f6c945d7a445d53c04f34d025b1a1723fbd02719de9e67de432e2597f40"
+      sha256: "8094e1ace8b0da33fe79027ca6959763c96a28855025cb7c8ec60838e1d56ed8"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "8.0.0"
+    version: "9.1.0"
   hooks:
     dependency: transitive
     description:

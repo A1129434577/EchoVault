@@ -9,18 +9,21 @@ enum ResourceStatus { idl, loading, source, empty, error }
 class ResourceStateView extends StatelessWidget {
   final ResourceStatus state;
   final Widget child;
+  final bool isFadeChild;
   final VoidCallback? action;
   const ResourceStateView({
     super.key,
     this.state = ResourceStatus.idl,
     required this.child,
+    this.isFadeChild=false,
     this.action,
   });
 
   @override
   Widget build(BuildContext context) {
+    Widget? stateWidget;
     if (state == ResourceStatus.loading) {
-      return Column(
+      stateWidget = Column(
         children: [
           Spacer(flex: 3),
           Container(
@@ -31,9 +34,9 @@ class ResourceStateView extends StatelessWidget {
         ],
       );
     } else if (state == ResourceStatus.empty) {
-      return EmptyStateView();
+      stateWidget = EmptyStateView();
     } else if (state == ResourceStatus.error) {
-      return EmptyStateView(
+      stateWidget = EmptyStateView(
         title: 'Network error.',
         action: action != null
             ? SizedBox(
@@ -46,6 +49,21 @@ class ResourceStateView extends StatelessWidget {
               )
             : null,
       );
+    }
+    if(isFadeChild){
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Opacity(
+            opacity: stateWidget==null?1:0,
+            child: child,
+          ),
+          ?stateWidget,
+        ],
+      );
+    }
+    if(stateWidget != null) {
+      return stateWidget;
     }
     return child;
   }

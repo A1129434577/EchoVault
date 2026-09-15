@@ -76,10 +76,11 @@ class _SearchScreenState extends State<SearchScreen>
               valueListenable: controller.state,
               builder: (BuildContext context, ResourceStatus state, Widget? child) {
                 return ResourceStateView(
-                  state: state,
                   action: () {
                     controller.fetchData(controller.editingController.text);
                   },
+                  state: state,
+                  isFadeChild: true,
                   child: ValueListenableBuilder(
                     valueListenable: controller.isSearchBarEmpty,
                     builder: (BuildContext context, bool isSearchBarEmpty, Widget? child) {
@@ -109,14 +110,12 @@ class _SearchScreenState extends State<SearchScreen>
                                             ),
                                             child: Stack(
                                               children: [
-                                                FadeTransition(
-                                                  opacity: AlwaysStoppedAnimation(
-                                                    ((resourceList == null ||
-                                                                isEditing) &&
-                                                            !needShowSuggestions)
-                                                        ? 1
-                                                        : 0,
-                                                  ),
+                                                Opacity(
+                                                  opacity: ((resourceList == null ||
+                                                      isEditing) &&
+                                                      !needShowSuggestions)
+                                                      ? 1
+                                                      : 0,
                                                   child: Padding(
                                                     padding: EdgeInsets.only(
                                                       top: 10,
@@ -184,12 +183,15 @@ class _SearchScreenState extends State<SearchScreen>
     return Column(
       spacing: 16,
       children: [
-        if (resourceListLocal.length > 1)
+        if (resourceListLocal.isNotEmpty)
           TabNavigationView(
             controller: tabController,
             titles: resourceListLocal.map((mediaCollectionArg) {
               return mediaCollectionArg.name;
             }).toList(),
+            onTap: (index){
+              SearchScreen.selectedResultTab.value = index;
+            },
           ),
         Expanded(
           child: ValueListenableBuilder(
