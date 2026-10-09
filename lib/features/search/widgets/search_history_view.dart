@@ -14,9 +14,7 @@ import 'package:echo_vault/core/persistence/user_preference_keys.dart';
 class SearchHistoryState with ChangeNotifier {
   ValueNotifier<List<String>> keywordList = ValueNotifier([]);
 
-  late final ValueNotifier<AdInfo?> searchNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[scene],
-  );
+  late final ValueNotifier<AdInfo?> searchNatoAd = ValueNotifier(null);
 
   StreamSubscription? _adLoadSubscription;
   late VoidCallback _mainTabIndexListener;
@@ -26,6 +24,10 @@ class SearchHistoryState with ChangeNotifier {
   SearchHistoryState({required this.tag}) {
     if (tag == SearchScreen.discoveryEntryTag) {
       scene = AdvertisingScene.searchHomeNative;
+    }
+    AdInfo? adInfo = AdHelper.adSceneCacheInfo[scene];
+    if(adInfo?.isNotEmpty()==true){
+      searchNatoAd.value = adInfo;
     }
     AdHelper.loadSceneAdIfNull(
       scene: scene,

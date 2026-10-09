@@ -52,7 +52,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       UpgradeDialog.show();
     });
-    controller.fetchAllLocalData().then((e) async {
+    controller.fetchAllLocalData().
+    catchError((e){}).
+    then((e) async {
       controller.refreshController.callRefresh();
     });
   }

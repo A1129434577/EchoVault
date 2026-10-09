@@ -129,7 +129,6 @@ class AdvertisingCoordinator {
       AdvertisingScene.searchHomeNative:
           _fallbackPlacements[AdvertisingScene.searchResultsNative]!,
     });
-    AdHelper.openAppWaitSeconds = 8;
     if(kDebugMode) {
       AdHelper.adIntervalSeconds = 15;
     }

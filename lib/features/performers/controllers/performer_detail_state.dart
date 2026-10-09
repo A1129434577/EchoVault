@@ -55,7 +55,9 @@ class PerformerDetailState with ChangeNotifier {
           PerformerParserKeys.fallbackCoverPath,
         ) ??
         '';
-    performerDetails.thumbnail = hdThumbnail.value;
+    if(hdThumbnail.value.isNotEmpty) {
+      performerDetails.thumbnail = hdThumbnail.value;
+    }
     response =
         ParserHelper.parse<List>(
           response,

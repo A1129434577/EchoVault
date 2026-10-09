@@ -62,8 +62,8 @@ class PlaybackCoordinator with ChangeNotifier {
           //3.文件比较大的不提前缓存
           if (nextFileInfoLocal.type !=
               MediaType.MUSIC_VIDEO_TYPE_PODCAST_EPISODE.name) {
-            if (MediaTransferService.activeDownloads.values.where((e)=>e.fileId==mediaEntry.fileId).isEmpty &&
-                MediaTransferService.activeCacheTasks.values.where((e)=>e.fileId==mediaEntry.fileId).isEmpty) {
+            if (MediaTransferService.activeDownloads.values.where((e)=>e.fileId==nextFileInfoLocal?.fileId).isEmpty &&
+                MediaTransferService.activeCacheTasks.values.where((e)=>e.fileId==nextFileInfoLocal?.fileId).isEmpty) {
               //缓存下一个音乐
               MediaTransferService.cache(
                 mediaEntry: nextFileInfoLocal,
@@ -133,14 +133,9 @@ class PlaybackCoordinator with ChangeNotifier {
       //ios任何局部广告或全屏广告播放过程中AudioSession容易被中断，所以需要恢复一下
       if (AdHelper.isFullScreenAdShowing.value ||
           AdHelper.isNativePartAdVisible.value) {
-        if (Platform.isIOS && PlayerRecoverHelper.isManualPause == false) {
-          _recoverTimer ??= Timer.periodic(Duration(milliseconds: 500), (
-            timer,
-          ) async {
-            await PlayerPlayback.instance.audioSession.configure(
-              AudioSessionConfiguration.music(),
-            );
-            await PlayerPlayback.instance.audioSession.setActive(true);
+        if (PlayerRecoverHelper.isManualPause == false) {
+          _recoverTimer ??= Timer.periodic(Duration(milliseconds: Platform.isIOS?1000:500), (timer) async {
+            PlayerRecoverHelper.tryRecoverPlay(count: 1);
           });
         }
       } else {

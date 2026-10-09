@@ -364,6 +364,7 @@ class _SearchScreenState extends State<SearchScreen>
                           mediaOrigin: 'association',
                         );
                       },
+                      behavior: HitTestBehavior.translucent,
                       child: Container(
                         color: Colors.transparent,
                         height: 20,

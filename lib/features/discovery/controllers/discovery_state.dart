@@ -100,109 +100,119 @@ class DiscoveryState with ChangeNotifier {
   }
 
   Future<List<PerformerDetails>> fetchMyArtist() async {
-    List<PerformerDetails> entries =
-        await PerformerRepository.fetchArtistInfo();
-    if (entries.isEmpty) {
-      final encryptedJsonLocal = await rootBundle.loadString(
-        Assets.data.artSeed,
-      );
-      String artisJsonStringLocal = StringCipher.decrypt(encryptedJsonLocal);
-      List artisMapListLocal = jsonDecode(artisJsonStringLocal);
-      for (final artistMap in artisMapListLocal) {
-        PerformerDetails performerProfile = PerformerDetails.fromJson(
-          artistMap,
+    try{
+      List<PerformerDetails> entries =
+      await PerformerRepository.fetchArtistInfo();
+      if (entries.isEmpty) {
+        final encryptedJsonLocal = await rootBundle.loadString(
+          Assets.data.artSeed,
         );
-        await PerformerRepository.addArtistInfo(performerProfile);
-        entries.add(performerProfile);
+        String artisJsonStringLocal = StringCipher.decrypt(encryptedJsonLocal);
+        List artisMapListLocal = jsonDecode(artisJsonStringLocal);
+        for (final artistMap in artisMapListLocal) {
+          PerformerDetails performerProfile = PerformerDetails.fromJson(
+            artistMap,
+          );
+          await PerformerRepository.addArtistInfo(performerProfile);
+          entries.add(performerProfile);
+        }
       }
-    }
-    performers.value = entries;
-    return entries;
+      performers.value = entries;
+      return entries;
+    }catch(_){}
+    return [];
   }
 
   Future<List<MediaCollection>> fetchMyPlaylist() async {
     List<MediaCollection> collections = [];
-    List<FileInfo> likedListLocal = await CatalogState.instance
-        .fetchLikedList();
-    if (likedListLocal.isNotEmpty) {
-      collections.add(
-        MediaCollection(
-          name: 'Like songs'.translate,
-          thumbnail: Assets.images.collection.listFavorite.path,
-          children: likedListLocal,
-        ),
-      );
-    }
-    List<FileInfo> savedListLocal = await CatalogState.instance
-        .fetchSavedList();
-    if (savedListLocal.isNotEmpty) {
-      collections.add(
-        MediaCollection(
-          name: 'Local songs'.translate,
-          thumbnail: Assets.images.collection.listSaved.path,
-          children: savedListLocal,
-        ),
-      );
-    }
-    List<MediaCollection> groupListLocal =
-        CatalogState.instance.mediaCollections.value;
-    List<MediaCollection> newGroupListLocal = [];
-    for (final group in groupListLocal) {
-      if (group.id?.startsWith(NewCollectionDialog.generatedCollectionPrefix) ==
-          true) {
-        if (group.children.isNotEmpty) {
+    try{
+      List<FileInfo> likedListLocal = await CatalogState.instance
+          .fetchLikedList();
+      if (likedListLocal.isNotEmpty) {
+        collections.add(
+          MediaCollection(
+            name: 'Like songs'.translate,
+            thumbnail: Assets.images.collection.listFavorite.path,
+            children: likedListLocal,
+          ),
+        );
+      }
+      List<FileInfo> savedListLocal = await CatalogState.instance
+          .fetchSavedList();
+      if (savedListLocal.isNotEmpty) {
+        collections.add(
+          MediaCollection(
+            name: 'Local songs'.translate,
+            thumbnail: Assets.images.collection.listSaved.path,
+            children: savedListLocal,
+          ),
+        );
+      }
+      List<MediaCollection> groupListLocal =
+          CatalogState.instance.mediaCollections.value;
+      List<MediaCollection> newGroupListLocal = [];
+      for (final group in groupListLocal) {
+        if (group.id?.startsWith(NewCollectionDialog.generatedCollectionPrefix) ==
+            true) {
+          if (group.children.isNotEmpty) {
+            newGroupListLocal.add(group);
+          }
+        } else {
           newGroupListLocal.add(group);
         }
-      } else {
-        newGroupListLocal.add(group);
       }
-    }
-    collections.addAll(newGroupListLocal);
-    playlistList.value = collections;
+      collections.addAll(newGroupListLocal);
+      playlistList.value = collections;
+    }catch(_){}
     return collections;
   }
 
   Future<List<FileInfo>> fetchRecommend() async {
-    List<FileInfo> entries = await MediaRepository.fetchFileInfo(
-      whereArg:
-          '''
+    try{
+      List<FileInfo> entries = await MediaRepository.fetchFileInfo(
+        whereArg:
+        '''
     (json_content LIKE '%${'"source1":"${MediaOrigin.listeningHistory.name}"'}%')
     OR (json_content LIKE '%${'"source":"${MediaOrigin.homeRecommendations.name}"'}%')
     OR (download_status = 3)
     OR (is_favorite = 1)
     ''',
-    );
-    for (final mediaDetails in entries) {
-      mediaDetails.source = MediaOrigin.homeRecommendations;
-    }
-    if (entries.isNotEmpty) {
-      recommendList.value = entries;
-    }
-    return entries;
+      );
+      for (final mediaDetails in entries) {
+        mediaDetails.source = MediaOrigin.homeRecommendations;
+      }
+      if (entries.isNotEmpty) {
+        recommendList.value = entries;
+      }
+      return entries;
+    }catch(_){}
+    return [];
   }
 
   Future<List<MediaCollection>> fetchTopCharts() async {
     List<MediaCollection> collections = [];
-    final encryptedJsonLocal = await rootBundle.loadString(Assets.data.topSeed);
-    String serializedJson = StringCipher.decrypt(encryptedJsonLocal);
-    Map payload = jsonDecode(serializedJson);
-    Locale sysLocaleLocal = WidgetsBinding.instance.platformDispatcher.locale;
-    String countryCodeLocal = sysLocaleLocal.countryCode?.toLowerCase() ?? "us";
-    List jsonListLocal = payload['us'];
-    if (countryCodeLocal.contains('br')) {
-      jsonListLocal = payload['br'];
-    } else if (countryCodeLocal.contains('mx')) {
-      jsonListLocal = payload['mx'];
-    }
-    for (final map in jsonListLocal) {
-      MediaCollection mediaCollectionLocal = MediaCollection.fromJson(map);
-      mediaCollectionLocal.thumbnail =
-          Assets.images.media.albumPlaceholder.path;
-      mediaCollectionLocal.playlistType =
-          CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name;
-      collections.add(mediaCollectionLocal);
-    }
-    topChartsList.value = collections;
+    try{
+      final encryptedJsonLocal = await rootBundle.loadString(Assets.data.topSeed);
+      String serializedJson = StringCipher.decrypt(encryptedJsonLocal);
+      Map payload = jsonDecode(serializedJson);
+      Locale sysLocaleLocal = WidgetsBinding.instance.platformDispatcher.locale;
+      String countryCodeLocal = sysLocaleLocal.countryCode?.toLowerCase() ?? "us";
+      List jsonListLocal = payload['us'];
+      if (countryCodeLocal.contains('br')) {
+        jsonListLocal = payload['br'];
+      } else if (countryCodeLocal.contains('mx')) {
+        jsonListLocal = payload['mx'];
+      }
+      for (final map in jsonListLocal) {
+        MediaCollection mediaCollectionLocal = MediaCollection.fromJson(map);
+        mediaCollectionLocal.thumbnail =
+            Assets.images.media.albumPlaceholder.path;
+        mediaCollectionLocal.playlistType =
+            CollectionType.LOCKUP_CONTENT_TYPE_PLAYLIST.name;
+        collections.add(mediaCollectionLocal);
+      }
+      topChartsList.value = collections;
+    }catch(_){}
     return collections;
   }
 
@@ -214,39 +224,45 @@ class DiscoveryState with ChangeNotifier {
   }
 
   Future _cacheResourceData() async {
-    String cachedMediaPath =
-        '${await FileInfo.filesCacheDirectoryPath}${Platform.pathSeparator}home_cache_data';
-    File fileLocal = File(cachedMediaPath);
+    File fileLocal = File(await _cachePath());
+    if(await fileLocal.exists() == false){
+      await fileLocal.create(recursive: true);
+    }
     await fileLocal.writeAsString(jsonEncode(_originalResourceList));
   }
 
-  Future _getCacheResourceData() async {
+  Future<String> _cachePath() async {
     String cachedMediaPath =
         '${await FileInfo.filesCacheDirectoryPath}${Platform.pathSeparator}home_cache_data';
-    File fileLocal = File(cachedMediaPath);
-    if (await fileLocal.exists()) {
-      String serializedJson = await fileLocal.readAsString();
-      List lLocal = [];
-      try {
-        lLocal = jsonDecode(serializedJson);
-      } catch (_) {}
-      if (lLocal.isEmpty) {
-        await fileLocal.delete();
-        return;
-      }
-      _originalResourceList = lLocal;
-      List<MediaCollection> entries = await SharedParser.decodeContents(
-        _originalResourceList,
-      );
-      if (entries.isEmpty) {
-        isYoutubeMusicEnable.value = false;
-        entries = await MusicCatalogParser.decodeHomeContents(
+    return cachedMediaPath;
+  }
+  Future _getCacheResourceData() async {
+    try{
+      File fileLocal = File(await _cachePath());
+      if (await fileLocal.exists()) {
+        String serializedJson = await fileLocal.readAsString();
+        List lLocal = [];
+        try {
+          lLocal = jsonDecode(serializedJson);
+        } catch (_) {}
+        if (lLocal.isEmpty) {
+          await fileLocal.delete();
+          return;
+        }
+        _originalResourceList = lLocal;
+        List<MediaCollection> entries = await SharedParser.decodeContents(
           _originalResourceList,
         );
+        if (entries.isEmpty) {
+          isYoutubeMusicEnable.value = false;
+          entries = await MusicCatalogParser.decodeHomeContents(
+            _originalResourceList,
+          );
+        }
+        resourceFileGroupList.value.addAll(entries);
+        resourceFileGroupList.notifyListeners();
       }
-      resourceFileGroupList.value.addAll(entries);
-      resourceFileGroupList.notifyListeners();
-    }
+    }catch(_){}
   }
 
   Future _fetchResource({String? continuationArg, String? mediaOrigin}) async {
@@ -388,40 +404,42 @@ class DiscoveryState with ChangeNotifier {
 
   //恢复之前的播放
   Future _resumePlayback() async {
-    SharedPreferences spLocal = await SharedPreferences.getInstance();
-    String? serializedJson = spLocal.getString(
-      UserPreferenceKeys.playbackQueue,
-    );
-    if (serializedJson != null) {
-      final fileMapListLocal = jsonDecode(serializedJson);
-      if (fileMapListLocal.isNotEmpty) {
-        List<FileInfo> mediaQueue = [];
-        for (final info in fileMapListLocal) {
-          FileInfo mediaEntry = FileInfo.fromJson(info);
-          mediaQueue.add(mediaEntry);
+    try{
+      SharedPreferences spLocal = await SharedPreferences.getInstance();
+      String? serializedJson = spLocal.getString(
+        UserPreferenceKeys.playbackQueue,
+      );
+      if (serializedJson != null) {
+        final fileMapListLocal = jsonDecode(serializedJson);
+        if (fileMapListLocal.isNotEmpty) {
+          List<FileInfo> mediaQueue = [];
+          for (final info in fileMapListLocal) {
+            FileInfo mediaEntry = FileInfo.fromJson(info);
+            mediaQueue.add(mediaEntry);
+          }
+          int itemIndex = spLocal.getInt(UserPreferenceKeys.playbackIndex) ?? 0;
+          int playModeIndexLocal =
+              spLocal.getInt(UserPreferenceKeys.playbackMode) ?? 0;
+          PlayerPlayMode playModeLocal =
+          PlayerPlayMode.values[playModeIndexLocal];
+          PlayerPlayback.instance.playModeInfo.value = PlayerPlayModeInfo(
+            mode: playModeLocal,
+          );
+          PlayerPlayback.instance.insertPlayList(
+            mediaQueue,
+            isAuto: true,
+            playIndex: itemIndex,
+            startPlay: false,
+          );
         }
-        int itemIndex = spLocal.getInt(UserPreferenceKeys.playbackIndex) ?? 0;
-        int playModeIndexLocal =
-            spLocal.getInt(UserPreferenceKeys.playbackMode) ?? 0;
-        PlayerPlayMode playModeLocal =
-            PlayerPlayMode.values[playModeIndexLocal];
-        PlayerPlayback.instance.playModeInfo.value = PlayerPlayModeInfo(
-          mode: playModeLocal,
-        );
+      } else if (recommendList.value.isNotEmpty) {
         PlayerPlayback.instance.insertPlayList(
-          mediaQueue,
+          recommendList.value,
           isAuto: true,
-          playIndex: itemIndex,
+          playIndex: 0,
           startPlay: false,
         );
       }
-    } else if (recommendList.value.isNotEmpty) {
-      PlayerPlayback.instance.insertPlayList(
-        recommendList.value,
-        isAuto: true,
-        playIndex: 0,
-        startPlay: false,
-      );
-    }
+    }catch(_){}
   }
 }

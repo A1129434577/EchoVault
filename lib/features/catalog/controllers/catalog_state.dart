@@ -16,9 +16,7 @@ import 'package:echo_vault/features/primary_navigation_screen.dart';
 class CatalogState with ChangeNotifier {
   static final CatalogState _sharedState = CatalogState._();
 
-  final ValueNotifier<AdInfo?> libraryNatoAd = ValueNotifier(
-    AdHelper.adSceneCacheInfo[AdvertisingScene.libraryFeedNative],
-  );
+  final ValueNotifier<AdInfo?> libraryNatoAd = ValueNotifier(null);
 
   ValueNotifier<List<FileInfo>> savedList = ValueNotifier([]);
   ValueNotifier<List<FileInfo>> likedList = ValueNotifier([]);
@@ -31,6 +29,10 @@ class CatalogState with ChangeNotifier {
     return _sharedState;
   }
   CatalogState._() {
+    AdInfo? adInfo = AdHelper.adSceneCacheInfo[AdvertisingScene.libraryFeedNative];
+    if(adInfo?.isNotEmpty()==true){
+      libraryNatoAd.value = adInfo;
+    }
     AdHelper.loadSceneAdIfNull(
       scene: AdvertisingScene.libraryFeedNative,
       detailScene: AdvertisingDetailScene.mediaLibrary,
